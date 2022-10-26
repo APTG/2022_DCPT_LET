@@ -1,2 +1,2 @@
-# let_mc_experiment2022
-Particle transport simulation of LET for the 2022 experiment at DCPT
+# 2022_DCPT_LET
+Particle transport simulation of LET for the 2022 audit experiment at DCPT
