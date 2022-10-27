@@ -1,2 +1,6 @@
-# 2022_DCPT_LET
-Particle transport simulation of LET for the 2022 audit experiment at DCPT
+# DCPT LET-measurements 2022
+
+## Background
+This repository provides access to all relevant MC simulations for calculating LET, and drived quantities.
+
+Multiple MC codes will be used.
