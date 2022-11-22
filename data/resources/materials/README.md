@@ -48,7 +48,7 @@ This should correspond to clear PMMA extruded "XT" version.
 
 
 ## AIR
-Dry, near sea level
+Dry, near sea level (20° C, 1 atm)
 
 ICRU material 104:
 https://physics.nist.gov/cgi-bin/Star/compos.pl?refer=ap&matno=104
