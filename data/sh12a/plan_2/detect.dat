@@ -1,0 +1,102 @@
+# -------- Setup basic scoring geoemetries ------------
+
+Geometry Mesh
+        Name XZ_map             # Longitudinal map
+        X -15.  15.   300
+        Y  -1.   1.   1
+        Z  -2.25 17.5 200
+
+Geometry Mesh
+        Name XY_map             # Lateral map
+        X -15.  15.   300
+        Y -15.  15.   300
+        Z -0.25 0.25  1
+
+Geometry Mesh
+        Name Z_narrow           # Narrow scoring along Z (lat. equib)
+        X  -1.  1.     1
+        Y  -1.  1.     1
+        Z  -2.25 17.5  200
+
+Geometry Mesh
+        Name Z_wide             # wide scoring along Z (no lat. equib)
+        X  -15.  15.     1
+        Y  -15.  15.     1
+        Z  -2.25 17.5    200
+
+
+Geometry Mesh
+        Name TARGET             # Sensitive volume (target)
+        X -2.5   2.5  1
+        Y -2.5   2.5  1
+        Z -0.1   0.1  1
+
+# ------- Define a few useful filters ----------
+Filter
+        Name Primary    # Only primary protons
+        GEN = 0
+        Z = 1
+        A = 1
+
+Filter
+        Name Protons    # Primary and secondary protons
+        Z = 1
+        A = 1
+
+
+# -------- Select what to score and output files ------------
+Output
+        Filename NB_XZ_map.bdo
+        Geo XZ_map
+        Quantity Fluence
+
+Output
+        Filename NB_XY.bdo
+        Geo XY_map
+        Quantity Fluence
+
+Output
+        Filename NB_Z_narrow_dose.bdo
+        Geo Z_narrow
+        Quantity Fluence
+        Quantity Dose
+        Quantity Dose Protons
+
+Output
+        Filename NB_Z_narrow_LET.bdo
+        Geo Z_narrow
+        Quantity DLET
+        Quantity DLET Primary
+        Quantity DLET Protons
+        Quantity TLET
+        Quantity TLET Primary
+        Quantity TLET Protons
+
+Output
+        Filename NB_Z_narrow_QEFF.bdo
+        Geo Z_narrow
+        Quantity DQEFF
+        Quantity DQEFF Primary
+        Quantity DQEFF Protons
+        Quantity TQEFF
+        Quantity TQEFF Primary
+        Quantity TQEFF Protons
+
+
+Output
+        Filename NB_target.bdo
+        Geo TARGET
+        Quantity FLUENCE
+        Quantity DOSE
+        Quantity DLET
+        Quantity DLET Primary
+        Quantity DLET Protons
+        Quantity TLET
+        Quantity TLET Primary
+        Quantity TLET Protons
+        Quantity DQEFF
+        Quantity DQEFF Primary
+        Quantity DQEFF Protons
+        Quantity TQEFF
+        Quantity TQEFF Primary
+        Quantity TQEFF Protons

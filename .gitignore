@@ -242,3 +242,8 @@ cython_debug/
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,c
+
+# Project specific ignores:
+for017
+*.png
+*.bdo
