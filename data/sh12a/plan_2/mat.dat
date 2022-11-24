@@ -1,0 +1,12 @@
+MEDIUM 1   # AIR
+ICRU 104
+END
+
+MEDIUM 2   # Solid water
+ICRU 276   # use water instead of solid water for now
+RHO 1.000
+END
+
+MEDIUM 3   # PMMA, Lucite, Plexiglass, Perspex
+ICRU 223
+END
