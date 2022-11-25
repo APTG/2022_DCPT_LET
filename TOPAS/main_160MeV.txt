@@ -1,18 +1,18 @@
 # Include beam information
 
 ########################################
-# beam
+# Beam & Geometry
 ########################################
 d:Ge/World/HLX = 1. m
 d:Ge/World/HLY = 1. m
 d:Ge/World/HLZ = 1. m
 s:Ge/World/Material = "Air"
 
-includeFile = Beam/sopb_1.txt
+includeFile = Beam/Mono_E_160MeV/160MeV.txt
 
 # d:So/MySource/BeamPositionZ= Ge/WaterPhantom/HLZ + 1.5 cm
 
-s:outdir = "output/"
+s:outdir = "output/160MeV"
 ########################################
 # Physics
 ########################################
@@ -54,74 +54,7 @@ d:Ma/Solid_Water/Density      = 1.039 g/cm3
 # u:Gr/ViewA/Zoom             = 2.
 b:Ts/PauseBeforeQuit = "FALSE"
 
-########################################
-# Geometry
-########################################
 
-# b:Ge/QuitIfOverlapDetected = "False"
-# Water Tank / Phantom
-
-# Solid Water SolidWater_Slaps 
-s:Ge/SolidWater_Slap1/Parent 		= "World"
-s:Ge/SolidWater_Slap1/Type   		= "TsBox"
-s:Ge/SolidWater_Slap1/Material		= "G4_WATER"
-d:Ge/SolidWater_Slap1/HLX 			= 15.0 cm
-d:Ge/SolidWater_Slap1/HLY 			= 5.0 cm
-d:Ge/SolidWater_Slap1/HLZ 			= 15.0 cm
-d:Ge/SolidWater_Slap1/TransX		= 0.0 cm
-d:Ge/SolidWater_Slap1/TransY		= 0.0 cm
-d:Ge/SolidWater_Slap1/TransZ		= 0.0 cm
-d:Ge/SolidWater_Slap1/RotX			= 0. deg
-d:Ge/SolidWater_Slap1/RotY			= 0. deg
-d:Ge/SolidWater_Slap1/RotZ			= 0. deg
-d:Ge/SolidWater_Slap1/MaxStepSize 	= 0.5 mm
-s:Ge/SolidWater_Slap1/Color      = "blue"
-
-s:Ge/SolidWater_Slap2/Parent 		= "World"
-s:Ge/SolidWater_Slap2/Type   		= "TsBox"
-s:Ge/SolidWater_Slap2/Material		= "G4_WATER"
-d:Ge/SolidWater_Slap2/HLX 			= 15.0 cm
-d:Ge/SolidWater_Slap2/HLY 			= 5.0 cm
-d:Ge/SolidWater_Slap2/HLZ 			= 15.0 cm
-d:Ge/SolidWater_Slap2/TransX		= 0.0 cm
-d:Ge/SolidWater_Slap2/TransY		= Ge/SolidWater_Slap1/HLY + Ge/SolidWater_Slap2/HLY cm
-d:Ge/SolidWater_Slap2/TransZ		= 0.0 cm
-d:Ge/SolidWater_Slap2/RotX			= 0. deg
-d:Ge/SolidWater_Slap2/RotY			= 0. deg
-d:Ge/SolidWater_Slap2/RotZ			= 0. deg
-d:Ge/SolidWater_Slap2/MaxStepSize 	= 0.5 mm
-s:Ge/SolidWater_Slap2/Color      = "green"
-
-
-s:Ge/pmma_slap/Parent 		= "World"
-s:Ge/pmma_slap/Type   		= "TsBox"
-s:Ge/pmma_slap/Material		= "Solid_Water"
-d:Ge/pmma_slap/HLX 			= 15.0 cm
-d:Ge/pmma_slap/HLZ 			= 15.0 cm
-d:Ge/pmma_slap/HLY 			= 2.5 mm
-d:Ge/pmma_slap/TransX		= 0.0 cm
-d:Ge/pmma_slap/TransY		= Ge/SolidWater_Slap2/TransY + 5.25 cm
-d:Ge/pmma_slap/TransZ		= 0.0 cm
-d:Ge/pmma_slap/RotX			= 0. deg
-d:Ge/pmma_slap/RotY			= 0. deg
-d:Ge/pmma_slap/RotZ			= 0. deg
-d:Ge/pmma_slap/MaxStepSize 	= 0.5 mm
-s:Ge/pmma_slap/Color      = "yellow"
-
-s:Ge/SolidWater_Slap3/Parent 		= "World"
-s:Ge/SolidWater_Slap3/Type   		= "TsBox"
-s:Ge/SolidWater_Slap3/Material		= "Solid_Water"
-d:Ge/SolidWater_Slap3/HLX 			= 15.0 cm
-d:Ge/SolidWater_Slap3/HLZ 			= 15.0 cm
-d:Ge/SolidWater_Slap3/HLY 			= 5.0 cm
-d:Ge/SolidWater_Slap3/TransX		= 0.0 cm
-d:Ge/SolidWater_Slap3/TransY		= Ge/pmma_slap/TransY + 5.25 cm
-d:Ge/SolidWater_Slap3/TransZ		= 0.0 cm
-d:Ge/SolidWater_Slap3/RotX			= 0. deg
-d:Ge/SolidWater_Slap3/RotY			= 0. deg
-d:Ge/SolidWater_Slap3/RotZ			= 0. deg
-d:Ge/SolidWater_Slap3/MaxStepSize 	= 0.5 mm
-s:Ge/SolidWater_Slap3/Color      = "red"
 
 ########################################
 # Scoring Geometry

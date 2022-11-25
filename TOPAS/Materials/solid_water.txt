@@ -1,8 +1,0 @@
-# Plastic water##########################
-# sv:Ma/Plastic_Water/Components  = 9 "Hydrogen" "Boron" "Carbon" "Nitrogen" "Oxygen" "Magnesium" "Aluminium" "Chlorine" "Calcium"
-# uv:Ma/Plastic_Water/Fractions   = 9 0.074 0.0226 0.467 0.0156 0.3352 0.0688 0.014 0.0024
-# d:Ma/Plastic_Water/Density      = 1.039 g/cm3
-
-sv:Ma/Solid_Water/Components  = 6 "Hydrogen" "Carbon" "Nitrogen" "Oxygen" "Chlorine" "Calcium"
-uv:Ma/Solid_Water/Fractions   = 6 0.081 0.672 0.024 0.199 0.001 0.023 
-d:Ma/Solid_Water/Density      = 1.039 g/cm3
