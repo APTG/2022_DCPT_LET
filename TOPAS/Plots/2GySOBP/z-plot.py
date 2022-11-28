@@ -3,8 +3,8 @@ import numpy as np
 from topas2numpy import BinnedResult
 
 files = []
-files.append(BinnedResult('Path to data file.csv'))
-files.append(BinnedResult('Path to data file.csv'))
+files.append(BinnedResult('path to data'))
+files.append(BinnedResult('path to data'))
 for data in files:
     print('{0} [{1}]'.format(data.quantity, data.unit))
     print(f'Statistics: {data.statistics}')
