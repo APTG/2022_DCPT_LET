@@ -18,3 +18,8 @@ MEDIUM 3   # PMMA, Lucite, Plexiglass, Perspex
 ICRU 223
 LOADDEDX
 END
+
+MEDIUM 4  # Water. This is needed for LET_water calculations.
+ICRU 276
+LOADDEDX
+END
