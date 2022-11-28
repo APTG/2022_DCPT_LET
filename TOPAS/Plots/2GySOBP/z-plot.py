@@ -7,7 +7,7 @@ files.append(BinnedResult('/home/villads/2022_DCPT_LET/TOPAS/output/protons.5924
 files.append(BinnedResult('/home/villads/2022_DCPT_LET/TOPAS/output/protons.592479/Scoring_protonLET_ZBox.csv'))
 for data in files:
     print('{0} [{1}]'.format(data.quantity, data.unit))
-    print('Statistics: {0}'.format(data.statistics))
+    print(f'Statistics: {data.statistics}')
     for dim in data.dimensions:
         print('{0} [{1}]: {2} bins'.format(dim.name, dim.unit, dim.n_bins))
 
