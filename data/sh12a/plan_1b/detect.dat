@@ -1,4 +1,4 @@
-# -------- Setup basic scoring geoemetries ------------
+# -------- Setup basic scoring geometries ------------
 
 Geometry Mesh
         Name XZ_map             # Longitudinal map
@@ -29,7 +29,7 @@ Geometry Mesh
         Name TARGET             # Sensitive volume (target)
         X -2.5   2.5  1
         Y -2.5   2.5  1
-        Z -0.1   0.1  1
+        Z  5.4   5.6  1
 
 # ------- Define a few useful filters ----------
 Filter

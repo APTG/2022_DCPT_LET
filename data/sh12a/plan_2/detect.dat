@@ -1,4 +1,4 @@
-# -------- Setup basic scoring geoemetries ------------
+# -------- Setup basic scoring geometries ------------
 
 Geometry Mesh
         Name XZ_map             # Longitudinal map
