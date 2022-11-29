@@ -28,7 +28,7 @@ There will 3 plans, and in total 5 measurement points:
   Distances are positive downstream the beam axis, traveling along the z-axis.
 
     a) Center of SOBP (z_c = 10.25 cm) [z_iso = 0.0 cm]\
-    b) Distal edge at 90 % dose falloff (z_d90 = 15.75 cm)  [z_iso_d90 = +5.50 cm] \
+    b) Distal edge at 95 % dose falloff (z_d95 = 15.75 cm)  [z_iso_d95 = +5.50 cm] \
     c) Distal edge at 80 % dose falloff (z_d80 = 16.05 cm)  [z_iso_d80 = +5.80 cm]
 
 - **Plan 2**: 160 MeV monoenergetic proton beam.\
