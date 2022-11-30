@@ -1,64 +1,7 @@
-# -------- Setup basic scoring geometries ------------
+# Results - file description
+The filenames are in the format `<filename>__p<number>.suffix` where filename and page number can looked up from the table below, describing what scorer was used. It should be fairly self-explanatory.
 
-Geometry Mesh
-        Name XZ_map             # Longitudinal map
-        X -15.  15.   300
-        Y  -1.   1.   1
-        Z  -10.25 10.25    205
-
-Geometry Mesh
-        Name XY_map             # Lateral map
-        X -15.  15.   300
-        Y -15.  15.   300
-        Z -0.25 0.25  1
-
-Geometry Mesh
-        Name Z_narrow           # Narrow scoring along Z (lat. equib)
-        X  -1.  1.     1
-        Y  -1.  1.     1
-        Z  -10.25 10.25  205
-
-Geometry Mesh
-        Name Z_wide             # wide scoring along Z (no lat. equib)
-        X  -15.  15.     1
-        Y  -15.  15.     1
-        Z  -10.25 10.25    205
-
-
-Geometry Mesh
-        Name TARGET             # Sensitive volume (target)
-        X -2.5   2.5  1
-        Y -2.5   2.5  1
-        Z -0.1   0.1  1
-
-# ------- Define a few useful filters ----------
-Filter
-        Name Primary    # Only primary protons
-        GEN = 0
-        Z = 1
-        A = 1
-
-Filter
-        Name Protons    # Primary and secondary protons
-        Z = 1
-        A = 1
-
-# ------- Select for scoring using water stopping power ----------
-Settings
-        Name in_Water
-        Medium 4
-
-# -------- Select what to score and output files ------------
-Output
-        Filename NB_XZ_map.bdo
-        Geo XZ_map
-        Quantity Dose
-
-Output
-        Filename NB_XY.bdo
-        Geo XY_map
-        Quantity Dose
-
+```
 Output
         Filename NB_Z_narrow_dose.bdo           # each quantity will be written to its own files
                                                 # with a page index in the file name, as indicated below...
@@ -133,3 +76,4 @@ Output
         Quantity TLET in_Water                  # __p5
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
+```

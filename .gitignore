@@ -247,3 +247,4 @@ cython_debug/
 for017
 *.png
 *.bdo
+run_*/
