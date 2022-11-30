@@ -245,6 +245,9 @@ cython_debug/
 
 # Project specific ignores:
 for017
-*.png
+
+#*.png
+#!/results/
+
 *.bdo
 run_*/
