@@ -43,6 +43,10 @@ Filter
         Z = 1
         A = 1
 
+# ------- Select for scoring using water stopping power ----------
+Settings
+        Name in_Water
+        Medium 4
 
 # -------- Select what to score and output files ------------
 Output
@@ -63,6 +67,13 @@ Output
         Quantity Dose Protons
 
 Output
+        Filename NB_Z_narrow_dose_water.bdo
+        Geo Z_narrow
+        Quantity Fluence
+        Quantity Dose in_Water
+        Quantity Dose Protons in_Water
+
+Output
         Filename NB_Z_narrow_LET.bdo
         Geo Z_narrow
         Quantity DLET
@@ -71,6 +82,16 @@ Output
         Quantity TLET
         Quantity TLET Primary
         Quantity TLET Protons
+
+Output
+        Filename NB_Z_narrow_LET_water.bdo
+        Geo Z_narrow
+        Quantity DLET in_Water
+        Quantity DLET Primary in_Water
+        Quantity DLET Protons in_Water
+        Quantity TLET in_Water
+        Quantity TLET Primary in_Water
+        Quantity TLET Protons in_Water
 
 Output
         Filename NB_Z_narrow_QEFF.bdo
@@ -100,3 +121,14 @@ Output
         Quantity TQEFF
         Quantity TQEFF Primary
         Quantity TQEFF Protons
+
+Output
+        Filename NB_target_water.bdo
+        Geo TARGET
+        Quantity DOSE in_Water
+        Quantity DLET in_Water
+        Quantity DLET Primary in_Water
+        Quantity DLET Protons in_Water
+        Quantity TLET in_Water
+        Quantity TLET Primary in_Water
+        Quantity TLET Protons in_Water
