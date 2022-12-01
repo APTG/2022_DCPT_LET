@@ -14,7 +14,7 @@ This slab will always be positioned so its center plane (0.25 cm depth in the PM
 position.
 - Target scoring volume should be small enough in z direction, and larger, but not too large latterally. We suggest:
   - 2 mm thick along z, centered on the reference depth as described below for the different plans.
-  - Latterally we suggest 5 cm in x and y, centered on the z-axis.
+  - Laterally we suggest 5 cm in x and y, centered on the z-axis.
 
 ## Plans and Measurement positions:
 There will 3 plans, and in total 5 measurement points:
