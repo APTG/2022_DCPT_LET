@@ -15,7 +15,7 @@ btxt="NB_target"
 
 td=`pwd`           # this directory where command was started from
 
-for dir in plan*
+for dir in input/plan*
 do
     echo
     ed=`ls -1 -d ${dir}/run_* | tail -1`  # extract from latest run directory only
