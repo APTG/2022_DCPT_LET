@@ -7,6 +7,11 @@ This repository provides access to all relevant MC simulations for calculating L
 
 Multiple MC codes will be used.
 
+We here always assume beam transport along the positive z-axis, as is convention for most MC codes, also to minimize
+confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
+
+A beam model is supplied, as described for a beam starting at z = -50 cm.
+
 ## Phantom design:
 - 30 x 30 cm² slabs of Gammex solid water, 20 cm thick
 - one 30 x 30 x 0.5 cm³ slab of PMMA which hold detectors of interest.
