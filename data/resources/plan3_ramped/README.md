@@ -1,0 +1,29 @@
+# Ramped field descriptions
+
+- Fields are similar to plan 1, but created using RayStation (Thanks to Erik Traneus) and are ramped.
+
+## `refrence`
+- is a flat SOBP, just for test purposes
+
+`RD1.2.752.243.1.1.20221206151952575.1000.46040.dcm`  Dose distirbution, RayStation
+`RP1.2.752.243.1.1.20221206151952575.9000.63363.dcm`  Spot data
+`RS1.2.752.243.1.1.20221205110227749.9000.25475.dcm`  Structure data
+
+## `ramp_10cm`
+- is a ramp across entire SOBP, starting at 100 % dose proximal edge, 0 % dose distal edge.
+
+`RD1.2.752.243.1.1.20221206155550324.5200.68653.dcm`  Dose distirbution, RayStation
+`RP1.2.752.243.1.1.20221206155550324.5100.86787.dcm`  Spot data
+`RS1.2.752.243.1.1.20221205110227749.9000.25475.dcm`  Structure data
+
+## `ramp_4cm`
+- is a special ramp:
+-- in PTV it starts at 90 % dose, and being flat for 3 cm.
+-- Then follows a 4 cm ramp starting at 90 % dose, stopping at 10 % dose,
+-- Finally a 3 cm flat section follows at 10 % dose.
+
+`RD1.2.752.243.1.1.20221206160246202.7300.21833.dcm`  Dose distirbution, RayStation
+`RP1.2.752.243.1.1.20221206160246202.7200.51467.dcm`  Spot data
+`RS1.2.752.243.1.1.20221205110227749.9000.25475.dcm`  Structure data
+
+Most likely we will proceed with ramp_4cm, and the irellevant ones will be deleted from the respository.
