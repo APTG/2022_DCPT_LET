@@ -40,6 +40,6 @@ lns = LETplot+DplotLET+Dplot
 labs = [l.get_label() for l in lns]
 ax1.legend(lns, labs, loc=0)
 # plt.vlines(x =[11.8, 12.8], ymin = 0, ymax =max(np.squeeze(dose.data['Sum'])), color = 'red', label = 'Cellflask 3')
-plt.show()
-# plt.savefig("TOPAS/Plots/2GySOBP/" + data.quantity)
+# plt.show()
+plt.savefig("data/topas/results/plan_1a/" + Dose.quantity +"_" + LET.quantity)
 
