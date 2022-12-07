@@ -2,7 +2,7 @@
 JPART0                        2                  # incident particle, 2 = protons
 TMAX0                      165.0         0.0     # Incident energy and energy spread (MeV/nucl)
 BEAMSIGMA                   -0.20        -0.20	 # SigmaX, SigmaY at focus point
-BEAMPOS                      0.0         0.0      -45.0  # Beam XYZ start pos
+BEAMPOS                      0.0         0.0      -50.0  # Beam XYZ start pos
 *BEAMDIV                     2.0         2.0      -50.0  # divx divy focus [mrad, mrad, cm]
 SAD                         200.0      256.0
 USECBEAM                sobp.dat                 # load spot scanning file
