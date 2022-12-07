@@ -1,0 +1,15 @@
+# This file is used to test the coordinatesystem of the DICOM files.
+includefile                  = field_1.txt
+
+d:Ge/gantryAngle             = 0. deg
+d:Ge/couchAngle              = 0. deg
+
+d:Ge/BeamPosition/TransX     = 0. mm
+d:Ge/BeamPosition/TransY     = 0. mm
+
+i:Tf/NumberOfSequentialTimes = 1
+d:Tf/TimelineStart           = 1 s
+d:Tf/TimelineEnd             = 2 s
+
+i:So/Field/NumberOfHistoriesInRun    = 2000
+sv:Ph/Default/Modules                = 1 "g4em-standard_opt3"
