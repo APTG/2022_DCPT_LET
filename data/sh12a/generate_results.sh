@@ -20,7 +20,8 @@ do
     echo
     ed=`ls -1 -d ${dir}/run_* | tail -1`  # extract from latest run directory only
     od=${ed}/output   # output directory
-    rd=results/${dir}  # result directory
+    rdd=`basename ${dir}`
+    rd=results/${rdd}  # result directory
 
     mkdir -p ${rd}
 
