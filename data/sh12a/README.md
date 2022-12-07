@@ -20,9 +20,9 @@ Windows:
 
 using `pro.cyfronet.pl`:
 
-assuming script is located in `$HOME`, you can run from this directory:
+From the same directory as this README file run following command:
 
-`$ generatemc -j100 -p1000000 -s "[ -p plgrid-short --time=0:59:00]" -e "[ -t 00:55:00]"  -m ~/run_shieldhit.sh plan_1a/`
+`$ generatemc -j100 -p1000000 -s "[ -p plgrid-short --time=0:59:00]" -e "[ -t 00:55:00]"  plan_1a/`
 
 and do this for every plan. 100 hours is plenty for good statistics.
 
