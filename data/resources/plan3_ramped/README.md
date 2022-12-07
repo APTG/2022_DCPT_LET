@@ -1,7 +1,7 @@
 # Ramped field descriptions
 
 - Fields are similar to plan 1, but created using RayStation and are ramped.
-- Kindly provided by to Erik Traneus.
+- Kindly provided by Erik Traneus.
 
 Plan names are subject to change.
 
