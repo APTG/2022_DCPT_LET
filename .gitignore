@@ -242,7 +242,7 @@ cython_debug/
 *.code-workspace
 
 # TOPAS output
-TOPAS/output
+data/topas/results/output
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,c
 

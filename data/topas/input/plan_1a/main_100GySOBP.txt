@@ -1,0 +1,168 @@
+# Include beam information
+
+########################################
+# Beam & Geometry
+########################################
+d:Ge/World/HLX = 1. m
+d:Ge/World/HLY = 1. m
+d:Ge/World/HLZ = 1. m
+s:Ge/World/Material = "Air"
+
+includeFile = data/topas/input/topas_beam/SOBPcent100Gy/field_1.txt
+
+# d:So/MySource/BeamPositionZ= Ge/WaterPhantom/HLZ + 1.5 cm
+
+s:outdir = "data/topas/results/100Gy/"
+########################################
+# Physics
+########################################
+sv:Ph/Default/Modules = 6 "g4em-standard_opt3" "g4h-phy_QGSP_BIC_HP" "g4decay" "g4ion-binarycascade" "g4h-elastic_HP" "g4stopping"
+i:Ts/NumberOfThreads = 0
+########################################
+# Sequence control
+########################################
+b:Ts/PauseBeforeSequence = "F"
+i:Ts/ShowHistoryCountAtInterval = 1000 # how often to print history count to the console
+# If set to 0, history count will never be printed
+b:Ts/ShowHistoryCountOnSingleLine = "FALSE" # Make count reuse a single line of console
+i:Tf/Verbosity = 0
+
+########################################
+# Materials
+########################################
+
+sv:Ma/PMMA/Components = 3 "Carbon" "Hydrogen" "Oxygen"
+uv:Ma/PMMA/Fractions = 3  0.599848  0.080538  0.319614
+d:Ma/PMMA/Density = 1.190 g/cm3  #1.190 g/cm3
+
+sv:Ma/Solid_Water/Components  = 6 "Hydrogen" "Carbon" "Nitrogen" "Oxygen" "Chlorine" "Calcium"
+uv:Ma/Solid_Water/Fractions   = 6 0.081 0.672 0.024 0.199 0.001 0.023 
+d:Ma/Solid_Water/Density      = 1.039 g/cm3
+
+
+########################################
+# Graphics
+########################################
+# s:Gr/ViewA/Type             = "OpenGL"
+# i:Gr/ViewA/WindowSizeX      = 1024
+# i:Gr/ViewA/WindowSizeY      = 768
+# b:Gr/ViewA/IncludeAxes      = "True"
+# d:Gr/ViewA/Theta            = 90 deg
+# d:Gr/ViewA/Phi              = 0 deg
+# s:Gr/ViewA/Projection       = "Perspective"
+# d:Gr/ViewA/PerspectiveAngle = 90 deg
+# u:Gr/ViewA/Zoom             = 2.
+b:Ts/PauseBeforeQuit = "FALSE"
+
+
+########################################
+# Geometry
+########################################
+
+# Solid Water SolidWater_slabs 
+s:Ge/SolidWater_slab1/Parent 		= "World"
+s:Ge/SolidWater_slab1/Type   		= "TsBox"
+s:Ge/SolidWater_slab1/Material		= "G4_WATER"
+d:Ge/SolidWater_slab1/HLX 			= 15.0 cm
+d:Ge/SolidWater_slab1/HLY 			= 5.0 cm
+d:Ge/SolidWater_slab1/HLZ 			= 15.0 cm
+d:Ge/SolidWater_slab1/TransX		= 0.0 cm
+d:Ge/SolidWater_slab1/TransY		= 0.0 cm
+d:Ge/SolidWater_slab1/TransZ		= 0.0 cm
+d:Ge/SolidWater_slab1/RotX			= 0. deg
+d:Ge/SolidWater_slab1/RotY			= 0. deg
+d:Ge/SolidWater_slab1/RotZ			= 0. deg
+d:Ge/SolidWater_slab1/MaxStepSize 	= 0.5 mm
+s:Ge/SolidWater_slab1/Color      = "blue"
+
+s:Ge/SolidWater_slab2/Parent 		= "World"
+s:Ge/SolidWater_slab2/Type   		= "TsBox"
+s:Ge/SolidWater_slab2/Material		= "G4_WATER"
+d:Ge/SolidWater_slab2/HLX 			= 15.0 cm
+d:Ge/SolidWater_slab2/HLY 			= 5.0 cm
+d:Ge/SolidWater_slab2/HLZ 			= 15.0 cm
+d:Ge/SolidWater_slab2/TransX		= 0.0 cm
+d:Ge/SolidWater_slab2/TransY		= Ge/SolidWater_slab1/HLY + Ge/SolidWater_slab2/HLY cm
+d:Ge/SolidWater_slab2/TransZ		= 0.0 cm
+d:Ge/SolidWater_slab2/RotX			= 0. deg
+d:Ge/SolidWater_slab2/RotY			= 0. deg
+d:Ge/SolidWater_slab2/RotZ			= 0. deg
+d:Ge/SolidWater_slab2/MaxStepSize 	= 0.5 mm
+s:Ge/SolidWater_slab2/Color      = "green"
+
+
+s:Ge/pmma_slab/Parent 		= "World"
+s:Ge/pmma_slab/Type   		= "TsBox"
+s:Ge/pmma_slab/Material		= "Solid_Water"
+d:Ge/pmma_slab/HLX 			= 15.0 cm
+d:Ge/pmma_slab/HLZ 			= 15.0 cm
+d:Ge/pmma_slab/HLY 			= 2.5 mm
+d:Ge/pmma_slab/TransX		= 0.0 cm
+d:Ge/pmma_slab/TransY		= Ge/SolidWater_slab2/TransY + 5.25 cm
+d:Ge/pmma_slab/TransZ		= 0.0 cm
+d:Ge/pmma_slab/RotX			= 0. deg
+d:Ge/pmma_slab/RotY			= 0. deg
+d:Ge/pmma_slab/RotZ			= 0. deg
+d:Ge/pmma_slab/MaxStepSize 	= 0.5 mm
+s:Ge/pmma_slab/Color      = "yellow"
+
+s:Ge/SolidWater_slab3/Parent 		= "World"
+s:Ge/SolidWater_slab3/Type   		= "TsBox"
+s:Ge/SolidWater_slab3/Material		= "Solid_Water"
+d:Ge/SolidWater_slab3/HLX 			= 15.0 cm
+d:Ge/SolidWater_slab3/HLZ 			= 15.0 cm
+d:Ge/SolidWater_slab3/HLY 			= 5.0 cm
+d:Ge/SolidWater_slab3/TransX		= 0.0 cm
+d:Ge/SolidWater_slab3/TransY		= Ge/pmma_slab/TransY + 5.25 cm
+d:Ge/SolidWater_slab3/TransZ		= 0.0 cm
+d:Ge/SolidWater_slab3/RotX			= 0. deg
+d:Ge/SolidWater_slab3/RotY			= 0. deg
+d:Ge/SolidWater_slab3/RotZ			= 0. deg
+d:Ge/SolidWater_slab3/MaxStepSize 	= 0.5 mm
+s:Ge/SolidWater_slab3/Color      = "red"
+
+########################################
+# Scoring Geometry
+########################################
+
+s:Ge/ScoringZBox/Parent     = "World"
+s:Ge/ScoringZBox/Type       = "TsBox"
+b:Ge/ScoringZBox/IsParallel = "TRUE"
+d:Ge/ScoringZBox/HLX        = 1 cm
+d:Ge/ScoringZBox/HLY        = 10 cm
+d:Ge/ScoringZBox/HLZ        = 1 cm
+s:Ge/ScoringZBox/Color      = "green"
+i:Ge/ScoringZBox/XBins      = 1
+i:Ge/ScoringZBox/YBins      = 300
+i:Ge/ScoringZBox/ZBins      = 1
+d:Ge/ScoringZBox/TransY    =  Ge/ScoringZBox/HLY - Ge/SolidWater_slab1/HLY cm
+d:Ge/ScoringZBox/RotZ=180. deg
+
+
+
+########################################
+# Scoring
+########################################
+
+s:Sc/Scoring_protonD_ZBox/Quantity                       = "DoseToWater"
+s:Sc/Scoring_protonD_ZBox/Component                      = "ScoringZBox"
+b:Sc/Scoring_protonD_ZBox/OutputToConsole                = "FALSE"
+s:Sc/Scoring_protonD_ZBox/IfOutputFileAlreadyExists      = "Overwrite"
+b:Sc/Scoring_protonD_ZBox/PropagateToChildren = "True"
+s:Sc/Scoring_protonD_ZBox/OutputFile =  outdir + "Scoring_protonD_ZBox"
+
+s:Sc/Scoring_protonLET_ZBox/Quantity                       = "ProtonLET"
+s:Sc/Scoring_protonLET_ZBox/Component                      = "ScoringZBox"
+b:Sc/Scoring_protonLET_ZBox/OutputToConsole                = "FALSE"
+s:Sc/Scoring_protonLET_ZBox/IfOutputFileAlreadyExists      = "Overwrite"
+b:Sc/Scoring_protonLET_ZBox/PropagateToChildren = "True"
+s:Sc/Scoring_protonLET_ZBox/OutputFile =  outdir + "Scoring_protonLET_ZBox"
+
+
+s:Sc/Qeff/Quantity                       = "Qeff"
+s:Sc/Qeff/Component                      = "ScoringYBox"
+b:Sc/Qeff/OutputToConsole                = "FALSE"
+s:Sc/Qeff/IfOutputFileAlreadyExists      = "Overwrite"
+sv:Sc/Qeff/includeparticles              = 1 "protons"
+b:Sc/Qeff/PropagateToChildren = "True"
+s:Sc/Qeff/OutputFile =  outdir + "Qeff"
