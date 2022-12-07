@@ -21,9 +21,9 @@ Plan names are subject to change.
 
 ## Plan 3i `ramp_4cm`
 - is a special ramp:
--- in PTV it starts at 90 % dose, and being flat for 3 cm.
+-- in PTV it starts at 100 % dose, and being flat for 3 cm.
 -- Then follows a 4 cm ramp starting at 90 % dose, stopping at 10 % dose,
--- Finally a 3 cm flat section follows at 10 % dose.
+-- Finally a 3 cm flat section follows at 0 % dose.
 
 `RD1.2.752.243.1.1.20221206160246202.7300.21833.dcm`  Dose distribution, RayStation
 `RP1.2.752.243.1.1.20221206160246202.7200.51467.dcm`  Spot data
