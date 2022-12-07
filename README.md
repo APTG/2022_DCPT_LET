@@ -7,6 +7,11 @@ This repository provides access to all relevant MC simulations for calculating L
 
 Multiple MC codes will be used.
 
+We here always assume beam transport along the positive z-axis, as is convention for most MC codes, also to minimize
+confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
+
+A beam model is supplied, as described for a beam starting at z_iso = -50 cm.
+
 ## Phantom design:
 - 30 x 30 cm² slabs of Gammex solid water, 20 cm thick
 - one 30 x 30 x 0.5 cm³ slab of PMMA which hold detectors of interest.
@@ -23,13 +28,14 @@ There will 3 plans, and in total 5 measurement points:
   The PTV is centered on z = 10.25 cm into the phantom measured from the phantom surface.
   Isocenter is always exactly at this position for Plan 1, and will not move, even if the detector plate is moved.
 
-  Distances below are relative from phantom surface, except distances in [], these are relative to isocenter plane.
+  Distances below in () are relative from phantom surface facing the beam, positive along beam axis.
+  Distances in [] are relative to isocenter plane, or you may say, absolute positions.
   These positions are nominal, actual positions are still to be determined.
   Distances are positive downstream the beam axis, traveling along the z-axis.
 
     a) Center of SOBP (z_c = 10.25 cm) [z_iso = 0.0 cm]\
-    b) Distal edge at 95 % dose falloff (z_d95 = 15.75 cm)  [z_iso_d95 = +5.50 cm] \
-    c) Distal edge at 80 % dose falloff (z_d80 = 16.05 cm)  [z_iso_d80 = +5.80 cm]
+    b) Distal edge at 95 % dose falloff (z_d95 = 15.00 cm)  [z_iso_d95 = +5.00 cm] \
+    c) Distal edge at 74 % dose falloff (z_d74 = 15.20 cm)  [z_iso_d74 = +5.20 cm]
 
 - **Plan 2**: 160 MeV monoenergetic proton beam.\
    a) z = 2.25 cm, located on isocenter [z_iso = 0.0 cm]
