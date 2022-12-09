@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-exe=${cp -v}
+exe="cp -v"
 
 $exe ./data/sh12a/input/plan_1a/sobp.dat ./data/resources/plans/plan1_sobp/sobp.dat
 $exe ./data/sh12a/input/plan_1b/sobp.dat ./data/resources/plans/plan1_sobp/sobp.dat
