@@ -1,5 +1,9 @@
 # Description of scripts
 
+## fetch_results_from_zenodo.py
+Downloads all results from Zenodo and extracts them to the results directory.
+Execute this script from project directory root:
+`python3 src/fetch_results_from_zenodo.py`
 
 ## `make_sobp.sh`
 Exports all DICOM plans to sobp.dat type files in their respective directories.

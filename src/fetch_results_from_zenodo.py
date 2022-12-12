@@ -1,13 +1,13 @@
 import json
-from pathlib import Path
 import urllib.request
 import zipfile
+from pathlib import Path
 
 ZENODO_RECORD_ID = 7422361
 
 files_and_dest_paths = {
-    'topas.zip' : 'data/topas/results',
-    'shieldhit.zip': 'data/shieldhit/results'
+    'topas.zip': 'data/topas/results',
+    'shieldhit.zip': 'data/sh12a/results'
 }
 
 if __name__ == '__main__':
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     with urllib.request.urlopen(url) as response:
         data = json.loads(response.read().decode('utf-8'))
         files = data['files']
-        
+
         for results_filename, results_dest_dir in files_and_dest_paths.items():
             print(f"Checking if {results_filename} is in the list of files")
             # check if topas.zip is in the list of files
@@ -26,8 +26,11 @@ if __name__ == '__main__':
                 url = f'https://zenodo.org/record/{ZENODO_RECORD_ID}/files/{results_filename}'
                 # download the file into temporary directory
                 path_to_temp_location = urllib.request.urlretrieve(url)
-                print(f"Downloaded {results_filename} to {path_to_temp_location[0]}")
-                unpacking_dir = Path(Path(__file__).parent.absolute(), results_dest_dir)
+                print(
+                    f"Downloaded {results_filename} to {path_to_temp_location[0]}"
+                )
+                unpacking_dir = Path(
+                    Path(__file__).parent.absolute(), results_dest_dir)
                 with zipfile.ZipFile(path_to_temp_location[0], 'r') as zip_ref:
                     print(f"Unpacking {results_filename} to {unpacking_dir}")
                     zip_ref.extractall(unpacking_dir)
