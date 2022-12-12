@@ -254,3 +254,6 @@ for017
 
 *.bdo
 run_*/
+
+data/topas/results
+data/shieldhit/results
