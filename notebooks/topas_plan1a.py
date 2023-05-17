@@ -3,7 +3,7 @@ import numpy as np
 from topas2numpy import BinnedResult
 
 files = []
-Dose = BinnedResult('data/topas/results/output/plan_1a/Scoring_protonD_ZBox.csv')
+Dose = BinnedResult('data/topas/results/output/plan_1a/Scoring_protonD_YBox.csv')
 LET = BinnedResult('data/topas/results/output/plan_1a/Scoring_protonLET_YBox.csv')
 
 ax1 = plt.subplot()
@@ -39,6 +39,6 @@ ax1.fill_between(x=[0, 10], y1=0, y2=max(np.squeeze(Dose.data['Sum']))*scale+1, 
 ax1.fill_between(x=[10.0, 10.5], y1=0, y2=max(np.squeeze(Dose.data['Sum']))*scale+1, facecolor='black', alpha=0.3)
 ax1.fill_between(x=[10.5, 20.5], y1=0, y2=max(np.squeeze(Dose.data['Sum']))*scale+1, facecolor='blue', alpha=0.1)
 # plt.vlines(x =[11.8, 12.8], ymin = 0, ymax =max(np.squeeze(dose.data['Sum'])), color = 'red', label = 'Cellflask 3')
-# plt.show()
-plt.savefig("data/topas/results/plan_1a/" + Dose.quantity +"_" + LET.quantity)
+plt.show()
+# plt.savefig("data/topas/results/plan_1a/" + Dose.quantity +"_" + LET.quantity)
 
