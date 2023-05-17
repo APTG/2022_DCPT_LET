@@ -4,7 +4,7 @@ TMAX0                      165.0         0.0     # Incident energy and energy sp
 BEAMSIGMA                   -0.20        -0.20	 # SigmaX, SigmaY at focus point
 BEAMPOS                      0.0         0.0      -50.0  # Beam XYZ start pos
 *BEAMDIV                     2.0         2.0      -50.0  # divx divy focus [mrad, mrad, cm]
-SAD                         200.0      256.0
+BEAMSAD                    200.0       256.0
 USECBEAM                sobp.dat                 # load spot scanning file
 
 # Physics parameters
