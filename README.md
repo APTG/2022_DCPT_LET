@@ -43,6 +43,14 @@ There will 3 plans, and in total 5 measurement points:
 - **Plan 3**: as plan 1, but ramped fields to create a local LET boost at the SOBP center.\
    a) z_c = 10.25 cm, located on isocenter [z_iso = 0.0 cm]
 
+## Additional Configurations [TBD]
+### MiniPIX
+- **Plan 1** additional scoring:
+  - x(-13,-11) y(-0.5,0.5) z(1.9,2.1) [20,1,1] bins
+- **Plan 2** additional scoring:
+  - x(-7,-5) y(-0.5,0.5) z(1.9,2.1) [20,1,1] bins
+
+
 # Contributing
 
 ## Directory Structure
