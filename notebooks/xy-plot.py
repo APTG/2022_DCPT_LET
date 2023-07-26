@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from topas2numpy import BinnedResult
 
-ntracks = BinnedResult('/home/villads/2022_DCPT_LET/data/topas/results/output/plan_2/Scoring_protonD_XYBox.csv')
+ntracks = BinnedResult('data/topas/results/output/plan_2/Scoring_protonD_XYBox.csv')
 
 print('{0} [{1}]'.format(ntracks.quantity, ntracks.unit))
 print('Statistics: {0}'.format(ntracks.statistics))
