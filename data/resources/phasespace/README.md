@@ -1,6 +1,6 @@
 # The phase space files
 
-This directory contains phase space files which may serve as a source of particles for the various particle transport codes.
+Phase space files which may serve as a source of particles for the various particle transport codes.
 
 ## Binary files with scored particles
 
