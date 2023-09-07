@@ -124,4 +124,3 @@ Output
 | plan_3k     | tLET all       |     2.20562  |
 | plan_3k     | tLET primaries |     2.15941  |
 | plan_3k     | tLET protons   |     2.19172  |
-|-------------|----------------|--------------|
