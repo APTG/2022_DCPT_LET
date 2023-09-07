@@ -9,3 +9,4 @@ mcpl
 jupyter
 pandas
 openpyxl
+tabulate
