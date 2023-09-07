@@ -43,7 +43,7 @@ There will 3 plans, and in total 5 measurement points:
 
 # Scoring
 
-Detailed requirements for scoring can be found in [docs/scoring.md](scorind.md)
+Detailed requirements for scoring can be found in [docs/scoring.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/scoring.md)
 
 ### Target volume
 
