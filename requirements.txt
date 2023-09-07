@@ -8,3 +8,4 @@ pymchelper>=2.5.1
 mcpl
 jupyter
 pandas
+openpyxl
