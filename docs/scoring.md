@@ -13,7 +13,7 @@ Lateral extension of all the fields in treament plans is twice the size of the t
 This is the target volume for plan2:
 ![Target for plan2](plan2-target.png)
 
-### Narrow depth profile
+### Depth profile
 
 To score depth profile of basic quantities we suggest to use a narrow volume of 2 x 2 x 20.5 cm³. The volume is centered at the isocenter position. 
 
@@ -47,18 +47,23 @@ This is the longitudal map for plan2:
 
 ### Target volume
 
-- dose deposited by all particles
-- fluence of primary protons
 - all types of averaged linear energy transfer (LET)
 - other derived quantities (mean kinetic energy, effective Q etc)
 
 ### Narrow depth profile
 
-- dose deposited by all particles
+- dose deposited by all particles (dose-to-water and dose-to-medium)
 - fluence of primary protons
 - basic types of averaged LET (dose weighted, fluence weighted)
 
+As for the types of LET we suggest to use:
+ - dose- and track- averaging
+ - scoring for following groups of particles: primaries, all protons (primary and secondary), all charged ions
+ - in water at density of 1 g/cm³, in medium at its density
+
+See Kalholm, Fredrik, et al. "A systematic review on the usage of averaged LET in radiation biology for particle therapy." Radiotherapy and Oncology 161 (2021): 211-221. for more details.
+
 ### Lateral and longitudal map
 
-- dose deposited by all particles
+- dose deposited by all particles (dose-to-water and dose-to-medium)
 - fluence of primary protons
