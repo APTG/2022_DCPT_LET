@@ -41,12 +41,31 @@ There will 3 plans, and in total 5 measurement points:
 - **Plan 3**: as plan 1, but ramped fields to create a local LET boost at the SOBP center.\
    a) z_c = 10.25 cm, located on isocenter [z_iso = 0.0 cm]
 
+# Scoring
+
+Detailed requirements for scoring can be found in [docs/scoring.md](scorind.md)
+
+### Target volume
+
+Volume located at isocenter with dimentions `[-2.5, 2.5] x [-2.5, 2.5] x [-0.1, 0.1] mm³`
+- all types of averaged linear energy transfer (LET)
+- other derived quantities (mean kinetic energy, effective Q etc)
+
+### Depth profile
+
+Narrow volume with 205 bins of 1mm thickness spanning along the beam axis with dimentions:
+`[-1.0, 1.0] x [-1.0, 1.0] x [-10.25, 10.25] cm³`
+
+- dose deposited by all particles
+- fluence of primary protons
+- basic types of averaged LET (dose weighted, fluence weighted) for protons
+
 # Contributing
 
 ## Directory Structure
 - We intend to adhere to the [Cookiecutter Data Science paradigm](https://drivendata.github.io/cookiecutter-data-science/).
 
-From #2:
+- `/docs` -> general documentation in Markdown format
 - `/data/resources` -> common stuff like beam model, DICOM files etc
 - `/data/fluka/input`  (`topas`, `phits`) -> input files for the MC codes
 - `/data/fluka/results` -> collection of results from simulation (small files!)
