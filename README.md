@@ -3,66 +3,35 @@
 All data in this repository is only preliminary, and may still be subject to change.
 
 ## Background
-This repository provides access to all relevant MC simulations for calculating dose, LET, and drived quantities.
+This repository serves as a centralized location for all Monte Carlo (MC) simulations relevant to calculating dose, LET, and other derived quantities within the domain of proton therapy.
+
+### Reference Setup:
+The primary reference setup explicitly omits detector details. This is intentional. The objective is to ascertain how effectively a detector can gauge the LET at a specific position as if the detector was absent. This concept draws parallels to cavity theory, where the dose in a given point is assessed as though no detector is present.
+
+### Detector-Specific Calculations:
+Certain detectors will necessitate specialized calculations. For such cases:
+
+- Users can fork this repository and integrate their detector-specific simulations.
+- Alternatively, a dedicated folder can be introduced within this repository for those detector-specific calculations."
 
 Multiple MC codes will be used.
 
-We here always assume beam transport along the positive z-axis, as is convention for most MC codes, also to minimize confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
+We here always assume beam transport along the positive Z-axis, as is convention for most MC codes, also to minimize confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
 
-[A beam model is supplied](https://github.com/APTG/2022_DCPT_LET/tree/main/data/resources/dcpt_beam_model), as described for a beam starting at z_iso = -50 cm.
+[The DCPT beam model is supplied](https://github.com/APTG/2022_DCPT_LET/tree/main/data/resources/dcpt_beam_model), describing the proton beam starting at z_iso = -50 cm.
 
-## Phantom design:
-- 30 x 30 cm² slabs of Gammex solid water, 20 cm thick
-- one 30 x 30 x 0.5 cm³ slab of PMMA which hold detectors of interest.
-This slab will always be positioned so its center plane (0.25 cm depth in the PMMA slab) will mark the measurement position.
-- Target scoring volume should be small enough in z direction, and larger, but not too large latterally. We suggest:
-  - 2 mm thick along z, centered on the reference depth as described below for the different plans.
-  - Laterally we suggest 5 cm in x and y, centered on the z-axis.
+Details
+- Phantom geometry: [docs/phantom.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/phantom.md)
+- Irradiation plans and measurement positions: [docs/plans.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/plans.md)
+- Scoring geometry: [docs/scoring.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/scoring.md)
 
-## Plans and Measurement positions:
-There will 3 plans, and in total 5 measurement points:
 
-- **Plan 1**: SOBP covering a 10 x 10 x 10 cm³ PTV. 3 mm margin is added to the PTV.  
-  The PTV is centered on z = 10.25 cm into the phantom measured from the phantom surface.
-  Isocenter is always exactly at this position for Plan 1, and will not move, even if the detector plate is moved.
+## Contributing
+You can create new issues, and create new branches based on these issues.
+The branches will be reviewed before entering the master branch.
 
-  Distances below in () are relative from phantom surface facing the beam, positive along beam axis.
-  Distances in [] are relative to isocenter plane, or you may say, absolute positions.
-  These positions are nominal, actual positions are still to be determined.
-  Distances are positive downstream the beam axis, traveling along the z-axis.
 
-    a) Center of SOBP (z_c = 10.25 cm) [z_iso = 0.0 cm]\
-    b) Distal edge at 95 % dose falloff (z_d95 = 15.25 cm)  [z_iso_d95 = +5.00 cm] \
-    c) Distal edge at 74 % dose falloff (z_d74 = 15.45 cm)  [z_iso_d74 = +5.20 cm]
-
-- **Plan 2**: 160 MeV monoenergetic proton beam.\
-   a) z = 2.25 cm, located on isocenter [z_iso = 0.0 cm]
-
-- **Plan 3**: as plan 1, but ramped fields to create a local LET boost at the SOBP center.\
-   a) z_c = 10.25 cm, located on isocenter [z_iso = 0.0 cm]
-
-# Scoring
-
-Detailed requirements for scoring can be found in [docs/scoring.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/scoring.md)
-
-### Target volume
-
-Volume located at isocenter with dimentions `[-2.5, 2.5] x [-2.5, 2.5] x [-0.1, 0.1] mm³`
-- all types of averaged linear energy transfer (LET)
-- other derived quantities (mean kinetic energy, effective Q etc)
-
-### Depth profile
-
-Narrow volume with 205 bins of 1mm thickness spanning along the beam axis with dimentions:
-`[-1.0, 1.0] x [-1.0, 1.0] x [-10.25, 10.25] cm³`
-
-- dose deposited by all particles
-- fluence of primary protons
-- basic types of averaged LET (dose weighted, fluence weighted) for protons
-
-# Contributing
-
-## Directory Structure
+### Directory Structure
 - We intend to adhere to the [Cookiecutter Data Science paradigm](https://drivendata.github.io/cookiecutter-data-science/).
 
 - `/docs` -> general documentation in Markdown format
@@ -73,6 +42,6 @@ Narrow volume with 205 bins of 1mm thickness spanning along the beam axis with d
 - `/references/` - collection of links to relevant publications, codes manuals
 - `/reports/figures` - PNGs and documents with summaries/reports
 
-## General hints:
+### General hints:
 - Any code you upload should be free of trailing whitespace.
 - Use soft tabs (i.e. spaces)
