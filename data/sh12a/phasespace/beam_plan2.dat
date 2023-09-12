@@ -17,4 +17,4 @@ NUCRE                          1    # Nucl.Reac. switcher: 0-Off, 1-On
 
 # Statistics
 RNDSEED                 89736501
-NSTAT                     100000       20000     # NSTAT, Step of saving
+NSTAT                     100000       0     # NSTAT, Step of saving

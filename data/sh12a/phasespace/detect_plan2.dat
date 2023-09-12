@@ -4,7 +4,7 @@ Geometry Mesh
         Name XZ_map             # Longitudinal map
         X -15.  15.   300
         Y  -1.   1.   1
-        Z  -10.25 10.25    205
+        Z  -2.25 18.25    205
 
 Geometry Mesh
         Name XZ_large             # Longitudinal map
@@ -29,10 +29,15 @@ Geometry Mesh
         Name Z_narrow           # Narrow scoring along Z (lat. equib)
         X  -1.  1.     1
         Y  -1.  1.     1
-        Z  -10.25 10.25  205
+        Z  -2.25 18.5  205
 
 Geometry Plane      # Setup a plane for scoring
    Name Phasespace_plane
+   Point    0.0     0.0     -49.9   # a random point on the scoring plane
+   Vector   0.0     0.0     1.0     # vector normal to the plane
+
+Geometry PlaneTarget
+   Name Phasespace_target
    Point    0.0     0.0     -49.9   # a random point on the scoring plane
    Vector   0.0     0.0     1.0     # vector normal to the plane
 
@@ -86,6 +91,13 @@ Output
 Output
         Filename NB_phasespace_plan2.bdo
         Geo Phasespace_plane
+        Quantity    mcpl Primary PhaseSpacePopulation
+        Quantity    mcpl Protons PhaseSpacePopulation
+        Quantity    mcpl PhaseSpacePopulation
+
+Output
+        Filename NB_phasespace_target_plan2.bdo
+        Geo Phasespace_target
         Quantity    mcpl Primary PhaseSpacePopulation
         Quantity    mcpl Protons PhaseSpacePopulation
         Quantity    mcpl PhaseSpacePopulation
