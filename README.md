@@ -5,10 +5,10 @@ All data in this repository is only preliminary, and may still be subject to cha
 ## Background
 This repository serves as a centralized location for all Monte Carlo (MC) simulations relevant to calculating dose, LET, and other derived quantities for a proton therapy reference setup.
 
-### Reference Setup:
+### Reference Setup
 The primary reference setup explicitly omits detector details. This is intentional. The objective is to ascertain how effectively a detector can gauge the LET at a specific position as if the detector was absent. This concept draws parallels to cavity theory, where the dose in a given point is assessed as though no detector is present.
 
-### Detector-Specific Calculations:
+### Detector-Specific Calculations
 Certain detectors will necessitate specialized calculations. For such cases:
 
 - Users can fork this repository and integrate their detector-specific simulations.
@@ -20,8 +20,8 @@ We here always assume beam transport along the positive Z-axis, as is convention
 
 [The DCPT beam model is supplied](https://github.com/APTG/2022_DCPT_LET/tree/main/data/resources/dcpt_beam_model), describing the proton beam starting at z_iso = -50 cm.
 
-Details
-- Phantom geometry: [docs/phantom.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/phantom.md)
+## Details
+- Phantom geometry: [docs/phantom.md](docs/phantom.md)
 - Irradiation plans and measurement positions: [docs/plans.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/plans.md)
 - Scoring geometry: [docs/scoring.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/scoring.md)
 
