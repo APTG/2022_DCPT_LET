@@ -18,12 +18,12 @@ Multiple MC codes will be used.
 
 We here always assume beam transport along the positive Z-axis, as is convention for most MC codes, also to minimize confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
 
-[The DCPT beam model is supplied](https://github.com/APTG/2022_DCPT_LET/tree/main/data/resources/dcpt_beam_model), describing the proton beam starting at z_iso = -50 cm.
+[The DCPT beam model is supplied](data/resources/dcpt_beam_model), describing the proton beam starting at z_iso = -50 cm.
 
 ## Details
 - Phantom geometry: [docs/phantom.md](docs/phantom.md)
-- Irradiation plans and measurement positions: [docs/plans.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/plans.md)
-- Scoring geometry: [docs/scoring.md](https://github.com/APTG/2022_DCPT_LET/tree/main/docs/scoring.md)
+- Irradiation plans and measurement positions: [docs/plans.md](docs/plans.md)
+- Scoring geometry: [docs/scoring.md](docs/scoring.md)
 
 
 ## Contributing
