@@ -1,0 +1,359 @@
+PDD s RW3
+c cells
+c box for RSSA - air
+ 1000  102 -0.001205  -1000  imp:p=1
+c box PMMA
+ 1001  104 -1.18      -1001 400
+      #500 #501 #502 #503 #504
+      imp:p=1
+c box GRAMMX
+ 1002  101 -1.032     -1002
+      #505 #506 #507 #508 #509
+      #510 #511 #512 #513 #514 #515 #516 #517 #518 #519
+      #520 #521 #522 #523 #524 #525 #526 #527 #528 #529
+      #530 #531 #532 #533 #534 #535 #536 #537 #538 #539
+      #540 #541 #542 #543 #544 #545 #546 #547 #548 #549
+      #550 #551 #552 #553 #554 #555 #556 #557 #558 #559
+      #560 #561 #562 #563 #564 #565 #566 #567 #568 #569
+      #570 #571 #572 #573 #574 #575 #576 #577 #578 #579
+      #580 #581 #582 #583 #584 #585 #586 #587 #588 #589
+      #590 #591 #592 #593 #594 #595 #596 #597 #598 #599
+      #600 #601 #602 #603 #604
+      imp:p=1
+ 1003  101 -1.032     -1003 #400
+      #401 #402 #403 #404 #405 #405 #406 #407 #408 #409
+      #410 #411 #412 #413 #414 #415 #416 #417 #418 #419
+      #420 #421 #422 #423 #424 #425 #426 #427 #428 #429
+      #430 #431 #432 #433 #434 #435 #436 #437 #438 #439
+      #440 #441 #442 #443 #444 #445 #446 #447 #448 #449
+      #450 #451 #452 #453 #454 #455 #456 #457 #458 #459
+      #460 #461 #462 #463 #464 #465 #466 #467 #468 #469
+      #470 #471 #472 #473 #474 #475 #476 #477 #478 #479
+      #480 #481 #482 #483 #484 #485 #486 #487 #488 #489
+      #490 #491 #492 #493 #494 #495 #496 #497 #498 #499
+      imp:p=1
+c
+c detektor
+ 400  101 -1.032     -400 imp:p=1
+ 401  like 400 but trcl=(0 0 0.1   ) imp:p=1
+ 402  like 400 but trcl=(0 0 0.2   ) imp:p=1
+ 403  like 400 but trcl=(0 0 0.3   ) imp:p=1
+ 404  like 400 but trcl=(0 0 0.4   ) imp:p=1
+ 405  like 400 but trcl=(0 0 0.5   ) imp:p=1
+ 406  like 400 but trcl=(0 0 0.6   ) imp:p=1
+ 407  like 400 but trcl=(0 0 0.7   ) imp:p=1
+ 408  like 400 but trcl=(0 0 0.8   ) imp:p=1
+ 409  like 400 but trcl=(0 0 0.9   ) imp:p=1
+ 410  like 400 but trcl=(0 0 1.0   ) imp:p=1
+ 411  like 400 but trcl=(0 0 1.1   ) imp:p=1
+ 412  like 400 but trcl=(0 0 1.2   ) imp:p=1
+ 413  like 400 but trcl=(0 0 1.3   ) imp:p=1
+ 414  like 400 but trcl=(0 0 1.4   ) imp:p=1
+ 415  like 400 but trcl=(0 0 1.5   ) imp:p=1
+ 416  like 400 but trcl=(0 0 1.6   ) imp:p=1
+ 417  like 400 but trcl=(0 0 1.7   ) imp:p=1
+ 418  like 400 but trcl=(0 0 1.8   ) imp:p=1
+ 419  like 400 but trcl=(0 0 1.9   ) imp:p=1
+ 420  like 400 but trcl=(0 0 2.0   ) imp:p=1
+ 421  like 400 but trcl=(0 0 2.1   ) imp:p=1
+ 422  like 400 but trcl=(0 0 2.2   ) imp:p=1
+ 423  like 400 but trcl=(0 0 2.3   ) imp:p=1
+ 424  like 400 but trcl=(0 0 2.4   ) imp:p=1
+ 425  like 400 but trcl=(0 0 2.5   ) imp:p=1
+ 426  like 400 but trcl=(0 0 2.6   ) imp:p=1
+ 427  like 400 but trcl=(0 0 2.7   ) imp:p=1
+ 428  like 400 but trcl=(0 0 2.8   ) imp:p=1
+ 429  like 400 but trcl=(0 0 2.9   ) imp:p=1
+ 430  like 400 but trcl=(0 0 3.0   ) imp:p=1
+ 431  like 400 but trcl=(0 0 3.1   ) imp:p=1
+ 432  like 400 but trcl=(0 0 3.2   ) imp:p=1
+ 433  like 400 but trcl=(0 0 3.3   ) imp:p=1
+ 434  like 400 but trcl=(0 0 3.4   ) imp:p=1
+ 435  like 400 but trcl=(0 0 3.5   ) imp:p=1
+ 436  like 400 but trcl=(0 0 3.6   ) imp:p=1
+ 437  like 400 but trcl=(0 0 3.7   ) imp:p=1
+ 438  like 400 but trcl=(0 0 3.8   ) imp:p=1
+ 439  like 400 but trcl=(0 0 3.9   ) imp:p=1
+ 440  like 400 but trcl=(0 0 4.0   ) imp:p=1
+ 441  like 400 but trcl=(0 0 4.1   ) imp:p=1
+ 442  like 400 but trcl=(0 0 4.2   ) imp:p=1
+ 443  like 400 but trcl=(0 0 4.3   ) imp:p=1
+ 444  like 400 but trcl=(0 0 4.4   ) imp:p=1
+ 445  like 400 but trcl=(0 0 4.5   ) imp:p=1
+ 446  like 400 but trcl=(0 0 4.6   ) imp:p=1
+ 447  like 400 but trcl=(0 0 4.7   ) imp:p=1
+ 448  like 400 but trcl=(0 0 4.8   ) imp:p=1
+ 449  like 400 but trcl=(0 0 4.9   ) imp:p=1
+ 450  like 400 but trcl=(0 0 5.0   ) imp:p=1
+ 451  like 400 but trcl=(0 0 5.1   ) imp:p=1
+ 452  like 400 but trcl=(0 0 5.2   ) imp:p=1
+ 453  like 400 but trcl=(0 0 5.3   ) imp:p=1
+ 454  like 400 but trcl=(0 0 5.4   ) imp:p=1
+ 455  like 400 but trcl=(0 0 5.5   ) imp:p=1
+ 456  like 400 but trcl=(0 0 5.6   ) imp:p=1
+ 457  like 400 but trcl=(0 0 5.7   ) imp:p=1
+ 458  like 400 but trcl=(0 0 5.8   ) imp:p=1
+ 459  like 400 but trcl=(0 0 5.9   ) imp:p=1
+ 460  like 400 but trcl=(0 0 6.0   ) imp:p=1
+ 461  like 400 but trcl=(0 0 6.1   ) imp:p=1
+ 462  like 400 but trcl=(0 0 6.2   ) imp:p=1
+ 463  like 400 but trcl=(0 0 6.3   ) imp:p=1
+ 464  like 400 but trcl=(0 0 6.4   ) imp:p=1
+ 465  like 400 but trcl=(0 0 6.5   ) imp:p=1
+ 466  like 400 but trcl=(0 0 6.6   ) imp:p=1
+ 467  like 400 but trcl=(0 0 6.7   ) imp:p=1
+ 468  like 400 but trcl=(0 0 6.8   ) imp:p=1
+ 469  like 400 but trcl=(0 0 6.9   ) imp:p=1
+ 470  like 400 but trcl=(0 0 7.0   ) imp:p=1
+ 471  like 400 but trcl=(0 0 7.1   ) imp:p=1
+ 472  like 400 but trcl=(0 0 7.2   ) imp:p=1
+ 473  like 400 but trcl=(0 0 7.3   ) imp:p=1
+ 474  like 400 but trcl=(0 0 7.4   ) imp:p=1
+ 475  like 400 but trcl=(0 0 7.5   ) imp:p=1
+ 476  like 400 but trcl=(0 0 7.6   ) imp:p=1
+ 477  like 400 but trcl=(0 0 7.7   ) imp:p=1
+ 478  like 400 but trcl=(0 0 7.8   ) imp:p=1
+ 479  like 400 but trcl=(0 0 7.9   ) imp:p=1
+ 480  like 400 but trcl=(0 0 8.0   ) imp:p=1
+ 481  like 400 but trcl=(0 0 8.1   ) imp:p=1
+ 482  like 400 but trcl=(0 0 8.2   ) imp:p=1
+ 483  like 400 but trcl=(0 0 8.3   ) imp:p=1
+ 484  like 400 but trcl=(0 0 8.4   ) imp:p=1
+ 485  like 400 but trcl=(0 0 8.5   ) imp:p=1
+ 486  like 400 but trcl=(0 0 8.6   ) imp:p=1
+ 487  like 400 but trcl=(0 0 8.7   ) imp:p=1
+ 488  like 400 but trcl=(0 0 8.8   ) imp:p=1
+ 489  like 400 but trcl=(0 0 8.9   ) imp:p=1
+ 490  like 400 but trcl=(0 0 9.0   ) imp:p=1
+ 491  like 400 but trcl=(0 0 9.1   ) imp:p=1
+ 492  like 400 but trcl=(0 0 9.2   ) imp:p=1
+ 493  like 400 but trcl=(0 0 9.3   ) imp:p=1
+ 494  like 400 but trcl=(0 0 9.4   ) imp:p=1
+ 495  like 400 but trcl=(0 0 9.5   ) imp:p=1
+ 496  like 400 but trcl=(0 0 9.6   ) imp:p=1
+ 497  like 400 but trcl=(0 0 9.7   ) imp:p=1
+ 498  like 400 but trcl=(0 0 9.8   ) imp:p=1
+ 499  like 400 but trcl=(0 0 9.9   ) imp:p=1
+ 500  like 400 but trcl=(0 0 10.0  )  mat=104 rho=-1.18 imp:p=1
+ 501  like 400 but trcl=(0 0 10.1  )  mat=104 rho=-1.18 imp:p=1
+ 502  like 400 but trcl=(0 0 10.2  )  mat=104 rho=-1.18 imp:p=1
+ 503  like 400 but trcl=(0 0 10.3  )  mat=104 rho=-1.18 imp:p=1
+ 504  like 400 but trcl=(0 0 10.4  )  mat=104 rho=-1.18 imp:p=1
+ 505  like 400 but trcl=(0 0 10.5  )  imp:p=1
+ 506  like 400 but trcl=(0 0 10.6  )  imp:p=1
+ 507  like 400 but trcl=(0 0 10.7  )  imp:p=1
+ 508  like 400 but trcl=(0 0 10.8  )  imp:p=1
+ 509  like 400 but trcl=(0 0 10.9  )  imp:p=1
+ 510  like 400 but trcl=(0 0 11.0  )  imp:p=1
+ 511  like 400 but trcl=(0 0 11.1  )  imp:p=1
+ 512  like 400 but trcl=(0 0 11.2  )  imp:p=1
+ 513  like 400 but trcl=(0 0 11.3  )  imp:p=1
+ 514  like 400 but trcl=(0 0 11.4  )  imp:p=1
+ 515  like 400 but trcl=(0 0 11.5  )  imp:p=1
+ 516  like 400 but trcl=(0 0 11.6  )  imp:p=1
+ 517  like 400 but trcl=(0 0 11.7  )  imp:p=1
+ 518  like 400 but trcl=(0 0 11.8  )  imp:p=1
+ 519  like 400 but trcl=(0 0 11.9  )  imp:p=1
+ 520  like 400 but trcl=(0 0 12.0  )  imp:p=1
+ 521  like 400 but trcl=(0 0 12.1  )  imp:p=1
+ 522  like 400 but trcl=(0 0 12.2  )  imp:p=1
+ 523  like 400 but trcl=(0 0 12.3  )  imp:p=1
+ 524  like 400 but trcl=(0 0 12.4  )  imp:p=1
+ 525  like 400 but trcl=(0 0 12.5  )  imp:p=1
+ 526  like 400 but trcl=(0 0 12.6  )  imp:p=1
+ 527  like 400 but trcl=(0 0 12.7  )  imp:p=1
+ 528  like 400 but trcl=(0 0 12.8  )  imp:p=1
+ 529  like 400 but trcl=(0 0 12.9  )  imp:p=1
+ 530  like 400 but trcl=(0 0 13.0  )  imp:p=1
+ 531  like 400 but trcl=(0 0 13.1  )  imp:p=1
+ 532  like 400 but trcl=(0 0 13.2  )  imp:p=1
+ 533  like 400 but trcl=(0 0 13.3  )  imp:p=1
+ 534  like 400 but trcl=(0 0 13.4  )  imp:p=1
+ 535  like 400 but trcl=(0 0 13.5  )  imp:p=1
+ 536  like 400 but trcl=(0 0 13.6  )  imp:p=1
+ 537  like 400 but trcl=(0 0 13.7  )  imp:p=1
+ 538  like 400 but trcl=(0 0 13.8  )  imp:p=1
+ 539  like 400 but trcl=(0 0 13.9  )  imp:p=1
+ 540  like 400 but trcl=(0 0 14.0  )  imp:p=1
+ 541  like 400 but trcl=(0 0 14.1  )  imp:p=1
+ 542  like 400 but trcl=(0 0 14.2  )  imp:p=1
+ 543  like 400 but trcl=(0 0 14.3  )  imp:p=1
+ 544  like 400 but trcl=(0 0 14.4  )  imp:p=1
+ 545  like 400 but trcl=(0 0 14.5  )  imp:p=1
+ 546  like 400 but trcl=(0 0 14.6  )  imp:p=1
+ 547  like 400 but trcl=(0 0 14.7  )  imp:p=1
+ 548  like 400 but trcl=(0 0 14.8  )  imp:p=1
+ 549  like 400 but trcl=(0 0 14.9  )  imp:p=1
+ 550  like 400 but trcl=(0 0 15.0  )  imp:p=1
+ 551  like 400 but trcl=(0 0 15.1  )  imp:p=1
+ 552  like 400 but trcl=(0 0 15.2  )  imp:p=1
+ 553  like 400 but trcl=(0 0 15.3  )  imp:p=1
+ 554  like 400 but trcl=(0 0 15.4  )  imp:p=1
+ 555  like 400 but trcl=(0 0 15.5  )  imp:p=1
+ 556  like 400 but trcl=(0 0 15.6  )  imp:p=1
+ 557  like 400 but trcl=(0 0 15.7  )  imp:p=1
+ 558  like 400 but trcl=(0 0 15.8  )  imp:p=1
+ 559  like 400 but trcl=(0 0 15.9  )  imp:p=1
+ 560  like 400 but trcl=(0 0 16.0  )  imp:p=1
+ 561  like 400 but trcl=(0 0 16.1  )  imp:p=1
+ 562  like 400 but trcl=(0 0 16.2  )  imp:p=1
+ 563  like 400 but trcl=(0 0 16.3  )  imp:p=1
+ 564  like 400 but trcl=(0 0 16.4  )  imp:p=1
+ 565  like 400 but trcl=(0 0 16.5  )  imp:p=1
+ 566  like 400 but trcl=(0 0 16.6  )  imp:p=1
+ 567  like 400 but trcl=(0 0 16.7  )  imp:p=1
+ 568  like 400 but trcl=(0 0 16.8  )  imp:p=1
+ 569  like 400 but trcl=(0 0 16.9  )  imp:p=1
+ 570  like 400 but trcl=(0 0 17.0  )  imp:p=1
+ 571  like 400 but trcl=(0 0 17.1  )  imp:p=1
+ 572  like 400 but trcl=(0 0 17.2  )  imp:p=1
+ 573  like 400 but trcl=(0 0 17.3  )  imp:p=1
+ 574  like 400 but trcl=(0 0 17.4  )  imp:p=1
+ 575  like 400 but trcl=(0 0 17.5  )  imp:p=1
+ 576  like 400 but trcl=(0 0 17.6  )  imp:p=1
+ 577  like 400 but trcl=(0 0 17.7  )  imp:p=1
+ 578  like 400 but trcl=(0 0 17.8  )  imp:p=1
+ 579  like 400 but trcl=(0 0 17.9  )  imp:p=1
+ 580  like 400 but trcl=(0 0 18.0  )  imp:p=1
+ 581  like 400 but trcl=(0 0 18.1  )  imp:p=1
+ 582  like 400 but trcl=(0 0 18.2  )  imp:p=1
+ 583  like 400 but trcl=(0 0 18.3  )  imp:p=1
+ 584  like 400 but trcl=(0 0 18.4  )  imp:p=1
+ 585  like 400 but trcl=(0 0 18.5  )  imp:p=1
+ 586  like 400 but trcl=(0 0 18.6  )  imp:p=1
+ 587  like 400 but trcl=(0 0 18.7  )  imp:p=1
+ 588  like 400 but trcl=(0 0 18.8  )  imp:p=1
+ 589  like 400 but trcl=(0 0 18.9  )  imp:p=1
+ 590  like 400 but trcl=(0 0 19.0  )  imp:p=1
+ 591  like 400 but trcl=(0 0 19.1  )  imp:p=1
+ 592  like 400 but trcl=(0 0 19.2  )  imp:p=1
+ 593  like 400 but trcl=(0 0 19.3  )  imp:p=1
+ 594  like 400 but trcl=(0 0 19.4  )  imp:p=1
+ 595  like 400 but trcl=(0 0 19.5  )  imp:p=1
+ 596  like 400 but trcl=(0 0 19.6  )  imp:p=1
+ 597  like 400 but trcl=(0 0 19.7  )  imp:p=1
+ 598  like 400 but trcl=(0 0 19.8  )  imp:p=1
+ 599  like 400 but trcl=(0 0 19.9  )  imp:p=1
+ 600  like 400 but trcl=(0 0 20.0  )  imp:p=1
+ 601  like 400 but trcl=(0 0 20.1  )  imp:p=1
+ 602  like 400 but trcl=(0 0 20.2  )  imp:p=1
+ 603  like 400 but trcl=(0 0 20.3  )  imp:p=1
+ 604  like 400 but trcl=(0 0 20.4  )  imp:p=1
+c
+c air in room
+ 9990  102 -0.001205        -9999 1000 1001 1002 1003 imp:p=1
+c world
+ 9999  0                9999 imp:p=0
+
+c geometry
+ 500    pz   -49.9
+c box for RSSA
+ 1000     box   -15 -15  -49.9      30 0 0   0 30  0   0 0 20
+c box for PMMA
+ 1001     box   -15 -15  -0.25      30 0 0   0 30  0   0 0 0.5
+c box for GRAMMX
+ 1002     box   -15 -15  0.25       30 0 0   0 30  0   0 0 10
+c
+ 1003     box   -15 -15  -10.25     30 0 0   0 30  0   0 0 10
+c detector
+ 400     box   -2.5 -2.5 -10.25     5 0 0    0 5 0     0 0 0.1
+c
+c box - world
+ 9999     box  -100 -100 -100     200 0 0   0 200 0   0 0 200
+
+mode p n e h
+phys:p 220 0 0 1 0 j 0
+PHYS:H 220 0 -1 J 0 J 0 0.917
+c
+c SOURCE
+c
+c materials
+c GRAMMEX ro=1,032
+m101  1001.80c -0.08
+      6000.80c -0.6730
+      7014.80c -0.0239
+      8016.80c -0.1986
+     17035.80c -0.0014
+     20040.80c -0.0231
+c Air  0.001205 g/cm3
+m102  6000.80c -0.00012
+      7014.80c -0.75527
+      8016.80c -0.23178
+     18000. -0.01282
+c water ro 0.998 g/cm3
+m103  1001.80c -0.111894
+      8016.80c -0.888106
+c PMMA ro 1,18 g/cm3
+m104  1001.80c -0.08054
+      6000.80c -0.59985
+      8016.80c -0.31962
+c
+c DETEKTORI
++F1006 400   401  402  403  404  405  406  407  408  409  410  411  412  413
+        414  415  416  417  418  419  420  421  422  423  424  425  426  427
+        428  429  430  431  432  433  434  435  436  437  438  439  440  441
+        442  443  444  445  446  447  448  449  450  451  452  453  454  455
+        456  457  458  459  460  461  462  463  464  465  466  467  468  469
+        470  471  472  473  474  475  476  477  478  479  480  481  482  483
+        484  485  486  487  488  489  490  491  492  493  494  495  496  497
+        498  499  500  501  502  503  504  505  506  507  508  509  510  511
+        512  513  514  515  516  517  518  519  520  521  522  523  524  525
+        526  527  528  529  530  531  532  533  534  535  536  537  538  539
+        540  541  542  543  544  545  546  547  548  549  550  551  552  553
+        554  555  556  557  558  559  560  561  562  563  564  565  566  567
+        568  569  570  571  572  573  574  575  576  577  578  579  580  581
+        582  583  584  585  586  587  588  589  590  591  592  593  594  595
+        596  597  598  599  600  601  602  603  604
+c
+F1004:h 400  401  402  403  404  405  406  407  408  409  410  411  412  413
+        414  415  416  417  418  419  420  421  422  423  424  425  426  427
+        428  429  430  431  432  433  434  435  436  437  438  439  440  441
+        442  443  444  445  446  447  448  449  450  451  452  453  454  455
+        456  457  458  459  460  461  462  463  464  465  466  467  468  469
+        470  471  472  473  474  475  476  477  478  479  480  481  482  483
+        484  485  486  487  488  489  490  491  492  493  494  495  496  497
+        498  499  500  501  502  503  504  505  506  507  508  509  510  511
+        512  513  514  515  516  517  518  519  520  521  522  523  524  525
+        526  527  528  529  530  531  532  533  534  535  536  537  538  539
+        540  541  542  543  544  545  546  547  548  549  550  551  552  553
+        554  555  556  557  558  559  560  561  562  563  564  565  566  567
+        568  569  570  571  572  573  574  575  576  577  578  579  580  581
+        582  583  584  585  586  587  588  589  590  591  592  593  594  595
+        596  597  598  599  600  601  602  603  604
+e1004 1 199ilog 300
+ft1004 LET
+c
+f4004:h 400 401  402  403  404  405  406  407  408  409  410  411  412  413
+        414  415  416  417  418  419  420  421  422  423  424  425  426  427
+        428  429  430  431  432  433  434  435  436  437  438  439  440  441
+        442  443  444  445  446  447  448  449  450  451  452  453  454  455
+        456  457  458  459  460  461  462  463  464  465  466  467  468  469
+        470  471  472  473  474  475  476  477  478  479  480  481  482  483
+        484  485  486  487  488  489  490  491  492  493  494  495  496  497
+        498  499  500  501  502  503  504  505  506  507  508  509  510  511
+        512  513  514  515  516  517  518  519  520  521  522  523  524  525
+        526  527  528  529  530  531  532  533  534  535  536  537  538  539
+        540  541  542  543  544  545  546  547  548  549  550  551  552  553
+        554  555  556  557  558  559  560  561  562  563  564  565  566  567
+        568  569  570  571  572  573  574  575  576  577  578  579  580  581
+        582  583  584  585  586  587  588  589  590  591  592  593  594  595
+        596  597  598  599  600  601  602  603  604
+ft4004 tag 3
+fu4004 -1 10000000000.00000
+c
++F8006 500 501 502 503 504 T
+c
+F8004:h 500 501 502 503 504 T
+e8004 1 199ilog 300
+ft8004 LET
+c
+f8014:h 500 501 502 503 504 T
+ft8014 tag 3
+fu8014 -1 10000000000.00000
+c
+c
+ssr old=500 new=500
+c
+prdmp 1e6 1e6 -1 j j
+c
+nps 9000000000
