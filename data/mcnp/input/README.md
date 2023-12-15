@@ -3,6 +3,7 @@ Input description
 - separate cells for recording quantities are created (no mesh tallies were used)
 
 dose profile recording:
+
 +F1006 400   401  402  403  404  405  406  407  408  409  410  411  412  413
         414  415  416  417  418  419  420  421  422  423  424  425  426  427
         428  429  430  431  432  433  434  435  436  437  438  439  440  441
@@ -21,6 +22,7 @@ dose profile recording:
 
 __
 recording LET
+
 F1004:h 400  401  402  403  404  405  406  407  408  409  410  411  412  413
         414  415  416  417  418  419  420  421  422  423  424  425  426  427
         428  429  430  431  432  433  434  435  436  437  438  439  440  441
@@ -42,10 +44,12 @@ ft1004 LET
 __
 
 dose in active part:
+
 +F8006 500 501 502 503 504 T
 
 __
 LET in active part:
+
 F8004:h 500 501 502 503 504 T
 e8004 1 199ilog 300
 ft8004 LET
