@@ -2,6 +2,7 @@
 - PTV is 10 x 10 x 10 cm³
 - Planned in Eclipse assuming Gammex Solid Water Phantom 30 x 30 x 20.5 cm³, and 0.5 cm PMMA centered on 10.25 cm depth.
  - planned for 2 Gy SOBP target dose
+ - 41 energy layers, nominal energy 149.419 - 83.419 MeV
 
 ## Eclipse calculated dose distributions
 ```
