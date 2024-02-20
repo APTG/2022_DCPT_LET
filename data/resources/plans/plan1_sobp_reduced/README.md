@@ -1,6 +1,6 @@
 # Plan 1 - SOBP - Reduced
 - Derived from Plan 1 but with lower energy layers removed.
-- 23 energy layers in total, nominal energy 149.419 - 113.119 MeV
+- 12 energy layers, nominal energy 149.419 - 113.119 MeV
 
 ```
 RN.1.2.246.352.71.5.37402163639.178041.20221206101625.dcm
