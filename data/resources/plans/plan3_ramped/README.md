@@ -5,7 +5,7 @@
 
 Plan names are subject to change.
 
-## Plan 3k `refrence`
+## Plan 3i `refrence`
 - is a flat SOBP, just for test purposes
 
 `RD1.2.752.243.1.1.20221206151952575.1000.46040.dcm`  Dose distribution, RayStation
@@ -19,7 +19,7 @@ Plan names are subject to change.
 `RP1.2.752.243.1.1.20221206155550324.5100.86787.dcm`  Spot data
 `RS1.2.752.243.1.1.20221205110227749.9000.25475.dcm`  Structure data
 
-## Plan 3i `ramp_4cm`
+## Plan 3k `ramp_4cm`
 - is a special ramp:
 -- in PTV it starts at 100 % dose, and being flat for 3 cm.
 -- Then follows a 4 cm ramp starting at 90 % dose, stopping at 10 % dose,
