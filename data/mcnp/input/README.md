@@ -53,3 +53,5 @@ LET in active part:
 F8004:h 500 501 502 503 504 T
 e8004 1 199ilog 300
 ft8004 LET
+______
+inout for setup 2 is named P4.
