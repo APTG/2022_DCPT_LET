@@ -12,7 +12,7 @@ type: dataset
 authors:
   - given-names: Niels
     family-names: Bassler
-    affiliation: Aarhus Universitet
+    affiliation: 'Aarhus University: Aarhus, DK'
     orcid: 'https://orcid.org/0000-0002-4160-1078'
   - given-names: Leszek
     family-names: Grzanka
