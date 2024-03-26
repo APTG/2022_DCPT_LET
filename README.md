@@ -33,6 +33,12 @@ We here always assume beam transport along the positive Z-axis, as is convention
 You can create new issues, and create new branches based on these issues.
 The branches will be reviewed before entering the master branch.
 
+## Credits
+
+To cite this work please referer to the Zenodo dataset https://zenodo.org/records/10641085
+It can be cited as:
+
+> Bassler, N., Grzanka, L., Christensen, J. B., Villads J, Brkić, H., Perrot, Y., Pasariček, L., & Romero-Expósito, M. (2024). MC particle transport simulations for the 2022 LET-measurements at DCPT: v1.0.0 (v1.0.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.10641085
 
 ### Directory Structure
 - We intend to adhere to the [Cookiecutter Data Science paradigm](https://drivendata.github.io/cookiecutter-data-science/).
