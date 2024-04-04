@@ -59,32 +59,32 @@ Settings
 
 # -------- Select what to score and output files ------------
 Output
-        Filename NB_XZ_plan3.bdo
+        Filename NB_XZ_plan3i.bdo
         Geo XZ_map
         Quantity Dose
 
 Output
-        Filename NB_XZ_large_plan3.bdo
+        Filename NB_XZ_large_plan3i.bdo
         Geo XZ_large
         Quantity Fluence
 
 Output
-        Filename NB_XY_isocenter_plan3.bdo
+        Filename NB_XY_isocenter_plan3i.bdo
         Geo XY_isocenter
         Quantity Dose
 
 Output
-        Filename NB_XY_source_plan3.bdo
+        Filename NB_XY_source_plan3i.bdo
         Geo XY_source
         Quantity Dose
-        
+
 Output
-        Filename NB_Z_dose_plan3.bdo
+        Filename NB_Z_dose_plan3i.bdo
         Geo Z_narrow
         Quantity Dose
 
 Output
-        Filename NB_phasespace_plan3.bdo
+        Filename NB_phasespace_plan3i.bdo
         Geo Phasespace_plane
         Quantity    mcpl Primary PhaseSpacePopulation
         Quantity    mcpl Protons PhaseSpacePopulation
