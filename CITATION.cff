@@ -1,0 +1,53 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  MC particle transport simulations for the 2022
+  LET-measurements at DCPT
+message: >-
+  If you use this dataset, please cite it using the metadata
+  from this file.
+type: dataset
+authors:
+  - given-names: Niels
+    family-names: Bassler
+    affiliation: 'Aarhus University: Aarhus, DK'
+    orcid: 'https://orcid.org/0000-0002-4160-1078'
+  - given-names: Leszek
+    family-names: Grzanka
+    email: leszek.grzanka@ifj.edu.pl
+    affiliation: 'Institute of Nuclear Physics: Krakow, PL'
+    orcid: 'https://orcid.org/0000-0002-3599-854X'
+  - given-names: Jeppe Brage
+    family-names: Christensen
+    affiliation: 'Paul Scherrer Institut: Villligen PSI, CH'
+    orcid: 'https://orcid.org/0000-0002-6894-381X'
+  - given-names: Hrvoje
+    family-names: Brkić
+    affiliation: 'Faculty of medicine, University of Osijek: Osijek, HR'
+    orcid: 'https://orcid.org/0000-0001-6692-6875'
+  - given-names: Yann
+    family-names: Perrot
+    orcid: 'https://orcid.org/0000-0001-9043-5857'
+    affiliation: >-
+      Institut de radioprotection et de Sûreté Nucléaire:
+      Fontenay-aux-Roses, Île-de-France, FR
+  - given-names: Luka
+    family-names: Pasariček
+    affiliation: 'Ruđer Bošković Institute: Zagreb, HR'
+    orcid: 'https://orcid.org/0009-0002-2822-2986'
+  - given-names: Maite
+    family-names: Romero-Expósito
+    affiliation: 'Skandion Clinic: Uppsala, SE'
+    orcid: 'https://orcid.org/0000-0003-0850-0280'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.10641085
+repository-code: 'https://github.com/APTG/2022_DCPT_LET'
+abstract: >-
+  MC particle transport simulations for the 2022
+  LET-measurements at DCPT
+commit: 03c74ad183d98134963233e1271f58e10cf2efba
+version: v1.0.0
+date-released: '2024-02-09'
