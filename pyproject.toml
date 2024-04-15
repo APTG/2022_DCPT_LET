@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "2022-let-experiment"
+requires-python = ">=3.9"
+version = "0.0.1"
+
+# needed to locate the package in src
+[tool.setuptools.packages.find]
