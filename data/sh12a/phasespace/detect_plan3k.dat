@@ -1,0 +1,91 @@
+# -------- Setup basic scoring geometries ------------
+
+Geometry Mesh
+        Name XZ_map             # Longitudinal map
+        X -15.  15.   300
+        Y  -1.   1.   1
+        Z  -10.25 10.25    205
+
+Geometry Mesh
+        Name XZ_large             # Longitudinal map
+        X -15.  15.   300
+        Y  -1.   1.   1
+        Z  -50 10    600
+
+Geometry Mesh
+        Name XY_isocenter            # Lateral map
+        X -15.  15.   300
+        Y -15.  15.   300
+        Z -0.25 0.25  1
+
+Geometry Mesh
+        Name XY_source             # Lateral map
+        X -15.  15.   300
+        Y -15.  15.   300
+        Z -49.99 -49.5  1
+
+
+Geometry Mesh
+        Name Z_narrow           # Narrow scoring along Z (lat. equib)
+        X  -1.  1.     1
+        Y  -1.  1.     1
+        Z  -10.25 10.25  205
+
+Geometry Plane      # Setup a plane for scoring
+   Name Phasespace_plane
+   Point    0.0     0.0     -49.9   # a random point on the scoring plane
+   Vector   0.0     0.0     1.0     # vector normal to the plane
+
+Settings            # define maximum population of the phase space, as default is 10000
+    Name PhaseSpacePopulation
+    MaxCount 1000000000
+
+# ------- Define a few useful filters ----------
+Filter
+        Name Primary    # Only primary protons
+        GEN = 0
+        Z = 1
+        A = 1
+
+Filter
+        Name Protons    # Primary and secondary protons
+        Z = 1
+        A = 1
+
+# ------- Select for scoring using water stopping power ----------
+Settings
+        Name in_Water
+        Medium 4
+
+# -------- Select what to score and output files ------------
+Output
+        Filename NB_XZ_plan3k.bdo
+        Geo XZ_map
+        Quantity Dose
+
+Output
+        Filename NB_XZ_large_plan3k.bdo
+        Geo XZ_large
+        Quantity Fluence
+
+Output
+        Filename NB_XY_isocenter_plan3k.bdo
+        Geo XY_isocenter
+        Quantity Dose
+
+Output
+        Filename NB_XY_source_plan3k.bdo
+        Geo XY_source
+        Quantity Dose
+
+Output
+        Filename NB_Z_dose_plan3k.bdo
+        Geo Z_narrow
+        Quantity Dose
+
+Output
+        Filename NB_phasespace_plan3k.bdo
+        Geo Phasespace_plane
+        Quantity    mcpl Primary PhaseSpacePopulation
+        Quantity    mcpl Protons PhaseSpacePopulation
+        Quantity    mcpl PhaseSpacePopulation
