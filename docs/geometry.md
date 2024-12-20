@@ -3,7 +3,7 @@
 The simulation geometries can be combined with various plans. Here is a list of the geometries which we will use.
 
 
-## Geometry A, B, C, D:
+## Simulation Geometries A, B, C, D:
 
 For all these geometries:
 - 30 x 30 cm² slabs of Gammex solid water, 20 cm thick, but with
@@ -16,25 +16,30 @@ For all these geometries:
 
 So, specifically, measured relative to iso-center planes:
 
-### Geometry A - Simulation Geometry for SOBP
+
+### Geometry A - Center of SOBP
 - First slab solid water : `z = [-10.25, -0.25]`
 - PMMA plate : `z = [-0.25, +0.25]`
 - Second slab solid water : `z = [+0.25, +10.25]`
 
 
-### Geometry B - Simulation Geometry for SOBP at distal edge 95%
+### Geometry B - SOBP at distal edge 95%
 - First slab solid water : `z = [-10.25, +4.75]`
 - PMMA plate : `z = [+4.75, +5.25]`
 - Second slab solid water : `z = [+5.25, +10.25]`
 
 
-### Geometry C - Simulation Geometry for SOBP at distal edge 74%
+### Geometry C - SOBP at distal edge 74%
 - First slab solid water : `z = [-10.25, +4.95]`
 - PMMA plate : `z = [+4.95, +5.45]`
 - Second slab solid water : `z = [+5.45, +10.25]`
 
 
-### Geometry D - Simulation Geometry for 160 MeV at 2.25 cm depth.
+### Geometry D - 160 MeV at 2.25 cm depth.
 - First slab solid water : `z = [-2.25, -0.25]`
 - PMMA plate : `z = [-0.25, +0.25]`
 - Second slab solid water : `z = [+0.25, +18.25]`
+
+
+Notice that the scoring geometry is technically independent of simulation geometry,
+however in reality the scoring geometry will always be attached to the simulation geometry eventually.

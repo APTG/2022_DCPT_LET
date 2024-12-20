@@ -24,8 +24,8 @@ We here always assume beam transport along the positive Z-axis, as is convention
 
 
 ## Details
-- Phantom geometry: [docs/phantom.md](docs/phantom.md)
-- Irradiation plans and measurement positions: [docs/plans.md](docs/plans.md)
+- Simulation geometry: [docs/geometry.md](docs/geometry.md)
+- Irradiation Plans: [data/resources/plans/](data/resources/plans/)
 - Scoring geometry: [docs/scoring.md](docs/scoring.md)
 
 
