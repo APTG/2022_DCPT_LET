@@ -5,7 +5,7 @@
 
 Plan names are subject to change.
 
-## Plan 3k `refrence`
+## Plan 3k `reference`
 - is a flat SOBP, just for test purposes
 
 `RD1.2.752.243.1.1.20221206151952575.1000.46040.dcm`  Dose distribution, RayStation
