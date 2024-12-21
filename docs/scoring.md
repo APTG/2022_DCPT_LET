@@ -3,14 +3,17 @@ We suggest to adhere to the list of scoring quantities and scoring volumes descr
 
 -
 ### Target volume
-This volume represent the detector positioned in the PMMA holder. Center of the volume is equivalent to the isocenter position. The volume is large enough to cover the whole detector.
+This volume represent the detector positioned in the PMMA holder.
+The target volume will always follow the PMMA detector plate, as described in [docs/geometry.md](docs/geometry.md).
+
+The detector volume extends 5x5 cm² laterally but is only 0.2 cm thick.
 
 `[-2.5, 2.5] x [-2.5, 2.5] x [-0.1, 0.1] cm³`
 
-Lateral extension of all the fields in treatment plans is twice the size of the target volume. Plans cover the PTV of 10 x 10 x 10 cm³.
+Lateral extension of all the fields in treatment plans is twice the size of the target volume. SOBP plans cover the PTV of 10 x 10 x 10 cm³.
 
 The yellow box shows the **target volume** for plan2:
-![Target for plan2](plan2-target.png)
+![Target for plan2](plan02_geoD_mono-target.png)
 
 
 ### Depth profile
@@ -23,7 +26,7 @@ The volume should be divided into 205 bins of 1 mm thickness along the Z axis.
 The span of the volume along Z axis: 20.5 cm covers the 20 cm of the solid water phantom and 0.5 cm of the detector plate.
 
 The yellow box shows the **narrow profile** for plan2:
-![Alt text](plan2-narrow.png)
+![Alt text](plan02_geoD_mono-narrow.png)
 
 
 ### Lateral map
@@ -32,7 +35,7 @@ Two dimensional map is useful to check the spot positions at the isocenter plane
 `[-15.0, 15.0] x [-15.0, 15.0] x [-0.25, 0.25] cm³`
 
 The yellow box shows the **lateral map** for plan2:
-![Alt text](plan2-lateral.png)
+![Alt text](plan02_geoD_mono-lateral.png)
 
 
 ### Longitudinal map
@@ -41,13 +44,14 @@ Two-dimensional map useful to check the beam divergence. We suggest to use a 2 c
 `[-15.0, 15.0] x [-1.0, 1.0] x [-10.25, 10.25] cm³`
 
 The yellow box shows the **longitudinal map** for plan2:
-![Alt text](plan2-longitudal.png)
+![Alt text](plan02_geoD_mono-longitudal.png)
 
 
 ## Scoring quantities
 ### Target volume
 - any available type of averaged linear energy transfer (LET)
 - other derived quantities (mean kinetic energy, effective Q, etc.)
+- differential spectra of LET, Qeff, kinetic energy...
 
 
 ### Narrow depth profile
