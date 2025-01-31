@@ -23,7 +23,7 @@ This volume represent the detector positioned in the PMMA holder. Center of the 
 Lateral extension of all the fields in treament plans is twice the size of the target volume. Plans cover the PTV of 10 x 10 x 10 cm³.
 
 This is the target volume for plan2:
-![Target for plan2](plan2-target.png)
+![Target scoring plan2](../docs/plan02_geoD_mono-target.png)
 
 ### Narrow depth profile
 
@@ -36,7 +36,7 @@ The volume should be divided into 205 bins of 1 mm thickness along the Z axis.
 The span of the volume along Z axis: 20.5 cm covers the 20 cm of the solid water phantom and 0.5 cm of the detector plate.
 
 This is the narrow profile for plan2:
-![Alt text](plan2-narrow.png)
+![Narrow depth-profile scoring plan2](../docs/plan02_geoD_mono-narrow.png)
 
 ### Lateral map
 
@@ -45,7 +45,7 @@ Two dimensional map is useful to check the spot positions at the isocenter plane
 `[-15.0, 15.0] x [-15.0, 15.0] x [-0.25, 0.25] cm³`
 
 This is the lateral map for plan2:
-![Alt text](plan2-lateral.png)
+![Lateral scoring plan2](../docs/plan02_geoD_mono-lateral.png)
 
 ### Longitudal map
 
@@ -54,7 +54,7 @@ Two dimensional map useful to check the beam divergence. We suggest to use a thi
 `[-15.0, 15.0] x [-1.0, 1.0] x [-10.25, 10.25] cm³`
 
 This is the longitudal map for plan2:
-![Alt text](plan2-longitudal.png)
+![Longitudal scoring plan2](../docs/plan02_geoD_mono-longitudal.png)
 ## Scoring quantities
 
 ### Target volume
