@@ -14,7 +14,7 @@ The primary reference setup explicitly omits detector details. This is intention
 Certain detectors will necessitate specialized calculations. For such cases:
 
 - Users can fork this repository and integrate their detector-specific simulations.
-- Alternatively, a dedicated folder can be introduced within this repository for those detector-specific calculations."
+- Alternatively, a dedicated folder can be introduced within this repository for those detector-specific calculations.
 
 Multiple MC codes will be used.
 
@@ -24,8 +24,8 @@ We here always assume beam transport along the positive Z-axis, as is convention
 
 
 ## Details
-- Phantom geometry: [docs/phantom.md](docs/phantom.md)
-- Irradiation plans and measurement positions: [docs/plans.md](docs/plans.md)
+- Simulation geometry: [docs/geometry.md](docs/geometry.md)
+- Irradiation Plans: [data/resources/plans/](data/resources/plans/)
 - Scoring geometry: [docs/scoring.md](docs/scoring.md)
 
 
@@ -55,3 +55,4 @@ It can be cited as:
 ### General hints:
 - Any code you upload should be free of trailing whitespace.
 - Use soft tabs (i.e. spaces)
+- For python code, use flake8/pep8 before comitting.

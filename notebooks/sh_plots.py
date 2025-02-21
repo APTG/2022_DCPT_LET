@@ -4,13 +4,13 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-plans = ("data/sh12a/results/plan_1a",
-         "data/sh12a/results/plan_1b",
-         "data/sh12a/results/plan_1c",
-         "data/sh12a/results/plan_2"
-         # "data/sh12a/results/plan_3i",
-         # "data/sh12a/results/plan_3j",
-         # "data/sh12a/results/plan_3k"
+plans = ("data/sh12a/results/plan01_geoA_SOBPcent",
+         "data/sh12a/results/plan01_geoB_SOBP95",
+         "data/sh12a/results/plan01_geoC_SOBP74",
+         "data/sh12a/results/plan02_geoD_mono"
+         # "data/sh12a/results/plan03_geoA_SOBPraystation",
+         # "data/sh12a/results/plan04_geoA_ramp10cm",
+         # "data/sh12a/results/plan05_geoA_ramp4cm"
          )
 
 fn_tw = ("NB_target_water__p1.txt",
