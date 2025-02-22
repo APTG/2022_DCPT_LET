@@ -1,4 +1,4 @@
-# Guidelines for contributing
+# Guidelines
 
 This directory contains:
  - common [resources](https://github.com/APTG/2022_DCPT_LET/tree/main/data) like beam model, treatment plan DICOM files, phase space files etc
@@ -27,7 +27,7 @@ This is the target volume for plan2:
 
 ### Narrow depth profile
 
-To score depth profile of basic quantities we suggest to use a narrow volume of 2 x 2 x 20.5 cm³. The volume is centered at the isocenter position. 
+To score depth profile of basic quantities we suggest to use a narrow volume of 2 x 2 x 20.5 cm³. The volume is centered at the isocenter position.
 
 `[-1.0, 1.0] x [-1.0, 1.0] x [-10.25, 10.25] cm³`
 
