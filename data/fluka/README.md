@@ -1,0 +1,1 @@
+- the spotlists can be read by compiling https://github.com/DataMedSci/au-fluka-tools/tree/master/fluka_sobp_source and linking it to fluka and specifying the SOURCE card in the fluka input file.
