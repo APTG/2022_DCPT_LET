@@ -34,4 +34,4 @@ is a special ramp:
 - `RP1.2.752.243.1.1.20221209140939393.2000.36612.dcm`  Spot data
 - `RS1.2.752.243.1.1.20221209135909128.2180.16718.dcm`  Structure data
 
-Corresponding easy-to-read `sobp_*.dat` files are added for each plan.
+Corresponding easy-to-read `spotlist_*.dat` files are added for each plan.

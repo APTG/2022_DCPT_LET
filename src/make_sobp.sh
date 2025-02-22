@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#TODO: this is deprecated, use dicomexport from dicomfix instead.
+
 exe="plan2sobp"
 path_bm="data/resources/dcpt_beam_model/DCPT_beam_model__v2.csv"
 dir_plan="data/resources/plans/"
