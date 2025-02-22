@@ -32,6 +32,7 @@ We here always assume beam transport along the positive Z-axis, as is convention
 ## Contributing
 You can create new issues, and create new branches based on these issues.
 The branches will be reviewed before entering the master branch.
+See also [doc/contributing.md](docs/contributing.md) for general guidelines, and [data/README.md](data/README.md) for more details.
 
 ## Credits
 
@@ -39,20 +40,3 @@ To cite this work please referer to the Zenodo dataset https://zenodo.org/record
 It can be cited as:
 
 > Bassler, N., Grzanka, L., Christensen, J. B., Villads J, Brkić, H., Perrot, Y., Pasariček, L., & Romero-Expósito, M. (2024). MC particle transport simulations for the 2022 LET-measurements at DCPT: v1.0.0 (v1.0.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.10641085
-
-### Directory Structure
-- We intend to adhere to the [Cookiecutter Data Science paradigm](https://drivendata.github.io/cookiecutter-data-science/).
-
-- `/docs` -> general documentation in Markdown format
-- `/data/resources` -> common stuff like beam model, DICOM files etc
-- `/data/fluka/input`  (`topas`, `phits`) -> input files for the MC codes
-- `/data/fluka/results` -> collection of results from simulation (small files!)
-- `/notebooks/` - Jupyter notebooks for analysis data from individual simulations and also for comparing various codes
-- `/references/` - collection of links to relevant publications, codes manuals
-- `/reports/figures` - PNGs and documents with summaries/reports
-- `/src` - scripts for post-process intercomparisons
-
-### General hints:
-- Any code you upload should be free of trailing whitespace.
-- Use soft tabs (i.e. spaces)
-- For python code, use flake8/pep8 before comitting.
