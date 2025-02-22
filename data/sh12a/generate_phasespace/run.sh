@@ -2,9 +2,9 @@
 
 ./clean.sh
 
-for i in {1..3} 
+for i in {1..3}
 do
-    shieldhit --beamfile beam_plan${i}.dat --detectfile detect_plan${i}.dat --time="00:00:15" . 
+    shieldhit --beamfile beam_plan0${i}.dat --detectfile detect_plan0${i}.dat --time="00:00:15" .
 done
 
 convertmc image --many "*.bdo"

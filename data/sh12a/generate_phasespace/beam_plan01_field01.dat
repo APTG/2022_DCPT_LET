@@ -5,7 +5,7 @@ BEAMSIGMA                   -0.20        -0.20	 # SigmaX, SigmaY at focus point
 BEAMPOS                      0.0         0.0      -50.0  # Beam XYZ start pos
 *BEAMDIV                     2.0         2.0      -50.0  # divx divy focus [mrad, mrad, cm]
 BEAMSAD                    200.0       256.0
-USECBEAM                plan2.dat                 # load spot scanning file
+USECBEAM    ../../resources/plans/plan01_sobp/spotlist_plan01_field01.dat                 # load spot scanning file
 
 # Physics parameters
 NEUTRLCUT                    0.0    # Cutoff for neutron transport
