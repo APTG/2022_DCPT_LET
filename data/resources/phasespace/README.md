@@ -4,18 +4,13 @@ These phase space files can serve as a particle source for various particle tran
 
 ## Binary Files with Scored Particles
 
-The following binary files contain lists of particles scored at a plane near the particle source. Each file is 3 GB in size and contains approximately 10^8 particles.
+The following table lists the binary files containing particles scored at a plane near the particle source. Each file is 3 GB in size and contains approximately 10^8 particles. They are provided in the MCPL file format.
 
-They are provided in the MCPL file format and can be downloaded here:
-
-### Plan 1
-- [NB_phasespace_plan1__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan1__p1.mcpl)
-
-### Plan 2
-- [NB_phasespace_plan2__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan2__p1.mcpl)
-
-### Plan 3
-- [NB_phasespace_plan3__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan3__p1.mcpl)
+| Plan  | File                                                                                          |
+|-------|-----------------------------------------------------------------------------------------------|
+| Plan 1 | [NB_phasespace_plan1__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan1__p1.mcpl) |
+| Plan 2 | [NB_phasespace_plan2__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan2__p1.mcpl) |
+| Plan 3 | [NB_phasespace_plan3__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan3__p1.mcpl) |
 
 ## Particle Source
 
