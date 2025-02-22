@@ -2,9 +2,9 @@
 
 Geometry Mesh
         Name XZ_map             # Longitudinal map
-        X -15.  15.   300
-        Y  -1.   1.   1
-        Z  -2.25 17.5 200
+        X -15.  15.    300
+        Y  -1.   1.    1
+        Z  -2.25 18.25 200
 
 Geometry Mesh
         Name XY_map             # Lateral map
@@ -14,15 +14,15 @@ Geometry Mesh
 
 Geometry Mesh
         Name Z_narrow           # Narrow scoring along Z (lat. equib)
-        X  -1.  1.     1
-        Y  -1.  1.     1
-        Z  -2.25 17.5  200
+        X  -1.   1.     1
+        Y  -1.   1.     1
+        Z  -2.25 18.25  205
 
 Geometry Mesh
         Name Z_wide             # wide scoring along Z (no lat. equib)
-        X  -15.  15.     1
-        Y  -15.  15.     1
-        Z  -2.25 17.5    200
+        X  -15.  15.      1
+        Y  -15.  15.      1
+        Z  -2.25 18.25    205
 
 
 Geometry Mesh
