@@ -4,7 +4,7 @@ We suggest to adhere to the list of scoring quantities and scoring volumes descr
 -
 ### Target volume
 This volume represent the detector positioned in the PMMA holder.
-The target volume will always follow the PMMA detector plate, as described in [docs/geometry.md](docs/geometry.md).
+The target volume will always follow the PMMA detector plate, as described in [geometry.md](geometry.md).
 
 The detector volume extends 5x5 cm² laterally but is only 0.2 cm thick.
 
