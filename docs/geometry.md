@@ -43,4 +43,4 @@ So, specifically, measured relative to iso-center planes:
 
 Notice that the target scoring volume, must follow the detector plate, thus the scoring geometry will always be attached to the simulation geometry.
 
-See scoring geometry: [docs/scoring.md](docs/scoring.md) for further details.
+See scoring geometry: [scoring.md](scoring.md) for further details.
