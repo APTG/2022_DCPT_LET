@@ -32,7 +32,7 @@ We here always assume beam transport along the positive Z-axis, as is convention
 ## Contributing
 You can create new issues, and create new branches based on these issues.
 The branches will be reviewed before entering the master branch.
-See also [doc/contributing.md](docs/contributing.md) for general guidelines, and [data/README.md](data/README.md) for more details.
+See also [doc/contributing.md](docs/contributing.md) for general guidelines.
 
 ## Credits
 
