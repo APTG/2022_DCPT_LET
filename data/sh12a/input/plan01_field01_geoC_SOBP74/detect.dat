@@ -66,6 +66,8 @@ Output
         Quantity Fluence                        # __p1
         Quantity Dose                           # __p2
         Quantity Dose Protons                   # __p3
+        Quantity Fluence Primary                # __p4
+        Quantity Fluence Protons                # __p5
 
 Output
         Filename NB_Z_narrow_dose_water.bdo
@@ -122,6 +124,8 @@ Output
         Quantity TQEFF                          # __p12
         Quantity TQEFF Primary
         Quantity TQEFF Protons
+        Quantity FLUENCE Primary                # __p15
+        Quantity FLUENCE Protons                # __p16
 
 Output
         Filename NB_target_water.bdo
