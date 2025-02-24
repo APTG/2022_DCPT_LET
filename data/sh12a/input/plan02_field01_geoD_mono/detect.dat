@@ -4,7 +4,7 @@ Geometry Mesh
         Name XZ_map             # Longitudinal map
         X -15.  15.    300
         Y  -1.   1.    1
-        Z  -2.25 18.25 200
+        Z  -2.25 18.25 205
 
 Geometry Mesh
         Name XY_map             # Lateral map
