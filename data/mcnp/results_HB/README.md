@@ -1,17 +1,17 @@
-Results are shown for each phase-space file, and I tried to adjust the naming according to SHIELD-hit results.
+flux_active_F4.dat - proton flux at active part
 
-Plan_1_1 - corresponds to plan 1 - simulated form phase-space plan_1_1
+flux_all_F4.dat - proton flux along z-axis
 
-MCNP for F4 tally uses "track length estimate of particle flux", and all the results are normalized per SP (Spurce Particle). "The values provided in the energy bins are interpreted as stopping power values with units of
-MeV/cm". 
+LET_flux_averaged.dat - Flux averaged LET calculated from LET spectra
+
+LET_dose_averaged.dat - Dose averaged LET calculated from LET spectra
+// F1004:h //  e1004 1 199ilog 300 //  ft1004 LET - the LET spectra obtained by these keywords
+
+dose_active_F6.dat - dose from all the particles at active part (+F6)
+
+dose_profile_F6.dat - dose profile from all the particles (+F6)
 
 
-*narrow_dose_p02 - dose  (F6 tally)  along the Z-axis in MeV/g/SP
 
-*target_p02 - dose  (F6 tally) in target volume in MeV/g/SP
 
-*narrow dose_p01 - flux of primary particles along z-axis
 
-*narrow_LET_p3 - DLET Protons [MEV/cm]
-
-*narrow_LET_p6 - TLET Protons [MEV/cm]
