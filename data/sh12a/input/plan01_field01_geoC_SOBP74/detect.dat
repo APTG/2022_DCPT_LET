@@ -126,6 +126,19 @@ Output
         Quantity TQEFF Protons
         Quantity FLUENCE Primary                # __p15
         Quantity FLUENCE Protons                # __p16
+        # ------------ differential LET spectra
+        Quantity FLUENCE	                    # __p17
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary                # __p18
+        Diff1     0 2000 1000
+        Diff1Type LET
+        Quantity FLUENCE in_Si	                # __p19
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE in_Si Primary          # __p19
+        Diff1     0 2000 1000
+        Diff1Type DEDX
 
 Output
         Filename NB_target_water.bdo
@@ -137,3 +150,10 @@ Output
         Quantity TLET in_Water                  # __p5
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
+        # ------------ differential LET spectra
+        Quantity FLUENCE in_Water               # __p8
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary in_Water       # __p9
+        Diff1     0 2000 1000
+        Diff1Type LET

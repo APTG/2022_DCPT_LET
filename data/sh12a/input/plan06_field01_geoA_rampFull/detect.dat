@@ -141,6 +141,9 @@ Output
         Quantity FLUENCE in_Si	                # __p19
         Diff1     0 2000 1000
         Diff1Type DEDX
+        Quantity FLUENCE in_Si Primary          # __p19
+        Diff1     0 2000 1000
+        Diff1Type DEDX
 
 Output
         Filename NB_target_water.bdo
