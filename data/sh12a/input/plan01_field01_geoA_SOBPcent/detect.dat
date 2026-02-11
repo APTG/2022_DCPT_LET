@@ -48,6 +48,10 @@ Settings
         Name in_Water
         Medium 4
 
+Settings
+        Name in_Si
+        Medium 5
+
 # -------- Select what to score and output files ------------
 Output
         Filename NB_XZ_map.bdo
