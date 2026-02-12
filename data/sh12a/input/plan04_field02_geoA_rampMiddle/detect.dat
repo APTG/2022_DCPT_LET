@@ -1,7 +1,3 @@
-# Results - file description
-The filenames are in the format `<filename>__p<number>.suffix` where filename and page number can looked up from the table below, describing what scorer was used. It should be fairly self-explanatory.
-
-```
 # -------- Setup basic scoring geometries ------------
 
 Geometry Mesh
@@ -166,4 +162,3 @@ Output
         Quantity FLUENCE Primary in_Water       # __p9
         Diff1     0 2000 1000
         Diff1Type LET
-```
