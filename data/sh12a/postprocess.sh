@@ -4,11 +4,11 @@ set -u -o pipefail
 exe="$HOME/convertmc"
 
 # basenames for 1-d plots
-bplot="NB_Z_narrow_dose NB_Z_narrow_dose_water NB_Z_narrow_LET NB_Z_narrow_LET_water NB_Z_narrow_QEFF NB_target_diff NB_target_water_diff"
+bplot="NB_Z_narrow_dose_ NB_Z_narrow_dose_water_ NB_Z_narrow_LET_ NB_Z_narrow_LET_water_ NB_Z_narrow_QEFF_ NB_target_diff_ NB_target_water_diff_"
 # basenames for images (2-d and 1-d)
-bimg="NB_XY NB_XZ ${bplot}"
+bimg="NB_XY_ NB_XZ_map_ ${bplot}"
 # basenames for text
-btxt="NB_target"
+btxt="NB_target_ NB_target_water_"
 
 td="$(pwd)"  # directory where command was started from
 
@@ -45,8 +45,8 @@ for dir in input/plan*; do
 
     # generate PNG images
     for b in $bimg; do
-        echo "  convert \"${b}*bdo\" to image files"
-        "$exe" image --many "${b}*bdo"
+        echo "  convert \"${b}????.bdo\" to image files"
+        "$exe" image --many "${b}????.bdo"
     done
     cd "$td"
     cp -v "$od"/NB*.png "$rd"/
@@ -54,8 +54,8 @@ for dir in input/plan*; do
     cd "$od"
     # generate plotdata (.dat)
     for b in $bplot; do
-        echo "  convert \"${b}*bdo\" to plotdata files"
-        "$exe" plotdata --many "${b}*bdo"
+        echo "  convert \"${b}????.bdo\" to plotdata files"
+        "$exe" plotdata --many "${b}????.bdo"
     done
     cd "$td"
     cp -v "$od"/NB*.dat "$rd"/
@@ -63,8 +63,8 @@ for dir in input/plan*; do
     cd "$od"
     # generate text results (.txt) for VOIs
     for b in $btxt; do
-        echo "  convert \"${b}*bdo\" to text files"
-        "$exe" txt --many "${b}*bdo"
+        echo "  convert \"${b}????.bdo\" to text files"
+        "$exe" txt --many "${b}????.bdo"
     done
     cd "$td"
     cp -v "$od"/NB*.txt "$rd"/
