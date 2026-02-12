@@ -5,9 +5,10 @@ plan01_field01_geoA_SOBPcent
 plan01_field01_geoB_SOBP95
 plan01_field01_geoC_SOBP74
 plan02_field01_geoD_mono
-plan03_field01_geoA_SOBPraystation
-plan04_field01_geoA_ramp10cm
-plan05_field01_geoA_ramp4cm
+plan03_field01_geoA_rampFull
+plan03_field02_geoA_rampFull
+plan04_field01_geoA_rampMiddle
+plan04_field02_geoA_rampMiddle
 )
 
 CREATE_TODO=false
