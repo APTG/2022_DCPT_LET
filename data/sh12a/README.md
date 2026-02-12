@@ -41,7 +41,10 @@ on login node:
 and go into the plan01_geoB_SOBP95/ directory where there will be a new run* directory. Inside it you will find the submit script:
 `$ ./submit.sh`
 
-and do this for every plan. 100 hours is plenty for good statistics.
+and do this for every plan.
+Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep 1 inserted between the lines)
+
+100 hours is plenty for good statistics.
 
 ## Postprocess
 
