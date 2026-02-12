@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# function convert{
-#         convertmc
-# }
-# set -o xtrace
-
+exe="$HOME/convertmc"
 
 # basenames for 1-d plots
 bplot="NB_Z_narrow_dose NB_Z_narrow_dose_water NB_Z_narrow_LET NB_Z_narrow_LET_water NB_Z_narrow_QEFF"
@@ -13,47 +10,52 @@ bimg="NB_XY NB_XZ ${bplot}"
 # basenames for text
 btxt="NB_target"
 
-td=`pwd`           # this directory where command was started from
+td="$(pwd)"  # directory where command was started from
 
-for dir in input/plan*
-do
+# If globs don't match, expand to nothing (prevents cp errors)
+shopt -s nullglob
+
+for dir in input/plan*; do
+    [[ -d "$dir" ]] || continue
     echo
-    ed=`ls -1 -d ${dir}/run_* | tail -1`  # extract from latest run directory only
-    od=${ed}/output   # output directory
-    rdd=`basename ${dir}`
-    rd=results/${rdd}  # result directory
 
-    mkdir -p ${rd}
+    # Latest run_* directory (lexicographically sorted); skip if none exists
+    runs=( "$dir"/run_* )
+    [[ ${#runs[@]} -gt 0 ]] || { echo "No run_* directories in: $dir (skipping)"; continue; }
+    ed="${runs[-1]}"
 
-    echo $od
-    cd $od  # change into every plan*/run_*/output directory
+    od="$ed/output"              # output directory
+    rdd="$(basename "$dir")"
+    rd="results/$rdd"            # result directory
 
-    # generate PNG images and copy into results dir
-    for b in $bimg
-    do
-       echo  \ \ convert "${b}*bdo" to image files
-       convertmc image --many "${b}*bdo"
+    mkdir -p "$rd"
+
+    echo "$od"
+    [[ -d "$od" ]] || { echo "Missing output dir: $od (skipping)"; continue; }
+
+    # Work inside output dir
+    pushd "$od" >/dev/null
+
+    # generate PNG images
+    for b in $bimg; do
+        echo "  convert \"${b}*bdo\" to image files"
+        "$exe" image --many "${b}"*bdo
     done
-    cd $td
-    cp -v $od/NB*.png $rd
 
-    cd $od
-    # generate plotdata (.dat) and copy into results dir
-    for b in $bplot
-    do
-            echo \ \ convert "${b}*bdo" to plotdata files
-            convertmc plotdata --many "${b}*bdo"
+    # generate plotdata (.dat)
+    for b in $bplot; do
+        echo "  convert \"${b}*bdo\" to plotdata files"
+        "$exe" plotdata --many "${b}"*bdo
     done
-    cd $td
-    cp -v $od/NB*.dat $rd
 
-    cd $od    # generate text results for VOIs (.txt) and copy into results dir
-    for b in $btxt
-    do
-       echo \ \ convert "${b}*bdo" to text files
-       convertmc txt --many "${b}*bdo"
+    # generate text results (.txt) for VOIs
+    for b in $btxt; do
+        echo "  convert \"${b}*bdo\" to text files"
+        "$exe" txt --many "${b}"*bdo
     done
-    cd $td      # change back into ./
-    cp -v $od/NB*.txt $rd
 
+    # copy results into results/<plan...>/
+    cp -v NB*.png NB*.dat NB*.txt "$td/$rd/" 2>/dev/null || true
+
+    popd >/dev/null
 done
