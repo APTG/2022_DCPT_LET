@@ -1,9 +1,4 @@
 plan01_sobp/RN.1.2.246.352.71.5.37402163639.178319.20221207095327.dcm
 plan02_mono/RN.1.2.246.352.71.5.37402163639.178320.20221207095327.dcm
-plan03_sobp_raystation/RP1.2.752.243.1.1.20221209141208883.9000.73261.dcm
-plan04_ramp_10cm/RP1.2.752.243.1.1.20221209141404013.2300.75558.dcm
-plan05_ramp_4cm/RP1.2.752.243.1.1.20221209140939393.2000.36612.dcm
-plan06_ramp_full/ramped_2Gy_ver2_full.dcm
-plan07_ramp_middle/ramped_2Gy_ver1_middel.dcm
-
-
+plan03_ramp_full/ramped_2Gy_ver2_full.dcm
+plan04_ramp_middle/ramped_2Gy_ver1_middel.dcm
