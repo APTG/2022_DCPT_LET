@@ -19,39 +19,36 @@ for dir in input/plan*; do
     [[ -d "$dir" ]] || continue
     echo
 
-    # Latest run_* directory (lexicographically sorted); skip if none exists
+    # Latest run_* directory (lexicographically sorted)
     runs=( "$dir"/run_* )
     [[ ${#runs[@]} -gt 0 ]] || { echo "No run_* directories in: $dir (skipping)"; continue; }
     ed="${runs[-1]}"
 
-    od="$ed/output"              # output directory
+    od="$ed/output"
     rdd="$(basename "$dir")"
-    rd="results/$rdd"            # result directory
+    rd="results/$rdd"
 
     mkdir -p "$rd"
 
     echo "$od"
     [[ -d "$od" ]] || { echo "Missing output dir: $od (skipping)"; continue; }
 
-    # Work inside output dir
     pushd "$od" >/dev/null
 
-    # generate PNG images
+    # IMPORTANT: keep the glob INSIDE the quotes so convertmc receives ONE pattern argument
     for b in $bimg; do
         echo "  convert \"${b}*bdo\" to image files"
-        "$exe" image --many "${b}"*bdo
+        "$exe" image --many "${b}*bdo"
     done
 
-    # generate plotdata (.dat)
     for b in $bplot; do
         echo "  convert \"${b}*bdo\" to plotdata files"
-        "$exe" plotdata --many "${b}"*bdo
+        "$exe" plotdata --many "${b}*bdo"
     done
 
-    # generate text results (.txt) for VOIs
     for b in $btxt; do
         echo "  convert \"${b}*bdo\" to text files"
-        "$exe" txt --many "${b}"*bdo
+        "$exe" txt --many "${b}*bdo"
     done
 
     # copy results into results/<plan...>/
