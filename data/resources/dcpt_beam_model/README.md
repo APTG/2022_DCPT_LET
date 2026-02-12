@@ -3,9 +3,9 @@
 The file `DCPT_beam_model__v2.csv` contains a beam model for DCPT.
 The beam model was reverse-engineered using actual experimental data and TOPAS simulations.
 
-The beam model is defined at a plane z = 50.0 cm *upstream* from the iso-center.
-The beam model assumes transport in *negative* z direction.
-
+The beam model is defined on a plane 50.0 cm *upstream* from the iso-center.
+Throughout this README we use a beam-coordinate system in which the z-axis increases *upstream* (towards the source), so this reference plane is at z = +50.0 cm and particles are transported in the *negative* z direction (towards the iso-center).
+In the CSV metadata, the same physical plane is described as "valid at -50 cm from ISO", which uses the opposite sign convention (z increasing *downstream* from the iso-center); both descriptions refer to the same reference plane, only the sign convention differs.
 Columns are:
 1) Energy: Nominal (i.e. requested energy) [MeV]
 2) E_real: actual energy derived from range measurements [MeV]
