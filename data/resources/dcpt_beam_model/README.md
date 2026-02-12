@@ -1,7 +1,7 @@
 # Description of the beam model format
 
-The file `DCPT_beam_model__v2.csv`contains a beam model for DCPT.
-The beam model was reverseengineered using actual experimental data and TOPAS simulations.
+The file `DCPT_beam_model__v2.csv` contains a beam model for DCPT.
+The beam model was reverse-engineered using actual experimental data and TOPAS simulations.
 
 The beam model is defined at a plane z = 50.0 cm *upstream* from the iso-center.
 The beam model assumes transport in *negative* z direction.
