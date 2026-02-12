@@ -8,9 +8,10 @@ The following table lists the binary files containing particles scored at a plan
 
 | Plan  | File                                                                                          |
 |-------|-----------------------------------------------------------------------------------------------|
-| Plan 1 | [NB_phasespace_plan1__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan1__p1.mcpl) |
-| Plan 2 | [NB_phasespace_plan2__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan2__p1.mcpl) |
-| Plan 3 | [NB_phasespace_plan3__p1.mcpl](https://s3p.cloud.cyfronet.pl/grzanka-mcpl-v1/NB_phasespace_plan3__p1.mcpl) |
+| Plan 1 | [plan01_sobp_field01.mcpl](https://) |  TODO: Leszek
+| Plan 2 | [plan02_mono_field01.mcpl](https://) |
+| Plan 3 | [plan03_ramp_full_field01.mcpl](https://) | [plan03_ramp_full_field02.mcpl](https://) |
+| Plan 4 | [plan04_ramp_middle_field01.mcpl](https://) | [plan04_ramp_middle_field02.mcpl](https://) |
 
 ## Particle Source
 
@@ -20,9 +21,9 @@ We used **SHIELD-HIT12A** to simulate a proton beam according to the **DCPT beam
 
 Three plans were simulated:
 
-- `plan1`: SOBP with three PMMA plate configurations  
-- `plan2`: 160 MeV monoenergetic  
-- `plan3`: Ramped plans for LET painting  
+- `plan1`: SOBP with three PMMA plate configurations
+- `plan2`: 160 MeV monoenergetic
+- `plan3`: Ramped plans for LET painting
 
 In each plan, 10^8 primary particles were generated.
 
