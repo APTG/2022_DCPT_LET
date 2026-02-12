@@ -21,12 +21,12 @@ Windows:
 using `ares.cyfronet.pl`:
 
 Start a interactive node, for compilation (if needed)
-`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc13-cpu --time=0:59:00 --pty /bin/bash -l`
+`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc14-cpu --time=0:59:00 --pty /bin/bash -l`
 `$ module load mcpartools shieldhit`
 
 From the directory of this README file, you can then
 
-`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc13-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
+`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc14-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
 
 Due to an issue with symlinks, run the script `fix_run.sh` afterwards.
 
