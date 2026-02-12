@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -u -o pipefail  # no -e: don't abort whole script on one failing conversion
+
+# Enable shell tracing if you run: DEBUG=1 ./postprocess.sh
+if [[ "${DEBUG:-0}" == "1" ]]; then
+  set -x
+fi
 
 exe="$HOME/convertmc"
 
@@ -12,47 +17,92 @@ btxt="NB_target"
 
 td="$(pwd)"  # directory where command was started from
 
-# If globs don't match, expand to nothing (prevents cp errors)
-shopt -s nullglob
+# Print a useful message if something *does* go wrong unexpectedly
+trap 'echo "ERROR: command failed (exit $?): $BASH_COMMAND" >&2' ERR
+
+# helper: check if any files match <basename>*.bdo in the current dir
+have_bdo() {
+  compgen -G "$1" >/dev/null
+}
+
+run_many() {
+  local mode="$1"      # image | plotdata | txt
+  local base="$2"      # e.g. NB_XY
+  local pat="${base}*.bdo"
+
+  if ! have_bdo "$pat"; then
+    echo "  skip: no files match \"$pat\""
+    return 0
+  fi
+
+  echo "  convert \"${base}*bdo\" -> ${mode}"
+  # IMPORTANT: pass the glob pattern as ONE argument (convertmc handles it)
+  if ! "$exe" "$mode" --many "${base}*bdo"; then
+    echo "  WARN: convertmc failed for mode=$mode base=$base (continuing)" >&2
+    return 0
+  fi
+}
 
 for dir in input/plan*; do
-    [[ -d "$dir" ]] || continue
-    echo
+  [[ -d "$dir" ]] || continue
+  echo
+  echo "== Plan dir: $dir =="
 
-    # Latest run_* directory (lexicographically sorted)
-    runs=( "$dir"/run_* )
-    [[ ${#runs[@]} -gt 0 ]] || { echo "No run_* directories in: $dir (skipping)"; continue; }
-    ed="${runs[-1]}"
+  # Latest run_* directory (lexicographic; works well for run_YYYYMMDD_HHMMSS)
+  runs=( "$dir"/run_* )
+  if [[ ${#runs[@]} -eq 0 ]]; then
+    echo "  No run_* directories found (skipping)"
+    continue
+  fi
+  ed="${runs[-1]}"
 
-    od="$ed/output"
-    rdd="$(basename "$dir")"
-    rd="results/$rdd"
+  od="$ed/output"
+  rdd="$(basename "$dir")"
+  rd="results/$rdd"
 
-    mkdir -p "$rd"
+  echo "  Latest run: $ed"
+  echo "  Output dir: $od"
+  echo "  Result dir: $rd"
 
-    echo "$od"
-    [[ -d "$od" ]] || { echo "Missing output dir: $od (skipping)"; continue; }
+  if [[ ! -d "$od" ]]; then
+    echo "  Missing output dir (skipping)"
+    continue
+  fi
 
-    pushd "$od" >/dev/null
+  mkdir -p "$rd"
 
-    # IMPORTANT: keep the glob INSIDE the quotes so convertmc receives ONE pattern argument
-    for b in $bimg; do
-        echo "  convert \"${b}*bdo\" to image files"
-        "$exe" image --many "${b}*bdo"
-    done
+  pushd "$od" >/dev/null
 
-    for b in $bplot; do
-        echo "  convert \"${b}*bdo\" to plotdata files"
-        "$exe" plotdata --many "${b}*bdo"
-    done
+  # images
+  for b in $bimg; do
+    run_many image "$b"
+  done
 
-    for b in $btxt; do
-        echo "  convert \"${b}*bdo\" to text files"
-        "$exe" txt --many "${b}*bdo"
-    done
+  # plotdata
+  for b in $bplot; do
+    run_many plotdata "$b"
+  done
 
-    # copy results into results/<plan...>/
-    cp -v NB*.png NB*.dat NB*.txt "$td/$rd/" 2>/dev/null || true
+  # text
+  for b in $btxt; do
+    run_many txt "$b"
+  done
 
-    popd >/dev/null
+  # copy results into results/<plan...>/
+  # (copy only if matches exist; no errors if none)
+  shopt -s nullglob
+  pngs=( NB*.png )
+  dats=( NB*.dat )
+  txts=( NB*.txt )
+  shopt -u nullglob
+
+  echo "  Copying: ${#pngs[@]} png, ${#dats[@]} dat, ${#txts[@]} txt -> $td/$rd/"
+  ((${#pngs[@]})) && cp -v "${pngs[@]}" "$td/$rd/"
+  ((${#dats[@]})) && cp -v "${dats[@]}" "$td/$rd/"
+  ((${#txts[@]})) && cp -v "${txts[@]}" "$td/$rd/"
+
+  popd >/dev/null
 done
+
+echo
+echo "Done."
