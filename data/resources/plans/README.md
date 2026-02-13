@@ -7,6 +7,7 @@ This directory contains plans for therapy.
 # Ramped field descriptions made with RayStation
 
 - Created using RayStation two ramped which overlapped will result in a flat SOBP.
+- We provide DICOM files in two dataformats, one native for RayStation, and one exported from RayStation, in a mode compatible with Eclipse TPS.
 
 ## Plan 03 `ramp_full`
 is a ramp across entire SOBP, starting at 100 % dose proximal edge, 0 % dose distal edge.
