@@ -31,9 +31,7 @@ is a special ramp:
 - `ramped_2Gy_ver1_middel.dcm`  Spot data
 - `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm`  Structure data
 
-The complete DICOM study, including CT data is available at
-- [Plan04_Eclipse.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_Eclipse.zip)
-- [Plan04_RayStation.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_RayStation.zip)
+The complete DICOM study, including CT data is available at - [Plan04_Eclipse.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_Eclipse.zip) and [Plan04_RayStation.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_RayStation.zip)
 
 ## Spotlists
 Corresponding easy-to-read spotlist files are added for each plan.
