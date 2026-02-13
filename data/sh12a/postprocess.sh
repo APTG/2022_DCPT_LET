@@ -1,59 +1,71 @@
 #!/usr/bin/env bash
+set -u -o pipefail
 
-# function convert{
-#         convertmc
-# }
-# set -o xtrace
-
+exe="$HOME/convertmc"
 
 # basenames for 1-d plots
-bplot="NB_Z_narrow_dose NB_Z_narrow_dose_water NB_Z_narrow_LET NB_Z_narrow_LET_water NB_Z_narrow_QEFF"
+bplot="NB_Z_narrow_dose_ NB_Z_narrow_dose_water_ NB_Z_narrow_LET_ NB_Z_narrow_LET_water_ NB_Z_narrow_QEFF_ NB_target_diff_ NB_target_water_diff_"
 # basenames for images (2-d and 1-d)
-bimg="NB_XY NB_XZ ${bplot}"
+bimg="NB_XY_ NB_XZ_map_ ${bplot}"
 # basenames for text
-btxt="NB_target"
+btxt="NB_target_ NB_target_water_"
 
-td=`pwd`           # this directory where command was started from
+td="$(pwd)"  # directory where command was started from
 
-for dir in input/plan*
-do
+# allow cp globs to expand to nothing without error
+shopt -s nullglob
+
+for dir in input/plan*; do
+    [[ -d "$dir" ]] || continue
     echo
-    ed=`ls -1 -d ${dir}/run_* | tail -1`  # extract from latest run directory only
-    od=${ed}/output   # output directory
-    rdd=`basename ${dir}`
-    rd=results/${rdd}  # result directory
+    echo "== Processing: $dir =="
 
-    mkdir -p ${rd}
+    ed="$(ls -1 -d "$dir"/run_* 2>/dev/null | tail -1)"  # latest run dir only
+    if [[ -z "${ed}" ]]; then
+        echo "  No run_* directories found, skipping."
+        continue
+    fi
 
-    echo $od
-    cd $od  # change into every plan*/run_*/output directory
+    od="$ed/output"
+    rdd="$(basename "$dir")"
+    rd="results/$rdd"
 
-    # generate PNG images and copy into results dir
-    for b in $bimg
-    do
-       echo  \ \ convert "${b}*bdo" to image files
-       convertmc image --many "${b}*bdo"
+    mkdir -p "$rd"
+
+    echo "  Run dir:    $ed"
+    echo "  Output dir: $od"
+    echo "  Results:    $rd"
+
+    if [[ ! -d "$od" ]]; then
+        echo "  Output directory missing, skipping."
+        continue
+    fi
+
+    cd "$od"
+
+    # generate PNG images
+    for b in $bimg; do
+        echo "  convert \"${b}????.bdo\" to image files"
+        "$exe" image --many "${b}????.bdo"
     done
-    cd $td
-    cp -v $od/NB*.png $rd
+    cd "$td"
+    cp -v "$od"/NB*.png "$rd"/
 
-    cd $od
-    # generate plotdata (.dat) and copy into results dir
-    for b in $bplot
-    do
-            echo \ \ convert "${b}*bdo" to plotdata files
-            convertmc plotdata --many "${b}*bdo"
+    cd "$od"
+    # generate plotdata (.dat)
+    for b in $bplot; do
+        echo "  convert \"${b}????.bdo\" to plotdata files"
+        "$exe" plotdata --many "${b}????.bdo"
     done
-    cd $td
-    cp -v $od/NB*.dat $rd
+    cd "$td"
+    cp -v "$od"/NB*.dat "$rd"/
 
-    cd $od    # generate text results for VOIs (.txt) and copy into results dir
-    for b in $btxt
-    do
-       echo \ \ convert "${b}*bdo" to text files
-       convertmc txt --many "${b}*bdo"
+    cd "$od"
+    # generate text results (.txt) for VOIs
+    for b in $btxt; do
+        echo "  convert \"${b}????.bdo\" to text files"
+        "$exe" txt --many "${b}????.bdo"
     done
-    cd $td      # change back into ./
-    cp -v $od/NB*.txt $rd
-
+    cd "$td"
+    cp -v "$od"/NB*.txt "$rd"/
 done

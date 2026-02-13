@@ -6,32 +6,38 @@ This directory contains plans for therapy.
 
 # Ramped field descriptions made with RayStation
 
-- Created using RayStation one flat SOBP, and two ramped which overlapped will result in a flat SOBP.
-- Kindly provided by Erik Traneus.
-- Beam model is not the final one, so the ramped fileds are only preliminary.
+- Created using RayStation two ramped which overlapped will result in a flat SOBP.
 
-## Plan 03 `sobp_raystation`
-is a flat SOBP, just for test purposes
-
-- `RD1.2.752.243.1.1.20221209141208883.1000.23750.dcm`  Dose distribution, RayStation
-- `RP1.2.752.243.1.1.20221209141208883.9000.73261.dcm`  Spot data
-- `RS1.2.752.243.1.1.20221209135909128.2180.16718.dcm`  Structure data
-
-## Plan 04 `ramp_10cm`
+## Plan 03 `ramp_full`
 is a ramp across entire SOBP, starting at 100 % dose proximal edge, 0 % dose distal edge.
 
-- `RD1.2.752.243.1.1.20221209141404014.2400.81587.dcm`  Dose distribution, RayStation
-- `RP1.2.752.243.1.1.20221209141404013.2300.75558.dcm`  Spot data
-- `RS1.2.752.243.1.1.20221209135909128.2180.16718.dcm`  Structure data
+- `RD1.2.752.243.1.1.20250523160113556.3000.73252.dcm`  Dose distribution, total dose.
+- `RD1.2.752.243.1.1.20250523160113556.4000.16653.dcm`  Dose distribution, Field 1.
+- `RD1.2.752.243.1.1.20250523160113556.5000.84138.dcm`  Dose distribution, Field 2.
+- `ramped_2Gy_ver2_full.dcm`  Spot data
+- `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm`  Structure data
 
-## Plan 05 `ramp_4cm`
+The complete DICOM study, including CT data is available at [TODO LESZEK](https://)
+
+## Plan 04 `ramp_middle`
 is a special ramp:
-- in PTV it starts at 100 % dose, and being flat for 3 cm.
-- Then follows a 4 cm ramp starting at 90 % dose, stopping at 10 % dose,
-- Finally a 3 cm flat section follows at 0 % dose.
+- in PTV it starts at 100 % dose, and being flat for a few cm.
+- Then follows a ~4 cm ramp starting at 90 % dose, stopping at 10 % dose,
+- Finally a few cm flat section follows at 0 % dose.
 
-- `RD1.2.752.243.1.1.20221209140939394.3000.60527.dcm`  Dose distribution, RayStation
-- `RP1.2.752.243.1.1.20221209140939393.2000.36612.dcm`  Spot data
-- `RS1.2.752.243.1.1.20221209135909128.2180.16718.dcm`  Structure data
+- `RD1.2.752.243.1.1.20250522124652830.4000.14613.dcm`  Dose distribution, total dose.
+- `RD1.2.752.243.1.1.20250522124652830.5000.68878.dcm`  Dose distribution, Field 1.
+- `RD1.2.752.243.1.1.20250522124652830.6000.18286.dcm`  Dose distribution, Field 2.
+- `ramped_2Gy_ver1_middel.dcm`  Spot data
+- `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm`  Structure data
 
-Corresponding easy-to-read `spotlist_*.dat` files are added for each plan.
+The complete DICOM study, including CT data is available at
+- [TODO LESZEK](https://)
+- [TODO LESZEK](https://)
+
+## Spotlists
+Corresponding easy-to-read spotlist files are added for each plan.
+These are made with spotpositions at isocenter, with reduced beam model.
+`spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+`spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+`spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
