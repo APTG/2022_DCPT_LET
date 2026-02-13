@@ -7,6 +7,7 @@ This directory contains plans for therapy.
 # Ramped field descriptions made with RayStation
 
 - Created using RayStation two ramped which overlapped will result in a flat SOBP.
+- We provide DICOM files in two dataformats, one native for RayStation, and one exported from RayStation, in a mode compatible with Eclipse TPS.
 
 ## Plan 03 `ramp_full`
 is a ramp across entire SOBP, starting at 100 % dose proximal edge, 0 % dose distal edge.
@@ -17,7 +18,7 @@ is a ramp across entire SOBP, starting at 100 % dose proximal edge, 0 % dose dis
 - `ramped_2Gy_ver2_full.dcm`  Spot data
 - `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm`  Structure data
 
-The complete DICOM study, including CT data is available at [TODO LESZEK](https://)
+The complete DICOM study, including CT data is available at [Plan03_Eclipse.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan03_Eclipse.zip) and [Plan03_RayStation.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan03_RayStation.zip)
 
 ## Plan 04 `ramp_middle`
 is a special ramp:
@@ -31,13 +32,12 @@ is a special ramp:
 - `ramped_2Gy_ver1_middel.dcm`  Spot data
 - `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm`  Structure data
 
-The complete DICOM study, including CT data is available at
-- [TODO LESZEK](https://)
-- [TODO LESZEK](https://)
+The complete DICOM study, including CT data is available at - [Plan04_Eclipse.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_Eclipse.zip) and [Plan04_RayStation.zip](https://s3.cloud.cyfronet.pl/2022_dcpt_let/plans/Plan04_RayStation.zip)
 
 ## Spotlists
 Corresponding easy-to-read spotlist files are added for each plan.
 These are made with spotpositions at isocenter, with reduced beam model.
-`spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-`spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-`spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
+
+- `spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+- `spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+- `spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
