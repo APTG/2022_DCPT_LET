@@ -36,6 +36,7 @@ The complete DICOM study, including CT data is available at - [Plan04_Eclipse.zi
 ## Spotlists
 Corresponding easy-to-read spotlist files are added for each plan.
 These are made with spotpositions at isocenter, with reduced beam model.
-`spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-`spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-`spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
+
+- `spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+- `spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
+- `spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
