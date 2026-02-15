@@ -376,3 +376,112 @@ for plan_i, plan_name in enumerate(plan_names):
     plt.legend(fontsize=8)
     plt.savefig(f"{plan_name}_spectra_secondary.png", dpi=200)
     plt.close()
+
+
+# Ramped fields:
+
+# --- Special: plan03 only: combine field01 + flipped(field02)
+#     - Dose: sum
+#     - LET/Qeff: dose-weighted average using fn_ndw[1] as weight
+# ---
+
+narrow_files = list(fn_ndw) + list(fn_nlw) + list(fn_nqf)
+
+p_field01 = "data/sh12a/results/plan03_field01_geoA_rampFull"
+p_field02 = "data/sh12a/results/plan03_field02_geoA_rampFull"
+
+dose_weight_file = fn_ndw[1]  # "NB_Z_narrow_dose_water_p2.dat" (Dose)
+
+
+def _sorted_xy(arr):
+    x = arr[:, 0].astype(float)
+    y = arr[:, 1].astype(float)
+    order = np.argsort(x)
+    return x[order], y[order]
+
+
+def _load_sorted_xy(path):
+    return _sorted_xy(np.loadtxt(path))
+
+
+for fname in narrow_files:
+    f1 = BASE / p_field01 / fname
+    f2 = BASE / p_field02 / fname
+
+    if not f1.exists() or not f2.exists():
+        continue
+
+    print(f"[combine] plan03: {fname}")
+    print(f"  field01: {f1}")
+    print(f"  field02: {f2}")
+
+    # field01 signal
+    x1, y1 = _load_sorted_xy(f1)
+
+    # field02 signal (flipped x)
+    x2_raw, y2_raw = _load_sorted_xy(f2)
+    x2 = -x2_raw
+    order2 = np.argsort(x2)
+    x2 = x2[order2]
+    y2 = y2_raw[order2]
+
+    # interpolate field02 onto field01 x-grid
+    y2i = np.interp(x1, x2, y2, left=np.nan, right=np.nan)
+
+    # --- Decide how to combine ---
+    if fname in fn_nlw or fname in fn_nqf:
+        # Dose-weighted average: need dose for field01 + flipped(field02)
+        d1_path = BASE / p_field01 / dose_weight_file
+        d2_path = BASE / p_field02 / dose_weight_file
+
+        if not d1_path.exists() or not d2_path.exists():
+            print(f"  WARNING: missing dose weights for {fname}, skipping")
+            continue
+
+        xd1, d1 = _load_sorted_xy(d1_path)
+
+        xd2_raw, d2_raw = _load_sorted_xy(d2_path)
+        xd2 = -xd2_raw
+        orderd2 = np.argsort(xd2)
+        xd2 = xd2[orderd2]
+        d2 = d2_raw[orderd2]
+
+        # interpolate dose arrays onto x1 grid
+        d1i = np.interp(x1, xd1, d1, left=np.nan, right=np.nan)
+        d2i = np.interp(x1, xd2, d2, left=np.nan, right=np.nan)
+
+        denom = d1i + d2i
+
+        # only where everything is valid and denom > 0
+        m = np.isfinite(y1) & np.isfinite(y2i) & np.isfinite(denom) & (denom > 0.0)
+
+        y_comb = np.full_like(y1, np.nan, dtype=float)
+        y_comb[m] = (y1[m] * d1i[m] + y2i[m] * d2i[m]) / denom[m]
+
+        comb_label = "dose-weighted avg"
+        # (You generally don’t plot y1+y2 for LET/Qeff; it has no meaning)
+        y_sum = None
+    else:
+        # Dose / fluence etc.: simple sum
+        m = np.isfinite(y1) & np.isfinite(y2i)
+        y_sum = y1 + y2i
+        y_comb = y_sum
+        comb_label = "sum"
+
+    # --- Plot ---
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel("z [cm]")
+    plt.ylabel("value")
+    plt.title(f"plan03 – {fname} (field01 + field02)")
+
+    plt.plot(x1, y1, label="field01")
+    plt.plot(x1, y2i, label="field02")
+
+    if y_comb is not None:
+        plt.plot(x1[m], y_comb[m], label=comb_label, linewidth=2.5)
+
+    plt.legend(fontsize=8)
+    out_name = f"plan03_fieldcombine_{Path(fname).stem}.png"
+    plt.savefig(out_name, dpi=200)
+    plt.close()
