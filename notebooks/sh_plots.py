@@ -1,18 +1,20 @@
-#!/env/python
+#!/usr/bin/env python3
 
 import numpy as np
-import os
 import matplotlib.pyplot as plt
+from pathlib import Path
+
+BASE = Path(".")
 
 plans = ("data/sh12a/results/plan01_field01_geoA_SOBPcent",
          "data/sh12a/results/plan01_field01_geoB_SOBP95",
          "data/sh12a/results/plan01_field01_geoC_SOBP74",
          "data/sh12a/results/plan02_field01_geoD_mono",
          "data/sh12a/results/plan03_field01_geoA_rampFull",
-         "data/sh12a/results/plan03_field02_geoA_rampFull",
+         #         "data/sh12a/results/plan03_field02_geoA_rampFull",
          "data/sh12a/results/plan04_field01_geoA_rampMiddle",
-         "data/sh12a/results/plan04_field02_geoA_rampMiddle",
-         # "data/sh12a/results/plan05_geoA_ramp4cm"
+         #         "data/sh12a/results/plan04_field02_geoA_rampMiddle",
+
          )
 
 fn_tw = ("NB_target_water_p1.txt",
@@ -48,18 +50,18 @@ lb_t = ("Fluence", "Dose/prim.",
         "tQeff_all", "tQeff_prim_prot", "tQeff_all_prot",
         "tQeff_all", "tQeff_prim_prot", "tQeff_all_prot")
 
-fn_tdiff = ("NB_target_diff_p1.txt",
-            "NB_target_diff_p2.txt",
-            "NB_target_diff_p3.txt",
-            "NB_target_diff_p4.txt",
+fn_tdiff = ("NB_target_diff_p1.dat",
+            "NB_target_diff_p2.dat",
+            "NB_target_diff_p3.dat",
+            "NB_target_diff_p4.dat",
             )
 
 lb_tdiff = ("LET PMMA all", "LET PMMA prim. protons",
             "LET Si all", "LET Si prim. protons")
 
 
-fn_twdiff = ("NB_target_water_diff_p1.txt",
-             "NB_target_water_diff_p2.txt",
+fn_twdiff = ("NB_target_water_diff_p1.dat",
+             "NB_target_water_diff_p2.dat",
              )
 
 lb_twdiff = ("LET Water all", "LET Water prim. protons")
@@ -99,7 +101,7 @@ print(pstr)
 for j, f in enumerate(fn_tw):
     pstr = f'{lb_tw[j]:<20}:'
     for i, p in enumerate(plans):
-        d = np.loadtxt(os.path.join(p, f))
+        d = np.loadtxt(BASE / p / f)
         if j > 0:  # 1st array has dose, all others are LET in MeV/cm. Convert these to keV/um
             d *= 0.1
         pstr += f'{d[3]:15.4}'
@@ -109,10 +111,6 @@ for j, f in enumerate(fn_tw):
         pstr += 4*" " + "MeV/g/primary"
     print(pstr)
 
-# sys.exit()
-
-# print all Qeff (z2/beta2) values:
-# print all LET values
 print("\n")
 print(" ------- Dose and LET in MEDIUM -------")
 pstr = 21 * ' '
@@ -124,7 +122,7 @@ print(pstr)
 for j, f in enumerate(fn_t):
     pstr = f'{lb_t[j]:<20}:'
     for i, p in enumerate(plans):
-        d = np.loadtxt(os.path.join(p, f))
+        d = np.loadtxt(BASE / p / f)
         if j > 1 and j < 7:
             d *= 0.1
         pstr += f'{d[3]:15.4}'
@@ -147,24 +145,23 @@ p1a = plans[0]
 
 d_tw = []
 for i, f in enumerate(fn_tw):
-    d_tw.append(np.loadtxt(os.path.join(p1a, f)))
+    d_tw.append(np.loadtxt(BASE / p1a / f))
 
 d_ndw = []
 for i, f in enumerate(fn_ndw):
-    d_ndw.append(np.loadtxt(os.path.join(p1a, f)))
+    d_ndw.append(np.loadtxt(BASE / p1a / f))
 
 d_nlw = []
 ddlet = []
 for i, f in enumerate(fn_nlw):
-    d_nlw.append(np.loadtxt(os.path.join(p1a, f)))
+    d_nlw.append(np.loadtxt(BASE / p1a / f))
     ddlet.append(d_nlw[-1][:, 1])
 
 d_nqf = []
 ddqf = []
 for i, f in enumerate(fn_nqf):
-    d_nqf.append(np.loadtxt(os.path.join(p1a, f)))
+    d_nqf.append(np.loadtxt(BASE / p1a / f))
     ddqf.append(d_nqf[-1][:, 1])
-
 
 dd = d_ndw[1]
 dz = dd[:, 0]
@@ -172,14 +169,12 @@ z0 = np.where(dz == 0.0)[0]
 
 dz += zshift
 
-
 # normalise center dose to 100 %.
 dnorm = dd[z0, 1]
 ddose = dd[:, 1] / dnorm * 100.0
 
 let_mask = (ddose > 1.0)
 z_lim = dz[let_mask]
-
 
 fig, ax1 = plt.subplots()
 color = 'k'
@@ -201,7 +196,6 @@ ax2.tick_params(axis='y', labelcolor=color)
 ax2.legend(loc=2, fontsize=8)
 ax2.set_xlim(zrange)
 plt.savefig("foo.png")
-
 
 fig, ax1 = plt.subplots()
 color = 'k'
@@ -225,11 +219,115 @@ ax2.set_xlim(zrange)
 plt.savefig("foo2.png")
 
 
-# output tables:
-# plt.imshow(d_full_image[0], vmin=4.0, vmax=5.5, cmap="tab20c")
-# cb = plt.colorbar()
-# cb.set_label("Dose [Gy]")
-# cmap = cb.get_cmap('PiYG', 11)    # 11 discrete colors
-# plt.xlabel("Dw [Gy]")
-# plt.ylabel("NetOD")
-# plt.legend()
+# Now treat the differental LET plots
+# first load the data
+# Define the 6 spectra (keep your existing tuples)
+diff_files = list(fn_tdiff) + list(fn_twdiff)
+diff_labels = list(lb_tdiff) + list(lb_twdiff)   # length should be 6
+
+# spec[plan_i][spec_i] is Nx2: [LET, dPhi/dLET]
+spec = []
+for p in plans:
+    per_plan = []
+    for f in diff_files:
+        per_plan.append(np.loadtxt(BASE / p / f))
+    spec.append(per_plan)
+
+# Optional: convenience views (assumes same LET grid for all 6 within each plan)
+spec_x = []
+spec_y = []
+for plan_i, per_plan in enumerate(spec):
+    x0 = per_plan[0][:, 0]
+    spec_x.append(x0)
+    spec_y.append([arr[:, 1] for arr in per_plan])
+
+    # sanity check (can remove later)
+    for spec_i, arr in enumerate(per_plan[1:], start=1):
+        if arr.shape[0] != x0.shape[0] or not np.allclose(arr[:, 0], x0):
+            raise ValueError(f"LET grid differs: plan={plans[plan_i]}, spectrum={diff_labels[spec_i]}")
+
+plan_names = [p.split("/")[-1] for p in plans]
+
+# one figure per spectrum type (6 figures total)
+fill_alpha = 0.1
+for spec_i, spec_label in enumerate(diff_labels):
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel("LET [keV/um]")           # add units if you want
+    plt.ylabel("dPhi/dLET [(/cm) / (keV/um) / primary]")     # add units if you want
+    plt.title(spec_label)
+
+    plt.xlim(0.4, 200)
+    plt.ylim(1e-8, 1e-1)
+    plt.xscale('log')  # if needed, adjust limits accordingly
+    plt.yscale('log')  # if needed, adjust limits accordingly
+
+    # plot this spectrum type for all plans
+    for plan_i, p in enumerate(plans):
+        arr = spec[plan_i][spec_i]
+        x = arr[:, 0] * 0.1  # LET [keV/um]
+        y = arr[:, 1] * 10.0  # dPhi/dLET [(/cm) / (keV/um) / primary]
+        if "ramp" in plan_names[plan_i].lower():
+            plt.step(x, y, where='mid', label=plan_names[plan_i], linestyle='--')
+            plt.fill_between(x, y, step="mid", alpha=fill_alpha)
+        else:
+            plt.step(x, y, where='mid', label=plan_names[plan_i])
+            plt.fill_between(x, y, step="mid", alpha=fill_alpha)
+
+    plt.legend(fontsize=8)
+    plt.savefig(f"spec_{spec_i+1:02d}_{spec_label.replace(' ', '_')}.png", dpi=200)
+    plt.close()
+
+# find spectrum indices by label content
+idx_all = [i for i, lab in enumerate(diff_labels) if "all" in lab.lower()]
+idx_prim = [i for i, lab in enumerate(diff_labels) if "prim" in lab.lower()]
+
+
+# one ifgure per plan "all" spectra
+for plan_i, plan_name in enumerate(plan_names):
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel("LET [keV/um]")
+    plt.ylabel("dPhi/dLET [(/cm) / (keV/um) / primary]")
+    plt.title(f"{plan_name} – all particles")
+
+    plt.xlim(0.4, 200)
+    plt.ylim(1e-8, 1e-1)
+    plt.xscale('log')
+    plt.yscale('log')
+
+    for spec_i in idx_all:
+        arr = spec[plan_i][spec_i]
+        x = arr[:, 0] * 0.1
+        y = arr[:, 1] * 10.0
+        plt.step(x, y, where='mid', label=diff_labels[spec_i])
+        plt.fill_between(x, y, step="mid", alpha=fill_alpha)
+
+    plt.legend(fontsize=8)
+    plt.savefig(f"{plan_name}_spectra_all.png", dpi=200)
+    plt.close()
+
+
+# one figure per plan "prim. proton" spectra
+for plan_i, plan_name in enumerate(plan_names):
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel("LET [keV/um]")
+    plt.ylabel("dPhi/dLET [(/cm) / (keV/um) / primary]")
+    plt.title(f"{plan_name} – primary protons")
+
+    plt.xlim(0.4, 200)
+    plt.ylim(1e-8, 1e-1)
+    plt.xscale('log')
+    plt.yscale('log')
+
+    for spec_i in idx_prim:
+        arr = spec[plan_i][spec_i]
+        x = arr[:, 0] * 0.1
+        y = arr[:, 1] * 10.0
+        plt.step(x, y, where='mid', label=diff_labels[spec_i])
+        plt.fill_between(x, y, step="mid", alpha=fill_alpha)
+
+    plt.legend(fontsize=8)
+    plt.savefig(f"{plan_name}_spectra_prim.png", dpi=200)
+    plt.close()
