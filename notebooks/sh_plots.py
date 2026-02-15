@@ -4,67 +4,87 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-plans = ("data/sh12a/results/plan01_geoA_SOBPcent",
-         "data/sh12a/results/plan01_geoB_SOBP95",
-         "data/sh12a/results/plan01_geoC_SOBP74",
-         "data/sh12a/results/plan02_geoD_mono"
-         # "data/sh12a/results/plan03_geoA_SOBPraystation",
-         # "data/sh12a/results/plan04_geoA_ramp10cm",
+plans = ("data/sh12a/results/plan01_field01_geoA_SOBPcent",
+         "data/sh12a/results/plan01_field01_geoB_SOBP95",
+         "data/sh12a/results/plan01_field01_geoC_SOBP74",
+         "data/sh12a/results/plan02_field01_geoD_mono",
+         "data/sh12a/results/plan03_field01_geoA_rampFull",
+         "data/sh12a/results/plan03_field02_geoA_rampFull",
+         "data/sh12a/results/plan04_field01_geoA_rampMiddle",
+         "data/sh12a/results/plan04_field02_geoA_rampMiddle",
          # "data/sh12a/results/plan05_geoA_ramp4cm"
          )
 
-fn_tw = ("NB_target_water__p1.txt",
-         "NB_target_water__p2.txt",
-         "NB_target_water__p3.txt",
-         "NB_target_water__p4.txt",
-         "NB_target_water__p5.txt",
-         "NB_target_water__p6.txt",
-         "NB_target_water__p7.txt")
+fn_tw = ("NB_target_water_p1.txt",
+         "NB_target_water_p2.txt",
+         "NB_target_water_p3.txt",
+         "NB_target_water_p4.txt",
+         "NB_target_water_p5.txt",
+         "NB_target_water_p6.txt",
+         "NB_target_water_p7.txt")
+
 lb_tw = ("Dose/prim.",
          "dLET_all", "dLET_prim_prot", "dLET_all_prot",
          "tLET_all", "tLET_prim_prot", "tLET_all_prot")
 
-fn_t = ("NB_target__p01.txt",
-        "NB_target__p02.txt",
-        "NB_target__p03.txt",
-        "NB_target__p04.txt",
-        "NB_target__p05.txt",
-        "NB_target__p06.txt",
-        "NB_target__p07.txt",
-        "NB_target__p08.txt",
-        "NB_target__p09.txt",
-        "NB_target__p10.txt",
-        "NB_target__p11.txt",
-        "NB_target__p12.txt",
-        "NB_target__p13.txt",
-        "NB_target__p14.txt")
+fn_t = ("NB_target_p01.txt",
+        "NB_target_p02.txt",
+        "NB_target_p03.txt",
+        "NB_target_p04.txt",
+        "NB_target_p05.txt",
+        "NB_target_p06.txt",
+        "NB_target_p07.txt",
+        "NB_target_p08.txt",
+        "NB_target_p09.txt",
+        "NB_target_p10.txt",
+        "NB_target_p11.txt",
+        "NB_target_p12.txt",
+        "NB_target_p13.txt",
+        "NB_target_p14.txt")
+
 lb_t = ("Fluence", "Dose/prim.",
         "dLET_all", "dLET_prim_prot", "dLET_all_prot",
         "tLET_all", "tLET_prim_prot", "tLET_all_prot",
         "tQeff_all", "tQeff_prim_prot", "tQeff_all_prot",
         "tQeff_all", "tQeff_prim_prot", "tQeff_all_prot")
 
+fn_tdiff = ("NB_target_diff_p1.txt",
+            "NB_target_diff_p2.txt",
+            "NB_target_diff_p3.txt",
+            "NB_target_diff_p4.txt",
+            )
 
-fn_ndw = ("NB_Z_narrow_dose_water__p1.dat",
-          "NB_Z_narrow_dose_water__p2.dat",
-          "NB_Z_narrow_dose_water__p3.dat")
+lb_tdiff = ("LET PMMA all", "LET PMMA prim. protons",
+            "LET Si all", "LET Si prim. protons")
+
+
+fn_twdiff = ("NB_target_water_diff_p1.txt",
+             "NB_target_water_diff_p2.txt",
+             )
+
+lb_twdiff = ("LET Water all", "LET Water prim. protons")
+
+
+fn_ndw = ("NB_Z_narrow_dose_water_p1.dat",
+          "NB_Z_narrow_dose_water_p2.dat",
+          "NB_Z_narrow_dose_water_p3.dat")
 lb_ndw = ("Fluence", "Dose", "Dose prot. only")
 
 
-fn_nlw = ("NB_Z_narrow_LET_water__p1.dat",
-          "NB_Z_narrow_LET_water__p2.dat",
-          "NB_Z_narrow_LET_water__p3.dat",
-          "NB_Z_narrow_LET_water__p4.dat",
-          "NB_Z_narrow_LET_water__p5.dat",
-          "NB_Z_narrow_LET_water__p6.dat")
+fn_nlw = ("NB_Z_narrow_LET_water_p1.dat",
+          "NB_Z_narrow_LET_water_p2.dat",
+          "NB_Z_narrow_LET_water_p3.dat",
+          "NB_Z_narrow_LET_water_p4.dat",
+          "NB_Z_narrow_LET_water_p5.dat",
+          "NB_Z_narrow_LET_water_p6.dat")
 lb_nlw = lb_tw[1:]
 
-fn_nqf = ("NB_Z_narrow_QEFF__p1.dat",
-          "NB_Z_narrow_QEFF__p2.dat",
-          "NB_Z_narrow_QEFF__p3.dat",
-          "NB_Z_narrow_QEFF__p4.dat",
-          "NB_Z_narrow_QEFF__p5.dat",
-          "NB_Z_narrow_QEFF__p6.dat")
+fn_nqf = ("NB_Z_narrow_QEFF_p1.dat",
+          "NB_Z_narrow_QEFF_p2.dat",
+          "NB_Z_narrow_QEFF_p3.dat",
+          "NB_Z_narrow_QEFF_p4.dat",
+          "NB_Z_narrow_QEFF_p5.dat",
+          "NB_Z_narrow_QEFF_p6.dat")
 lb_nqf = ("dQeff all", "dQeff prim. protons", "dQeff prim. & sec. prot.",
           "tQeff all", "tQeff prim. protons", "tQeff prim. & sec. prot.")
 
