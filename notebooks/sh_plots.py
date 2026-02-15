@@ -331,3 +331,48 @@ for plan_i, plan_name in enumerate(plan_names):
     plt.legend(fontsize=8)
     plt.savefig(f"{plan_name}_spectra_prim.png", dpi=200)
     plt.close()
+
+# Last plots are the secondaries only, so we need to match them by material
+# name (e.g. PMMA, Si, Water) and create new labels like "LET PMMA secondary"
+
+pairs_sec = []   # list of (all_index, prim_index, new_label)
+
+for i_all in idx_all:
+    lab_all = diff_labels[i_all].lower()
+
+    # find matching prim spectrum (same material name)
+    for i_prim in idx_prim:
+        lab_prim = diff_labels[i_prim].lower()
+
+        # crude but effective: match by first word (PMMA / Si / Water)
+        if lab_all.split()[1] == lab_prim.split()[1]:
+            material = diff_labels[i_all].split()[1]
+            pairs_sec.append((i_all, i_prim, f"LET {material} secondary"))
+            break
+
+# one figure per plan "secondary" spectra
+for plan_i, plan_name in enumerate(plan_names):
+    plt.figure()
+    plt.grid(True)
+    plt.xlabel("LET [keV/um]")
+    plt.ylabel("dPhi/dLET [(/cm) / (keV/um) / primary]")
+    plt.title(f"{plan_name} – secondary particles")
+
+    plt.xlim(0.4, 200)
+    plt.ylim(1e-8, 1e-1)
+    plt.xscale('log')
+    plt.yscale('log')
+
+    for i_all, i_prim, label in pairs_sec:
+        arr_all = spec[plan_i][i_all]
+        arr_prim = spec[plan_i][i_prim]
+
+        x = arr_all[:, 0] * 0.1
+        y_sec = (arr_all[:, 1] - arr_prim[:, 1]) * 10.0
+
+        plt.step(x, y_sec, where='mid', label=label)
+        plt.fill_between(x, y_sec, step="mid", alpha=fill_alpha)
+
+    plt.legend(fontsize=8)
+    plt.savefig(f"{plan_name}_spectra_secondary.png", dpi=200)
+    plt.close()
