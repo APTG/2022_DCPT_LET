@@ -19,6 +19,14 @@ authors:
     email: leszek.grzanka@ifj.edu.pl
     affiliation: 'Institute of Nuclear Physics: Krakow, PL'
     orcid: 'https://orcid.org/0000-0002-3599-854X'
+  - given-names: Anne
+    family-names: Vestergaard
+    affiliation: 'Aarhus University Hospital: Aarhus, DK'
+    orcid: 'https://orcid.org/0000-0003-1398-6377'
+  - given-names: Liliana
+    family-names: Stolarczyk
+    affiliation: 'Aarhus University Hospital: Aarhus, DK'
+    orcid: 'https://orcid.org/0000-0002-6333-3350'
   - given-names: Jeppe Brage
     family-names: Christensen
     affiliation: 'Paul Scherrer Institut: Villligen PSI, CH'
