@@ -41,6 +41,23 @@ So, specifically, measured relative to iso-center planes:
 - Second slab solid water : `z = [+0.25, +18.25]`
 
 
+## 2026 Simulation Geometries:
+
+For the 2026 measurement campaign, the same phantom setup is used (30 x 30 cm² slabs, 20.5 cm total), but the isocenter depth varies per plan, shifting the phantom surface position relative to the isocenter (z = 0).
+
+
+### Plan 4d - SOBP, isocenter at 4.5 cm depth, detector at 6.5 cm depth
+- First slab solid water : `z = [-4.75, +1.50]`
+- PMMA detector plate : `z = [+1.50, +2.00]`
+- Second slab solid water : `z = [+2.00, +15.75]`
+
+
+### Plan 5d - SOBP, isocenter at 8.5 cm depth, detector at 14.5 cm depth
+- First slab solid water : `z = [-8.75, +5.50]`
+- PMMA detector plate : `z = [+5.50, +6.00]`
+- Second slab solid water : `z = [+6.00, +11.75]`
+
+
 Notice that the target scoring volume, must follow the detector plate, thus the scoring geometry will always be attached to the simulation geometry.
 
 See scoring geometry: [scoring.md](scoring.md) for further details.
