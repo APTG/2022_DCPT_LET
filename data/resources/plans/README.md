@@ -3,6 +3,9 @@ This directory contains plans for therapy.
 
 - `plan01_sobp` SOBP for the three PMMA plate configurations.
 - `plan02_mono` 160 MeV mono-energetic
+- `plan05_sobp_3d` SOBP, isocenter at 7.5 cm, detector at 9.6 cm depth (clinical name: SOBP 3d)
+- `plan06_sobp_4d` SOBP, isocenter at 4.5 cm, detector at 6.5 cm depth (clinical name: SOBP 4d, 3 cm range shifter)
+- `plan07_sobp_5d` SOBP, isocenter at 8.5 cm, detector at 14.5 cm depth (clinical name: SOBP 5d, 3 cm range shifter)
 
 # Ramped field descriptions made with RayStation
 
@@ -41,3 +44,22 @@ These are made with spotpositions at isocenter, with reduced beam model.
 - `spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
 - `spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
 - `spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
+
+# 2026 Measurement Campaign Plans
+
+Plans from the 2026 LET commissioning session at DCPT. All are SOBPs with detectors placed at different depths. A 3 cm range shifter was used for plans 06 and 07.
+
+## Plan 05 `sobp_3d`
+Clinical name: SOBP 3d. Single-field SOBP with isocenter at 7.5 cm depth, detector at 9.6 cm depth.
+- Max spot energy: 120.2 MeV
+- Geometry E (see `docs/geometry.md`)
+
+## Plan 06 `sobp_4d`
+Clinical name: SOBP 4d. Single-field SOBP with isocenter at 4.5 cm depth, detector at 6.5 cm depth. 3 cm range shifter used.
+- Max spot energy: 126.5 MeV
+- Geometry F (see `docs/geometry.md`)
+
+## Plan 07 `sobp_5d`
+Clinical name: SOBP 5d. Single-field SOBP with isocenter at 8.5 cm depth, detector at 14.5 cm depth. 3 cm range shifter used.
+- Max spot energy: 172.1 MeV
+- Geometry G (see `docs/geometry.md`)
