@@ -9,6 +9,9 @@ plan03_field01_geoA_rampFull
 plan03_field02_geoA_rampFull
 plan04_field01_geoA_rampMiddle
 plan04_field02_geoA_rampMiddle
+plan05_field01_geoE_SOBP
+plan06_field01_geoF_SOBP
+plan07_field01_geoG_SOBP
 )
 
 CREATE_TODO=false
