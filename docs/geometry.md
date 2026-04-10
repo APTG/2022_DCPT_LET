@@ -53,21 +53,21 @@ Clinical to simulation name mapping:
 
 
 ### Geometry E - Plan 05, SOBP, isocenter at 7.5 cm depth, detector at 9.6 cm depth
-- First slab solid water : `z = [-7.75, +1.85]`
+- First slab solid water : `z = [-7.50, +1.85]`
 - PMMA detector plate : `z = [+1.85, +2.35]`
-- Second slab solid water : `z = [+2.35, +12.75]`
+- Second slab solid water : `z = [+2.35, +13.00]`
 
 
 ### Geometry F - Plan 06, SOBP, isocenter at 4.5 cm depth, detector at 6.5 cm depth
-- First slab solid water : `z = [-4.75, +1.50]`
-- PMMA detector plate : `z = [+1.50, +2.00]`
-- Second slab solid water : `z = [+2.00, +15.75]`
+- First slab solid water : `z = [-4.50, +1.75]`
+- PMMA detector plate : `z = [+1.75, +2.25]`
+- Second slab solid water : `z = [+2.25, +16.00]`
 
 
 ### Geometry G - Plan 07, SOBP, isocenter at 8.5 cm depth, detector at 14.5 cm depth
-- First slab solid water : `z = [-8.75, +5.50]`
-- PMMA detector plate : `z = [+5.50, +6.00]`
-- Second slab solid water : `z = [+6.00, +11.75]`
+- First slab solid water : `z = [-8.50, +5.75]`
+- PMMA detector plate : `z = [+5.75, +6.25]`
+- Second slab solid water : `z = [+6.25, +12.00]`
 
 
 Notice that the target scoring volume, must follow the detector plate, thus the scoring geometry will always be attached to the simulation geometry.
