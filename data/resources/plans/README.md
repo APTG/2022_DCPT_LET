@@ -47,7 +47,7 @@ These are made with spotpositions at isocenter, with reduced beam model.
 
 # 2026 Measurement Campaign Plans
 
-Plans from the 2026 LET commissioning session at DCPT. All are SOBPs with detectors placed at different depths. A 3 cm range shifter was used for plans 06 and 07.
+Plans from the 2026 LET commissioning session at DCPT. All are SOBPs with detectors placed at different depths. A 3 cm LEXAN range shifter was used for plans 06 and 07 and is modelled explicitly in the simulation geometry.
 
 ## Plan 05 `sobp_3d`
 Clinical name: SOBP 3d. Single-field SOBP with isocenter at 7.5 cm depth, detector at 9.6 cm depth.
@@ -55,11 +55,11 @@ Clinical name: SOBP 3d. Single-field SOBP with isocenter at 7.5 cm depth, detect
 - Geometry E (see `docs/geometry.md`)
 
 ## Plan 06 `sobp_4d`
-Clinical name: SOBP 4d. Single-field SOBP with isocenter at 4.5 cm depth, detector at 6.5 cm depth. 3 cm range shifter used.
+Clinical name: SOBP 4d. Single-field SOBP with isocenter at 4.5 cm depth, detector at 6.5 cm depth. 3 cm LEXAN range shifter at 135.9 cm from isocenter.
 - Max spot energy: 126.5 MeV
 - Geometry F (see `docs/geometry.md`)
 
 ## Plan 07 `sobp_5d`
-Clinical name: SOBP 5d. Single-field SOBP with isocenter at 8.5 cm depth, detector at 14.5 cm depth. 3 cm range shifter used.
+Clinical name: SOBP 5d. Single-field SOBP with isocenter at 8.5 cm depth, detector at 14.5 cm depth. 3 cm LEXAN range shifter at 173.8 cm from isocenter.
 - Max spot energy: 172.1 MeV
 - Geometry G (see `docs/geometry.md`)

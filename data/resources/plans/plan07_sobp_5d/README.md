@@ -1,6 +1,6 @@
 # Plan 07 - SOBP 5d
 - Clinical name: SOBP 5d
-- Single-field SOBP with 3 cm range shifter
+- Single-field SOBP with 3 cm LEXAN range shifter (173.8 cm from isocenter)
 - Isocenter at 8.5 cm depth, detector at 14.5 cm depth
 - Max spot energy: 172.1 MeV
 - Geometry G (see `docs/geometry.md`)
