@@ -19,7 +19,7 @@
   END
 *
 * Material assignments:
-* 0 = BlackHole, 1 = Air, 2 = Solid Water, 3 = PMMA
+* 0 = BlackHole, 1 = Air, 2 = Solid Water, 3 = PMMA, 6 = LEXAN
 *---><---><---><---><---><---><---><---><---><---><---><---><---><--->
     1    2    3    4    5
     0    1    2    3    6
