@@ -4,7 +4,7 @@ Geometry Mesh
         Name XZ_map             # Longitudinal map
         X -15.  15.   300
         Y  -1.   1.   1
-        Z  -7.50 13.00    205
+        Z  -7.28 13.22    205
 
 Geometry Mesh
         Name XY_map             # Lateral map
@@ -16,20 +16,20 @@ Geometry Mesh
         Name Z_narrow           # Narrow scoring along Z (lat. equib)
         X  -1.  1.     1
         Y  -1.  1.     1
-        Z  -7.50 13.00  205
+        Z  -7.28 13.22  205
 
 Geometry Mesh
         Name Z_wide             # wide scoring along Z (no lat. equib)
         X  -15.  15.     1
         Y  -15.  15.     1
-        Z  -7.50 13.00    205
+        Z  -7.28 13.22    205
 
 
 Geometry Mesh
         Name TARGET             # Sensitive volume (target)
         X -2.5   2.5  1
         Y -2.5   2.5  1
-        Z  2.00  2.20 1
+        Z  2.04  2.24 1
 
 # ------- Define a few useful filters ----------
 Filter

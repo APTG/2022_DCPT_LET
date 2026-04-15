@@ -1,7 +1,7 @@
 # Plan 05 - SOBP 3d
 - Clinical name: SOBP 3d
 - Single-field SOBP
-- Isocenter at 7.5 cm depth, detector at 9.6 cm depth
+- Isocenter at 7.28 cm depth (WET 7.5 cm), detector at 9.42 cm depth (WET 9.6 cm)
 - Max spot energy: 120.2 MeV
 - Geometry E (see `docs/geometry.md`)
 

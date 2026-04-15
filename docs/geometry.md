@@ -54,23 +54,23 @@ Clinical to simulation name mapping:
 - SOBP 5d → plan07, geoG
 
 
-### Geometry E - Plan 05, SOBP, isocenter at 7.5 cm depth, detector at 9.6 cm depth
-- First slab solid water : `z = [-7.50, +1.85]`
-- PMMA detector plate : `z = [+1.85, +2.35]`
-- Second slab solid water : `z = [+2.35, +13.00]`
+### Geometry E - Plan 05, SOBP, isocenter at 7.28 cm depth, detector at 9.42 cm depth
+- First slab solid water : `z = [-7.28, +1.89]`
+- PMMA detector plate : `z = [+1.89, +2.39]`
+- Second slab solid water : `z = [+2.39, +13.22]`
 
 
-### Geometry F - Plan 06, SOBP, isocenter at 4.5 cm depth, detector at 6.5 cm depth
-- First slab solid water : `z = [-4.50, +1.75]`
-- PMMA detector plate : `z = [+1.75, +2.25]`
-- Second slab solid water : `z = [+2.25, +16.00]`
+### Geometry F - Plan 06, SOBP, isocenter at 4.37 cm depth, detector at 6.42 cm depth
+- First slab solid water : `z = [-4.37, +1.80]`
+- PMMA detector plate : `z = [+1.80, +2.30]`
+- Second slab solid water : `z = [+2.30, +16.13]`
 - Range shifter (LEXAN) : `z = [-137.4, -134.4]` (135.9 cm upstream of isocenter)
 
 
-### Geometry G - Plan 07, SOBP, isocenter at 8.5 cm depth, detector at 14.5 cm depth
-- First slab solid water : `z = [-8.50, +5.75]`
-- PMMA detector plate : `z = [+5.75, +6.25]`
-- Second slab solid water : `z = [+6.25, +12.00]`
+### Geometry G - Plan 07, SOBP, isocenter at 8.25 cm depth, detector at 14.26 cm depth
+- First slab solid water : `z = [-8.25, +5.76]`
+- PMMA detector plate : `z = [+5.76, +6.26]`
+- Second slab solid water : `z = [+6.26, +12.25]`
 - Range shifter (LEXAN) : `z = [-175.3, -172.3]` (173.8 cm upstream of isocenter)
 
 
