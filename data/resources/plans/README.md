@@ -55,11 +55,11 @@ Clinical name: SOBP 3d. Single-field SOBP with isocenter at 7.28 cm depth (WET 7
 - Geometry E (see `docs/geometry.md`)
 
 ## Plan 06 `sobp_4d`
-Clinical name: SOBP 4d. Single-field SOBP with isocenter at 4.37 cm depth (WET 4.5 cm), detector at 6.42 cm depth (WET 6.5 cm). 3 cm LEXAN range shifter at 135.9 cm from isocenter.
+Clinical name: SOBP 4d. Single-field SOBP with isocenter at 4.37 cm depth (WET 4.5 cm), detector at 6.42 cm depth (WET 6.5 cm). 3 cm LEXAN range shifter at 13.59 cm from isocenter.
 - Max spot energy: 126.5 MeV
 - Geometry F (see `docs/geometry.md`)
 
 ## Plan 07 `sobp_5d`
-Clinical name: SOBP 5d. Single-field SOBP with isocenter at 8.25 cm depth (WET 8.5 cm), detector at 14.26 cm depth (WET 14.5 cm). 3 cm LEXAN range shifter at 173.8 cm from isocenter.
+Clinical name: SOBP 5d. Single-field SOBP with isocenter at 8.25 cm depth (WET 8.5 cm), detector at 14.26 cm depth (WET 14.5 cm). 3 cm LEXAN range shifter at 17.38 cm from isocenter.
 - Max spot energy: 172.1 MeV
 - Geometry G (see `docs/geometry.md`)

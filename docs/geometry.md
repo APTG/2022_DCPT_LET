@@ -45,8 +45,8 @@ So, specifically, measured relative to iso-center planes:
 
 For the 2026 measurement campaign, the same phantom setup is used (30 x 30 cm² slabs, 20.5 cm total), but the isocenter depth varies per plan, shifting the phantom surface position relative to the isocenter (z = 0).
 A 3 cm range shifter (LEXAN/polycarbonate) was used for the deliveries in plans 06 and 07. It is modelled explicitly in the simulation geometry as a 3 cm slab positioned upstream of the isocenter:
-- Plan 06: range shifter center at 135.9 cm from isocenter, `z = [-137.4, -134.4]`
-- Plan 07: range shifter center at 173.8 cm from isocenter, `z = [-175.3, -172.3]`
+- Plan 06: range shifter center at 13.59 cm from isocenter, `z = [-15.09, -12.09]`
+- Plan 07: range shifter center at 17.38 cm from isocenter, `z = [-18.88, -15.88]`
 
 Clinical to simulation name mapping:
 - SOBP 3d → plan05, geoE
@@ -64,14 +64,14 @@ Clinical to simulation name mapping:
 - First slab solid water : `z = [-4.37, +1.80]`
 - PMMA detector plate : `z = [+1.80, +2.30]`
 - Second slab solid water : `z = [+2.30, +16.13]`
-- Range shifter (LEXAN) : `z = [-137.4, -134.4]` (135.9 cm upstream of isocenter)
+- Range shifter (LEXAN) : `z = [-15.09, -12.09]` (13.59 cm upstream of isocenter)
 
 
 ### Geometry G - Plan 07, SOBP, isocenter at 8.25 cm depth, detector at 14.26 cm depth
 - First slab solid water : `z = [-8.25, +5.76]`
 - PMMA detector plate : `z = [+5.76, +6.26]`
 - Second slab solid water : `z = [+6.26, +12.25]`
-- Range shifter (LEXAN) : `z = [-175.3, -172.3]` (173.8 cm upstream of isocenter)
+- Range shifter (LEXAN) : `z = [-18.88, -15.88]` (17.38 cm upstream of isocenter)
 
 
 Notice that the target scoring volume, must follow the detector plate, thus the scoring geometry will always be attached to the simulation geometry.
