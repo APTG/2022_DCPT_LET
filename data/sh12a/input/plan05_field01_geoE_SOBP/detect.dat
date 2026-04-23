@@ -118,3 +118,52 @@ Output
         Quantity DOSE                           # __p2
         Quantity DLET                           # __p3
         Quantity DLET Primary
+        Quantity DLET Protons
+        Quantity TLET                           # __p6
+        Quantity TLET Primary
+        Quantity TLET Protons
+        Quantity DQEFF                          # __p9
+        Quantity DQEFF Primary
+        Quantity DQEFF Protons
+        Quantity TQEFF                          # __p12
+        Quantity TQEFF Primary
+        Quantity TQEFF Protons
+        Quantity FLUENCE Primary                # __p15
+        Quantity FLUENCE Protons                # __p16
+
+
+Output
+        Filename NB_target_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE	                    # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary                # __p2
+        Diff1     0 2000 1000
+        Diff1Type LET
+        Quantity FLUENCE in_Si	                # __p3
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE in_Si Primary          # __p4
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+
+Output
+        Filename NB_target_water.bdo
+        Geo TARGET
+        Quantity DOSE in_Water                  # __p1
+        Quantity DLET in_Water                  # __p2
+        Quantity DLET Primary in_Water
+        Quantity DLET Protons in_Water
+        Quantity TLET in_Water                  # __p5
+        Quantity TLET Primary in_Water
+        Quantity TLET Protons in_Water
+
+Output
+        Filename NB_target_water_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE in_Water               # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary in_Water       # __p2
+        Diff1     0 2000 1000
