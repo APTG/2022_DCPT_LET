@@ -21,7 +21,7 @@ authors:
     orcid: 'https://orcid.org/0000-0002-3599-854X'
   - given-names: Jeppe Brage
     family-names: Christensen
-    affiliation: 'Paul Scherrer Institut: Villligen PSI, CH'
+    affiliation: 'Paul Scherrer Institute: Villligen PSI, CH'
     orcid: 'https://orcid.org/0000-0002-6894-381X'
   - given-names: Hrvoje
     family-names: Brkić
@@ -41,6 +41,10 @@ authors:
     family-names: Romero-Expósito
     affiliation: 'Skandion Clinic: Uppsala, SE'
     orcid: 'https://orcid.org/0000-0003-0850-0280'
+  - given-names: Mads Lykke
+    family-names: Jensen
+    affiliation: 'Paul Scherrer Institute: Villligen PSI, CH'
+    orcid: 'https://orcid.org/0000-0001-9534-9034'
 identifiers:
   - type: doi
     value: 10.5281/zenodo.10641085
