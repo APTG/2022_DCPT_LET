@@ -167,3 +167,5 @@ Output
         Diff1Type DEDX
         Quantity FLUENCE Primary in_Water       # __p2
         Diff1     0 2000 1000
+        Diff1Type LET
+
