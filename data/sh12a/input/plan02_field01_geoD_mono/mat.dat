@@ -23,3 +23,7 @@ MEDIUM 4  # Water. This is needed for LET_water calculations.
 ICRU 276
 LOADDEDX
 END
+
+MEDIUM 5  # Si
+ICRU 14
+END

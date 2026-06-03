@@ -3,7 +3,7 @@
 #"valid at -50 cm from ISO",,,,,,,,,
 #"source type: emittance",,,,,,,,,
 #"x/y reversed in Exp. Room",,,,,,,,,
-#"Energy nominal [MeV]","# E real [MeV]","# E real sigma [MeV]","# protons/MU","# sigma x [mm]","# sigma y [mm]","# sigma x' [rad]","# sigma y' [rad]","# cov(x x')","# cov(y y')"
+#"Energy nominal [MeV]","# E real [MeV]","# E real sigma [MeV]","# protons/MU","# sigma x [mm]","# sigma y [mm]","# sigma x' [rad]","# sigma y' [rad]","# cor(x x')","# cor(y y')"
 70,71.38,1.23,2106924,4.472,3.629,0.0061000000000000000001,0.0056,0.306094,0.7405621
 70.1,71.4776,1.2296,2109109,4.47027,3.62775,0.006094,0.005594,0.3055963,0.7402322
 70.2,71.575200000000000003,1.2292,2111293,4.46854,3.6265,0.006088,0.005588,0.3050969,0.73990069999999999998

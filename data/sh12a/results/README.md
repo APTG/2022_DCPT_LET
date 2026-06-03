@@ -2,6 +2,72 @@
 The filenames are in the format `<filename>__p<number>.suffix` where filename and page number can looked up from the table below, describing what scorer was used. It should be fairly self-explanatory.
 
 ```
+# -------- Setup basic scoring geometries ------------
+
+Geometry Mesh
+        Name XZ_map             # Longitudinal map
+        X -15.  15.   300
+        Y  -1.   1.   1
+        Z  -10.25 10.25    205
+
+Geometry Mesh
+        Name XY_map             # Lateral map
+        X -15.  15.   300
+        Y -15.  15.   300
+        Z -0.25 0.25  1
+
+Geometry Mesh
+        Name Z_narrow           # Narrow scoring along Z (lat. equib)
+        X  -1.  1.     1
+        Y  -1.  1.     1
+        Z  -10.25 10.25  205
+
+Geometry Mesh
+        Name Z_wide             # wide scoring along Z (no lat. equib)
+        X  -15.  15.     1
+        Y  -15.  15.     1
+        Z  -10.25 10.25    205
+
+
+Geometry Mesh
+        Name TARGET             # Sensitive volume (target)
+        X -2.5   2.5  1
+        Y -2.5   2.5  1
+        Z -0.1   0.1  1
+
+# ------- Define a few useful filters ----------
+Filter
+        Name Primary    # Only primary protons
+        GEN = 0
+        Z = 1
+        A = 1
+
+Filter
+        Name Protons    # Primary and secondary protons
+        Z = 1
+        A = 1
+
+
+# ------- Select for scoring using water stopping power ----------
+Settings
+        Name in_Water
+        Medium 4
+
+Settings
+        Name in_Si
+        Medium 5
+
+# -------- Select what to score and output files ------------
+Output
+        Filename NB_XZ_map.bdo
+        Geo XZ_map
+        Quantity Dose
+
+Output
+        Filename NB_XY.bdo
+        Geo XY_map
+        Quantity Dose
+
 Output
         Filename NB_Z_narrow_dose.bdo           # each quantity will be written to its own files
                                                 # with a page index in the file name, as indicated below...
@@ -9,11 +75,13 @@ Output
         Quantity Fluence                        # __p1
         Quantity Dose                           # __p2
         Quantity Dose Protons                   # __p3
+        Quantity Fluence Primary                # __p4
+        Quantity Fluence Protons                # __p5
 
 Output
         Filename NB_Z_narrow_dose_water.bdo
         Geo Z_narrow
-        Quantity Fluence                        # __p1
+        Quantity Fluence                        # __p1  this is redunant
         Quantity Dose in_Water                  # __p2
         Quantity Dose Protons in_Water          # __p3
 
@@ -65,6 +133,21 @@ Output
         Quantity TQEFF                          # __p12
         Quantity TQEFF Primary
         Quantity TQEFF Protons
+        Quantity FLUENCE Primary                # __p15
+        Quantity FLUENCE Protons                # __p16
+        # ------------ differential LET spectra
+        Quantity FLUENCE	                    # __p17
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary                # __p18
+        Diff1     0 2000 1000
+        Diff1Type LET
+        Quantity FLUENCE in_Si	                # __p19
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE in_Si Primary          # __p19
+        Diff1     0 2000 1000
+        Diff1Type DEDX
 
 Output
         Filename NB_target_water.bdo
@@ -76,4 +159,11 @@ Output
         Quantity TLET in_Water                  # __p5
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
+        # ------------ differential LET spectra
+        Quantity FLUENCE in_Water               # __p8
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary in_Water       # __p9
+        Diff1     0 2000 1000
+        Diff1Type LET
 ```
