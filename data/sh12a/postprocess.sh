@@ -15,7 +15,14 @@ td="$(pwd)"  # directory where command was started from
 # allow cp globs to expand to nothing without error
 shopt -s nullglob
 
-for dir in input/plan*; do
+# Use command-line arguments if provided, otherwise default to input/plan*
+if [ $# -gt 0 ]; then
+    dirs=("$@")
+else
+    dirs=(input/plan*)
+fi
+
+for dir in "${dirs[@]}"; do
     [[ -d "$dir" ]] || continue
     echo
     echo "== Processing: $dir =="
@@ -69,3 +76,4 @@ for dir in input/plan*; do
     cd "$td"
     cp -v "$od"/NB*.txt "$rd"/
 done
+
