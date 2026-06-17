@@ -23,15 +23,15 @@
       "role": "primary_data",
       "notes": "Page numbering intentionally matches SHIELD-HIT12A convention (p3=DLET protons, p6=TLET protons).",
       "files": [
-        {"path": "HB_Z_narrow_LET__p3.dat", "output_type": "depth_Z.DLET.protons.Si"},
-        {"path": "HB_Z_narrow_LET__p6.dat", "output_type": "depth_Z.TLET.protons.Si"}
+        {"path": "HB_Z_narrow_LET__p3.dat", "output_type": "depth_Z.DLET.protons.mat"},
+        {"path": "HB_Z_narrow_LET__p6.dat", "output_type": "depth_Z.TLET.protons.mat"}
       ]
     },
     {
       "description": "Depth dose profile in silicon (Z_narrow) – F6 tally (dose, MeV/g/SP)",
       "role": "primary_data",
       "files": [
-        {"path": "HB_narrow_dose_p02.dat", "output_type": "depth_Z.DOSE.all.Si"}
+        {"path": "HB_narrow_dose_p02.dat", "output_type": "depth_Z.DOSE.all.mat"}
       ]
     },
     {
@@ -39,7 +39,7 @@
       "role": "primary_data",
       "notes": "File is named with a 'dose' prefix but contains F4 flux, not dose.",
       "files": [
-        {"path": "HB_Z_narrow_dose_p01.dat", "output_type": "depth_Z.FLUENCE.primary.Si"}
+        {"path": "HB_Z_narrow_dose_p01.dat", "output_type": "depth_Z.FLUENCE.primary.mat"}
       ]
     },
     {
@@ -47,8 +47,8 @@
       "role": "primary_data",
       "notes": "HB_target_01.dat: F4 flux in target (all particles, no filter applied). HB_target_p02.dat: F6 dose in target (MeV/g/SP).",
       "files": [
-        {"path": "HB_target_01.dat",  "output_type": "target.FLUENCE.all.Si"},
-        {"path": "HB_target_p02.dat", "output_type": "target.DOSE.all.Si"}
+        {"path": "HB_target_01.dat",  "output_type": "target.FLUENCE.all.mat"},
+        {"path": "HB_target_p02.dat", "output_type": "target.DOSE.all.mat"}
       ]
     }
   ]

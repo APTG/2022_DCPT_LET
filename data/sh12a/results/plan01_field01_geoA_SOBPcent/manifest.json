@@ -22,11 +22,11 @@
       "description": "Depth profiles – fluence and dose in silicon (Z_narrow, 5 pages)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.all.Si"},
-        {"path": "NB_Z_narrow_dose_p2.dat", "output_type": "depth_Z.DOSE.all.Si"},
-        {"path": "NB_Z_narrow_dose_p3.dat", "output_type": "depth_Z.DOSE.protons.Si"},
-        {"path": "NB_Z_narrow_dose_p4.dat", "output_type": "depth_Z.FLUENCE.primary.Si"},
-        {"path": "NB_Z_narrow_dose_p5.dat", "output_type": "depth_Z.FLUENCE.protons.Si"}
+        {"path": "NB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.all.mat"},
+        {"path": "NB_Z_narrow_dose_p2.dat", "output_type": "depth_Z.DOSE.all.mat"},
+        {"path": "NB_Z_narrow_dose_p3.dat", "output_type": "depth_Z.DOSE.protons.mat"},
+        {"path": "NB_Z_narrow_dose_p4.dat", "output_type": "depth_Z.FLUENCE.primary.mat"},
+        {"path": "NB_Z_narrow_dose_p5.dat", "output_type": "depth_Z.FLUENCE.protons.mat"}
       ]
     },
     {
@@ -42,12 +42,12 @@
       "description": "Depth profiles – LET in silicon (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_LET_p1.dat", "output_type": "depth_Z.DLET.all.Si"},
-        {"path": "NB_Z_narrow_LET_p2.dat", "output_type": "depth_Z.DLET.primary.Si"},
-        {"path": "NB_Z_narrow_LET_p3.dat", "output_type": "depth_Z.DLET.protons.Si"},
-        {"path": "NB_Z_narrow_LET_p4.dat", "output_type": "depth_Z.TLET.all.Si"},
-        {"path": "NB_Z_narrow_LET_p5.dat", "output_type": "depth_Z.TLET.primary.Si"},
-        {"path": "NB_Z_narrow_LET_p6.dat", "output_type": "depth_Z.TLET.protons.Si"}
+        {"path": "NB_Z_narrow_LET_p1.dat", "output_type": "depth_Z.DLET.all.mat"},
+        {"path": "NB_Z_narrow_LET_p2.dat", "output_type": "depth_Z.DLET.primary.mat"},
+        {"path": "NB_Z_narrow_LET_p3.dat", "output_type": "depth_Z.DLET.protons.mat"},
+        {"path": "NB_Z_narrow_LET_p4.dat", "output_type": "depth_Z.TLET.all.mat"},
+        {"path": "NB_Z_narrow_LET_p5.dat", "output_type": "depth_Z.TLET.primary.mat"},
+        {"path": "NB_Z_narrow_LET_p6.dat", "output_type": "depth_Z.TLET.protons.mat"}
       ]
     },
     {
@@ -66,34 +66,34 @@
       "description": "Depth profiles – effective quality factor in silicon (Z_narrow, 6 pages: DQEFF and TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_QEFF_p1.dat", "output_type": "depth_Z.DQEFF.all.Si"},
-        {"path": "NB_Z_narrow_QEFF_p2.dat", "output_type": "depth_Z.DQEFF.primary.Si"},
-        {"path": "NB_Z_narrow_QEFF_p3.dat", "output_type": "depth_Z.DQEFF.protons.Si"},
-        {"path": "NB_Z_narrow_QEFF_p4.dat", "output_type": "depth_Z.TQEFF.all.Si"},
-        {"path": "NB_Z_narrow_QEFF_p5.dat", "output_type": "depth_Z.TQEFF.primary.Si"},
-        {"path": "NB_Z_narrow_QEFF_p6.dat", "output_type": "depth_Z.TQEFF.protons.Si"}
+        {"path": "NB_Z_narrow_QEFF_p1.dat", "output_type": "depth_Z.DQEFF.all.mat"},
+        {"path": "NB_Z_narrow_QEFF_p2.dat", "output_type": "depth_Z.DQEFF.primary.mat"},
+        {"path": "NB_Z_narrow_QEFF_p3.dat", "output_type": "depth_Z.DQEFF.protons.mat"},
+        {"path": "NB_Z_narrow_QEFF_p4.dat", "output_type": "depth_Z.TQEFF.all.mat"},
+        {"path": "NB_Z_narrow_QEFF_p5.dat", "output_type": "depth_Z.TQEFF.primary.mat"},
+        {"path": "NB_Z_narrow_QEFF_p6.dat", "output_type": "depth_Z.TQEFF.protons.mat"}
       ]
     },
     {
       "description": "Target scalars in silicon (16 pages: fluence, dose, DLET, TLET, DQEFF, TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_target_p01.txt", "output_type": "target.FLUENCE.all.Si"},
-        {"path": "NB_target_p02.txt", "output_type": "target.DOSE.all.Si"},
-        {"path": "NB_target_p03.txt", "output_type": "target.DLET.all.Si"},
-        {"path": "NB_target_p04.txt", "output_type": "target.DLET.primary.Si"},
-        {"path": "NB_target_p05.txt", "output_type": "target.DLET.protons.Si"},
-        {"path": "NB_target_p06.txt", "output_type": "target.TLET.all.Si"},
-        {"path": "NB_target_p07.txt", "output_type": "target.TLET.primary.Si"},
-        {"path": "NB_target_p08.txt", "output_type": "target.TLET.protons.Si"},
-        {"path": "NB_target_p09.txt", "output_type": "target.DQEFF.all.Si"},
-        {"path": "NB_target_p10.txt", "output_type": "target.DQEFF.primary.Si"},
-        {"path": "NB_target_p11.txt", "output_type": "target.DQEFF.protons.Si"},
-        {"path": "NB_target_p12.txt", "output_type": "target.TQEFF.all.Si"},
-        {"path": "NB_target_p13.txt", "output_type": "target.TQEFF.primary.Si"},
-        {"path": "NB_target_p14.txt", "output_type": "target.TQEFF.protons.Si"},
-        {"path": "NB_target_p15.txt", "output_type": "target.FLUENCE.primary.Si"},
-        {"path": "NB_target_p16.txt", "output_type": "target.FLUENCE.protons.Si"}
+        {"path": "NB_target_p01.txt", "output_type": "target.FLUENCE.all.mat"},
+        {"path": "NB_target_p02.txt", "output_type": "target.DOSE.all.mat"},
+        {"path": "NB_target_p03.txt", "output_type": "target.DLET.all.mat"},
+        {"path": "NB_target_p04.txt", "output_type": "target.DLET.primary.mat"},
+        {"path": "NB_target_p05.txt", "output_type": "target.DLET.protons.mat"},
+        {"path": "NB_target_p06.txt", "output_type": "target.TLET.all.mat"},
+        {"path": "NB_target_p07.txt", "output_type": "target.TLET.primary.mat"},
+        {"path": "NB_target_p08.txt", "output_type": "target.TLET.protons.mat"},
+        {"path": "NB_target_p09.txt", "output_type": "target.DQEFF.all.mat"},
+        {"path": "NB_target_p10.txt", "output_type": "target.DQEFF.primary.mat"},
+        {"path": "NB_target_p11.txt", "output_type": "target.DQEFF.protons.mat"},
+        {"path": "NB_target_p12.txt", "output_type": "target.TQEFF.all.mat"},
+        {"path": "NB_target_p13.txt", "output_type": "target.TQEFF.primary.mat"},
+        {"path": "NB_target_p14.txt", "output_type": "target.TQEFF.protons.mat"},
+        {"path": "NB_target_p15.txt", "output_type": "target.FLUENCE.primary.mat"},
+        {"path": "NB_target_p16.txt", "output_type": "target.FLUENCE.protons.mat"}
       ]
     },
     {
