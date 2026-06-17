@@ -120,12 +120,18 @@ def read_scalar(path: Path) -> tuple[float, float | None]:
         return float(data), None
     row = data if data.ndim == 1 else data[0]
     if row.size >= 5:
+        # SH12A 5-col: x y z value rel_error
         value, rel_err = float(row[3]), float(row[4])
+        return value, abs(value * rel_err)
+    elif row.size == 4:
+        # OSH/convertmc txt 4-col: x y z value (no error column)
+        return float(row[3]), None
     elif row.size >= 2:
+        # MCNP 2-col: value rel_error
         value, rel_err = float(row[0]), float(row[1])
+        return value, abs(value * rel_err)
     else:
         return float(row[0]), None
-    return value, abs(value * rel_err)
 
 
 # ---------------------------------------------------------------------------
