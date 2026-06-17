@@ -1,4 +1,7 @@
 # DCPT LET-measurements 2022
+
+**[→ Interactive plot browser](https://aptg.github.io/2022_DCPT_LET/)**
+
 All data in this repository is only preliminary, and may still be subject to change.
 
 
