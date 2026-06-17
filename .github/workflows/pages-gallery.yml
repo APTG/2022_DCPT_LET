@@ -50,7 +50,7 @@ jobs:
       - name: Upload preview artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pages-site-preview-${{ github.ref_name }}
+          name: pages-site-preview-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('run-{0}', github.run_number) }}
           path: pages-site
           if-no-files-found: error
 
