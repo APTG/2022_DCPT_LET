@@ -5,7 +5,8 @@ Checks performed for each manifest:
   1. Valid JSON
   2. Schema conformance (jsonschema draft-07)
   3. 'plan' field matches the manifest's parent directory name
-  4. Every file listed in outputs[*].files exists relative to the manifest
+  4. Every file listed in outputs[*].files[*].path exists relative to the manifest
+  5. Every output_type referenced in outputs[*].files[*].output_type is a known catalog key
 """
 
 from __future__ import annotations
@@ -30,10 +31,27 @@ def parse_args() -> argparse.Namespace:
         default=Path(__file__).parent / "manifest.schema.json",
         help="Path to manifest.schema.json (default: tools/manifest.schema.json).",
     )
+    parser.add_argument(
+        "--catalog",
+        type=Path,
+        default=Path("data") / "output_catalog.json",
+        help="Path to output_catalog.json (default: data/output_catalog.json).",
+    )
     return parser.parse_args()
 
 
-def validate_manifest(manifest_path: Path, schema: dict) -> list[str]:
+def load_catalog(catalog_path: Path) -> set[str] | None:
+    if not catalog_path.exists():
+        return None
+    data = json.loads(catalog_path.read_text(encoding="utf-8"))
+    return set(data.get("output_types", {}).keys())
+
+
+def validate_manifest(
+    manifest_path: Path,
+    schema: dict,
+    catalog_keys: set[str] | None,
+) -> list[str]:
     try:
         import jsonschema
     except ImportError:
@@ -60,10 +78,19 @@ def validate_manifest(manifest_path: Path, schema: dict) -> list[str]:
         )
 
     for i, entry in enumerate(data.get("outputs", [])):
-        for fname in entry.get("files", []):
-            if not (plan_dir / fname).exists():
-                sid = entry.get("semantic_id") or f"outputs[{i}]"
-                errors.append(f"missing file '{fname}' (output: {sid})")
+        entry_label = entry.get("description") or f"outputs[{i}]"
+        for j, f in enumerate(entry.get("files", [])):
+            path = f.get("path", "") if isinstance(f, dict) else str(f)
+            if not path:
+                errors.append(f"empty path at outputs[{i}].files[{j}]")
+                continue
+            if not (plan_dir / path).exists():
+                errors.append(f"missing file '{path}' (output: {entry_label})")
+            output_type = f.get("output_type") if isinstance(f, dict) else None
+            if output_type and catalog_keys is not None and output_type not in catalog_keys:
+                errors.append(
+                    f"unknown output_type '{output_type}' in '{path}' (output: {entry_label})"
+                )
 
     return errors
 
@@ -77,6 +104,10 @@ def main() -> int:
         return 1
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
 
+    catalog_keys = load_catalog(args.catalog)
+    if catalog_keys is None:
+        print(f"Warning: catalog not found at '{args.catalog}', skipping output_type checks.", file=sys.stderr)
+
     data_root = args.data_root
     manifests = sorted(data_root.rglob("manifest.json"))
     if not manifests:
@@ -85,7 +116,7 @@ def main() -> int:
 
     total_errors = 0
     for manifest_path in manifests:
-        errors = validate_manifest(manifest_path, schema)
+        errors = validate_manifest(manifest_path, schema, catalog_keys)
         label = manifest_path
         if errors:
             print(f"FAIL  {label}")

@@ -85,100 +85,48 @@
     },
     "capabilities": {
       "type": "object",
-      "description": "Maps semantic_id strings to availability. true = available, false = intentionally absent or unsupported. An object form allows adding notes. Omitting an id means availability is unknown.",
-      "additionalProperties": {
-        "oneOf": [
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "object",
-            "required": ["available"],
-            "additionalProperties": false,
-            "properties": {
-              "available": {
-                "type": "boolean"
-              },
-              "notes": {
-                "type": "string"
-              }
-            }
-          }
-        ]
-      }
+      "description": "Free-form summary of what this code can or cannot produce. Use 'notes' for a human-readable summary of limitations. Actual per-file availability is declared via output_type in outputs[*].files."
     },
     "outputs": {
       "type": "array",
-      "description": "Output entries. Each entry maps one or more local files to a semantic description. Files with no cross-code equivalent (raw outputs, preview images) use semantic_id: null.",
+      "description": "Output entries grouped by native output block. Each file carries an output_type referencing data/output_catalog.json. Files without a catalog counterpart (raw outputs, preview images) omit output_type.",
       "items": {
         "type": "object",
         "required": ["role", "files"],
         "additionalProperties": false,
         "properties": {
-          "semantic_id": {
-            "type": ["string", "null"],
-            "description": "Cross-code matching key. Null for raw code outputs and preview images that have no counterpart in other codes."
-          },
           "description": {
             "type": "string",
-            "description": "Human-readable description of what this output represents."
-          },
-          "scorer": {
-            "type": "string",
-            "description": "Detector or scorer region label (e.g. 'target', 'z_narrow')."
-          },
-          "quantity": {
-            "type": "string",
-            "description": "Physical quantity scored (e.g. FLUENCE, DOSE, DLET, TLET, DQEFF, TQEFF)."
-          },
-          "medium": {
-            "type": ["string", "null"],
-            "description": "Scoring medium (e.g. 'silicon', 'water'). Null when not applicable."
-          },
-          "differential_axis": {
-            "type": "object",
-            "description": "For differential spectra: the quantity on the x-axis (the variable being differentiated).",
-            "required": ["quantity", "unit"],
-            "additionalProperties": false,
-            "properties": {
-              "quantity": { "type": "string" },
-              "unit": { "type": "string" }
-            }
-          },
-          "axis_x": {
-            "type": "object",
-            "description": "For profile data: x-axis quantity and unit.",
-            "required": ["quantity", "unit"],
-            "additionalProperties": false,
-            "properties": {
-              "quantity": { "type": "string" },
-              "unit": { "type": "string" }
-            }
-          },
-          "axis_y": {
-            "type": "object",
-            "description": "For profile data: y-axis quantity and unit.",
-            "required": ["quantity", "unit"],
-            "additionalProperties": false,
-            "properties": {
-              "quantity": { "type": "string" },
-              "unit": { "type": "string" }
-            }
+            "description": "Human-readable label for this native output block."
           },
           "role": {
             "type": "string",
             "enum": ["primary_data", "derived", "raw_output", "preview_image"],
-            "description": "primary_data: direct simulation output. derived: post-processed from primary_data (e.g. spectra computed from raw fluence). raw_output: code-native format file. preview_image: rendered visualization."
+            "description": "primary_data: direct simulation output. derived: post-processed from primary_data. raw_output: code-native format not yet page-extracted. preview_image: rendered visualization."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-text notes, e.g. how derived outputs were produced or known caveats."
           },
           "files": {
             "type": "array",
             "minItems": 1,
-            "items": { "type": "string" },
-            "description": "File paths relative to this manifest's directory."
-          },
-          "notes": {
-            "type": "string",
-            "description": "Free-text notes about this output entry, e.g. how derived outputs were produced."
+            "description": "Files in this output block, relative to the manifest directory.",
+            "items": {
+              "type": "object",
+              "required": ["path"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "File path relative to this manifest's directory."
+                },
+                "output_type": {
+                  "type": "string",
+                  "description": "Catalog key from data/output_catalog.json identifying the physical content of this file. Format: {geometry}.{QUANTITY}.{filter}.{medium}[.vs_{diff_axis}]."
+                }
+              }
+            }
           }
         }
       }

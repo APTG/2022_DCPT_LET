@@ -15,177 +15,126 @@
     "normalization": "per_primary"
   },
   "capabilities": {
-    "target_LET_spectrum_silicon": true,
-    "target_LET_spectrum_water": true,
-    "z_LET_profile_silicon": true,
-    "z_LET_profile_water": true,
-    "z_dose_profile_silicon": true,
-    "z_dose_profile_water": true,
-    "z_Qeff_profile": true
+    "notes": "Reference implementation. Full set of quantities: fluence, dose, DLET, TLET, DQEFF, TQEFF in both silicon and water, for all particles / primary protons / all protons. 1D depth profiles (Z_narrow), target scalars, and differential LET spectra. 2D maps available as PNG only."
   },
   "outputs": [
     {
-      "semantic_id": "target_LET_spectrum_silicon",
-      "description": "Differential LET fluence spectrum in silicon target detector. 4 pages: DLET-weighted and TLET-weighted spectra for all particles and primary protons.",
-      "scorer": "target",
-      "quantity": "FLUENCE",
-      "medium": "silicon",
-      "differential_axis": {"quantity": "LET", "unit": "keV/um"},
+      "description": "Depth profiles – fluence and dose in silicon (Z_narrow, 5 pages)",
       "role": "primary_data",
       "files": [
-        "NB_target_diff_p1.dat",
-        "NB_target_diff_p2.dat",
-        "NB_target_diff_p3.dat",
-        "NB_target_diff_p4.dat"
+        {"path": "NB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.all.Si"},
+        {"path": "NB_Z_narrow_dose_p2.dat", "output_type": "depth_Z.DOSE.all.Si"},
+        {"path": "NB_Z_narrow_dose_p3.dat", "output_type": "depth_Z.DOSE.protons.Si"},
+        {"path": "NB_Z_narrow_dose_p4.dat", "output_type": "depth_Z.FLUENCE.primary.Si"},
+        {"path": "NB_Z_narrow_dose_p5.dat", "output_type": "depth_Z.FLUENCE.protons.Si"}
       ]
     },
     {
-      "semantic_id": "target_LET_spectrum_water",
-      "description": "Differential LET fluence spectrum in water target detector. 2 pages: DLET-weighted spectra for all particles and primary protons.",
-      "scorer": "target",
-      "quantity": "FLUENCE",
-      "medium": "water",
-      "differential_axis": {"quantity": "LET", "unit": "keV/um"},
+      "description": "Depth profiles – dose in water (Z_narrow, 3 pages)",
       "role": "primary_data",
       "files": [
-        "NB_target_water_diff_p1.dat",
-        "NB_target_water_diff_p2.dat"
+        {"path": "NB_Z_narrow_dose_water_p1.dat", "output_type": "depth_Z.FLUENCE.all.H2O"},
+        {"path": "NB_Z_narrow_dose_water_p2.dat", "output_type": "depth_Z.DOSE.all.H2O"},
+        {"path": "NB_Z_narrow_dose_water_p3.dat", "output_type": "depth_Z.DOSE.protons.H2O"}
       ]
     },
     {
-      "semantic_id": "z_LET_profile_silicon",
-      "description": "Depth LET profiles along the Z axis, narrow scorer, in silicon. 6 pages: DLET and TLET for total, primary, and secondary particle contributions.",
-      "scorer": "z_narrow",
-      "quantity": "DLET",
-      "medium": "silicon",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "LET", "unit": "MeV/cm"},
+      "description": "Depth profiles – LET in silicon (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        "NB_Z_narrow_LET_p1.dat",
-        "NB_Z_narrow_LET_p2.dat",
-        "NB_Z_narrow_LET_p3.dat",
-        "NB_Z_narrow_LET_p4.dat",
-        "NB_Z_narrow_LET_p5.dat",
-        "NB_Z_narrow_LET_p6.dat"
+        {"path": "NB_Z_narrow_LET_p1.dat", "output_type": "depth_Z.DLET.all.Si"},
+        {"path": "NB_Z_narrow_LET_p2.dat", "output_type": "depth_Z.DLET.primary.Si"},
+        {"path": "NB_Z_narrow_LET_p3.dat", "output_type": "depth_Z.DLET.protons.Si"},
+        {"path": "NB_Z_narrow_LET_p4.dat", "output_type": "depth_Z.TLET.all.Si"},
+        {"path": "NB_Z_narrow_LET_p5.dat", "output_type": "depth_Z.TLET.primary.Si"},
+        {"path": "NB_Z_narrow_LET_p6.dat", "output_type": "depth_Z.TLET.protons.Si"}
       ]
     },
     {
-      "semantic_id": "z_LET_profile_water",
-      "description": "Depth LET profiles along the Z axis, narrow scorer, in water. 6 pages: DLET and TLET for total, primary, and secondary particle contributions.",
-      "scorer": "z_narrow",
-      "quantity": "DLET",
-      "medium": "water",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "LET", "unit": "MeV/cm"},
+      "description": "Depth profiles – LET in water (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        "NB_Z_narrow_LET_water_p1.dat",
-        "NB_Z_narrow_LET_water_p2.dat",
-        "NB_Z_narrow_LET_water_p3.dat",
-        "NB_Z_narrow_LET_water_p4.dat",
-        "NB_Z_narrow_LET_water_p5.dat",
-        "NB_Z_narrow_LET_water_p6.dat"
+        {"path": "NB_Z_narrow_LET_water_p1.dat", "output_type": "depth_Z.DLET.all.H2O"},
+        {"path": "NB_Z_narrow_LET_water_p2.dat", "output_type": "depth_Z.DLET.primary.H2O"},
+        {"path": "NB_Z_narrow_LET_water_p3.dat", "output_type": "depth_Z.DLET.protons.H2O"},
+        {"path": "NB_Z_narrow_LET_water_p4.dat", "output_type": "depth_Z.TLET.all.H2O"},
+        {"path": "NB_Z_narrow_LET_water_p5.dat", "output_type": "depth_Z.TLET.primary.H2O"},
+        {"path": "NB_Z_narrow_LET_water_p6.dat", "output_type": "depth_Z.TLET.protons.H2O"}
       ]
     },
     {
-      "semantic_id": "z_dose_profile_silicon",
-      "description": "Depth dose profiles along the Z axis, narrow scorer, in silicon. 5 pages covering total and per-particle-type contributions.",
-      "scorer": "z_narrow",
-      "quantity": "DOSE",
-      "medium": "silicon",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "dose", "unit": "MeV/g/primary"},
+      "description": "Depth profiles – effective quality factor in silicon (Z_narrow, 6 pages: DQEFF and TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        "NB_Z_narrow_dose_p1.dat",
-        "NB_Z_narrow_dose_p2.dat",
-        "NB_Z_narrow_dose_p3.dat",
-        "NB_Z_narrow_dose_p4.dat",
-        "NB_Z_narrow_dose_p5.dat"
+        {"path": "NB_Z_narrow_QEFF_p1.dat", "output_type": "depth_Z.DQEFF.all.Si"},
+        {"path": "NB_Z_narrow_QEFF_p2.dat", "output_type": "depth_Z.DQEFF.primary.Si"},
+        {"path": "NB_Z_narrow_QEFF_p3.dat", "output_type": "depth_Z.DQEFF.protons.Si"},
+        {"path": "NB_Z_narrow_QEFF_p4.dat", "output_type": "depth_Z.TQEFF.all.Si"},
+        {"path": "NB_Z_narrow_QEFF_p5.dat", "output_type": "depth_Z.TQEFF.primary.Si"},
+        {"path": "NB_Z_narrow_QEFF_p6.dat", "output_type": "depth_Z.TQEFF.protons.Si"}
       ]
     },
     {
-      "semantic_id": "z_dose_profile_water",
-      "description": "Depth dose profiles along the Z axis, narrow scorer, in water. 3 pages covering total and per-particle-type contributions.",
-      "scorer": "z_narrow",
-      "quantity": "DOSE",
-      "medium": "water",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "dose", "unit": "MeV/g/primary"},
+      "description": "Target scalars in silicon (16 pages: fluence, dose, DLET, TLET, DQEFF, TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        "NB_Z_narrow_dose_water_p1.dat",
-        "NB_Z_narrow_dose_water_p2.dat",
-        "NB_Z_narrow_dose_water_p3.dat"
+        {"path": "NB_target_p01.txt", "output_type": "target.FLUENCE.all.Si"},
+        {"path": "NB_target_p02.txt", "output_type": "target.DOSE.all.Si"},
+        {"path": "NB_target_p03.txt", "output_type": "target.DLET.all.Si"},
+        {"path": "NB_target_p04.txt", "output_type": "target.DLET.primary.Si"},
+        {"path": "NB_target_p05.txt", "output_type": "target.DLET.protons.Si"},
+        {"path": "NB_target_p06.txt", "output_type": "target.TLET.all.Si"},
+        {"path": "NB_target_p07.txt", "output_type": "target.TLET.primary.Si"},
+        {"path": "NB_target_p08.txt", "output_type": "target.TLET.protons.Si"},
+        {"path": "NB_target_p09.txt", "output_type": "target.DQEFF.all.Si"},
+        {"path": "NB_target_p10.txt", "output_type": "target.DQEFF.primary.Si"},
+        {"path": "NB_target_p11.txt", "output_type": "target.DQEFF.protons.Si"},
+        {"path": "NB_target_p12.txt", "output_type": "target.TQEFF.all.Si"},
+        {"path": "NB_target_p13.txt", "output_type": "target.TQEFF.primary.Si"},
+        {"path": "NB_target_p14.txt", "output_type": "target.TQEFF.protons.Si"},
+        {"path": "NB_target_p15.txt", "output_type": "target.FLUENCE.primary.Si"},
+        {"path": "NB_target_p16.txt", "output_type": "target.FLUENCE.protons.Si"}
       ]
     },
     {
-      "semantic_id": "z_Qeff_profile",
-      "description": "Depth Q_eff profiles along the Z axis, narrow scorer. 6 pages: DQEFF and TQEFF for total, primary, and secondary particle contributions.",
-      "scorer": "z_narrow",
-      "quantity": "DQEFF",
-      "medium": null,
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "Qeff", "unit": "dimensionless"},
+      "description": "Target scalars in water (7 pages: dose, DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        "NB_Z_narrow_QEFF_p1.dat",
-        "NB_Z_narrow_QEFF_p2.dat",
-        "NB_Z_narrow_QEFF_p3.dat",
-        "NB_Z_narrow_QEFF_p4.dat",
-        "NB_Z_narrow_QEFF_p5.dat",
-        "NB_Z_narrow_QEFF_p6.dat"
+        {"path": "NB_target_water_p1.txt", "output_type": "target.DOSE.all.H2O"},
+        {"path": "NB_target_water_p2.txt", "output_type": "target.DLET.all.H2O"},
+        {"path": "NB_target_water_p3.txt", "output_type": "target.DLET.primary.H2O"},
+        {"path": "NB_target_water_p4.txt", "output_type": "target.DLET.protons.H2O"},
+        {"path": "NB_target_water_p5.txt", "output_type": "target.TLET.all.H2O"},
+        {"path": "NB_target_water_p6.txt", "output_type": "target.TLET.primary.H2O"},
+        {"path": "NB_target_water_p7.txt", "output_type": "target.TLET.protons.H2O"}
       ]
     },
     {
-      "semantic_id": null,
-      "description": "Raw SHIELD-HIT12A DETECT output for silicon target scorer (16 particle-component pages).",
-      "role": "raw_output",
+      "description": "Differential fluence spectra in silicon target (4 pages)",
+      "role": "primary_data",
+      "notes": "p1: fluence vs dE/dx (all particles, default Si stopping power); p2: fluence vs LET (primary protons); p3: fluence vs dE/dx (all particles, explicit Si – physically equivalent to p1 in this geometry); p4: fluence vs dE/dx (primary protons, explicit Si).",
       "files": [
-        "NB_target_p01.txt",
-        "NB_target_p02.txt",
-        "NB_target_p03.txt",
-        "NB_target_p04.txt",
-        "NB_target_p05.txt",
-        "NB_target_p06.txt",
-        "NB_target_p07.txt",
-        "NB_target_p08.txt",
-        "NB_target_p09.txt",
-        "NB_target_p10.txt",
-        "NB_target_p11.txt",
-        "NB_target_p12.txt",
-        "NB_target_p13.txt",
-        "NB_target_p14.txt",
-        "NB_target_p15.txt",
-        "NB_target_p16.txt"
+        {"path": "NB_target_diff_p1.dat", "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"},
+        {"path": "NB_target_diff_p2.dat", "output_type": "spectrum_target.FLUENCE.primary.Si.vs_LET"},
+        {"path": "NB_target_diff_p3.dat", "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"},
+        {"path": "NB_target_diff_p4.dat", "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"}
       ]
     },
     {
-      "semantic_id": null,
-      "description": "Raw SHIELD-HIT12A DETECT output for water target scorer (7 particle-component pages).",
-      "role": "raw_output",
+      "description": "Differential fluence spectra in water target (2 pages)",
+      "role": "primary_data",
       "files": [
-        "NB_target_water_p1.txt",
-        "NB_target_water_p2.txt",
-        "NB_target_water_p3.txt",
-        "NB_target_water_p4.txt",
-        "NB_target_water_p5.txt",
-        "NB_target_water_p6.txt",
-        "NB_target_water_p7.txt"
+        {"path": "NB_target_water_diff_p1.dat", "output_type": "spectrum_target.FLUENCE.all.H2O.vs_DEDX"},
+        {"path": "NB_target_water_diff_p2.dat", "output_type": "spectrum_target.FLUENCE.primary.H2O.vs_LET"}
       ]
     },
     {
-      "semantic_id": null,
-      "description": "Preview PNG: transverse XY fluence map.",
+      "description": "2D maps – dose (longitudinal XZ and transverse XY). PNG only; binary BDO not exported to DAT.",
       "role": "preview_image",
-      "files": ["NB_XY.png"]
-    },
-    {
-      "semantic_id": null,
-      "description": "Preview PNG: longitudinal XZ fluence map.",
-      "role": "preview_image",
-      "files": ["NB_XZ_map.png"]
+      "files": [
+        {"path": "NB_XZ_map.png"},
+        {"path": "NB_XY.png"}
+      ]
     }
   ]
 }

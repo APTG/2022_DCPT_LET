@@ -1,0 +1,102 @@
+{
+  "schema_version": "1",
+  "description": "Canonical catalog of all physical output types that can appear across MC codes in this benchmark. Each key encodes {geometry}.{QUANTITY}.{filter}.{medium}[.vs_{diff_axis}]. Manifests reference these keys per file via the output_type field.",
+  "geometry_classes": {
+    "depth_Z": {
+      "description": "1D depth profile along the beam (Z) axis with narrow lateral acceptance (1×1 cm²)",
+      "dimensionality": 1,
+      "render_as": "line_plot",
+      "axis_x": {"quantity": "depth", "unit": "cm"}
+    },
+    "target": {
+      "description": "Single-volume integrated scalar in the target detector (5×5×2 mm³ silicon)",
+      "dimensionality": 0,
+      "render_as": "scalar"
+    },
+    "spectrum_target": {
+      "description": "1D differential particle spectrum (fluence vs stopping quantity) scored in the target volume",
+      "dimensionality": 1,
+      "render_as": "spectrum_plot"
+    },
+    "map_XZ": {
+      "description": "2D longitudinal (X–Z) dose or fluence map",
+      "dimensionality": 2,
+      "render_as": "heatmap",
+      "axis_x": {"quantity": "x", "unit": "cm"},
+      "axis_y": {"quantity": "depth", "unit": "cm"}
+    },
+    "map_XY": {
+      "description": "2D transverse (X–Y) dose or fluence map",
+      "dimensionality": 2,
+      "render_as": "heatmap",
+      "axis_x": {"quantity": "x", "unit": "cm"},
+      "axis_y": {"quantity": "y", "unit": "cm"}
+    }
+  },
+  "output_types": {
+
+    "depth_Z.FLUENCE.all.Si":     {"geometry": "depth_Z", "quantity": "FLUENCE", "filter": "all",     "medium": "Si",  "label": "Fluence – all particles in Si",           "axis_y": {"quantity": "fluence", "unit": "1/cm²/primary"}, "render_as": "line_plot"},
+    "depth_Z.FLUENCE.primary.Si": {"geometry": "depth_Z", "quantity": "FLUENCE", "filter": "primary", "medium": "Si",  "label": "Fluence – primary protons in Si",         "axis_y": {"quantity": "fluence", "unit": "1/cm²/primary"}, "render_as": "line_plot"},
+    "depth_Z.FLUENCE.protons.Si": {"geometry": "depth_Z", "quantity": "FLUENCE", "filter": "protons", "medium": "Si",  "label": "Fluence – all protons in Si",             "axis_y": {"quantity": "fluence", "unit": "1/cm²/primary"}, "render_as": "line_plot"},
+    "depth_Z.FLUENCE.all.H2O":    {"geometry": "depth_Z", "quantity": "FLUENCE", "filter": "all",     "medium": "H2O", "label": "Fluence – all particles in H₂O",          "axis_y": {"quantity": "fluence", "unit": "1/cm²/primary"}, "render_as": "line_plot"},
+
+    "depth_Z.DOSE.all.Si":        {"geometry": "depth_Z", "quantity": "DOSE",    "filter": "all",     "medium": "Si",  "label": "Dose – all particles in Si",              "axis_y": {"quantity": "dose",    "unit": "MeV/g/primary"}, "render_as": "line_plot"},
+    "depth_Z.DOSE.protons.Si":    {"geometry": "depth_Z", "quantity": "DOSE",    "filter": "protons", "medium": "Si",  "label": "Dose – all protons in Si",                "axis_y": {"quantity": "dose",    "unit": "MeV/g/primary"}, "render_as": "line_plot"},
+    "depth_Z.DOSE.all.H2O":       {"geometry": "depth_Z", "quantity": "DOSE",    "filter": "all",     "medium": "H2O", "label": "Dose – all particles in H₂O",             "axis_y": {"quantity": "dose",    "unit": "MeV/g/primary"}, "render_as": "line_plot"},
+    "depth_Z.DOSE.protons.H2O":   {"geometry": "depth_Z", "quantity": "DOSE",    "filter": "protons", "medium": "H2O", "label": "Dose – all protons in H₂O",               "axis_y": {"quantity": "dose",    "unit": "MeV/g/primary"}, "render_as": "line_plot"},
+
+    "depth_Z.DLET.all.Si":        {"geometry": "depth_Z", "quantity": "DLET",    "filter": "all",     "medium": "Si",  "label": "D-LET – all particles in Si",             "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.DLET.primary.Si":    {"geometry": "depth_Z", "quantity": "DLET",    "filter": "primary", "medium": "Si",  "label": "D-LET – primary protons in Si",           "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.DLET.protons.Si":    {"geometry": "depth_Z", "quantity": "DLET",    "filter": "protons", "medium": "Si",  "label": "D-LET – all protons in Si",               "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.DLET.all.H2O":       {"geometry": "depth_Z", "quantity": "DLET",    "filter": "all",     "medium": "H2O", "label": "D-LET – all particles in H₂O",            "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.DLET.primary.H2O":   {"geometry": "depth_Z", "quantity": "DLET",    "filter": "primary", "medium": "H2O", "label": "D-LET – primary protons in H₂O",          "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.DLET.protons.H2O":   {"geometry": "depth_Z", "quantity": "DLET",    "filter": "protons", "medium": "H2O", "label": "D-LET – all protons in H₂O",              "axis_y": {"quantity": "DLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+
+    "depth_Z.TLET.all.Si":        {"geometry": "depth_Z", "quantity": "TLET",    "filter": "all",     "medium": "Si",  "label": "T-LET – all particles in Si",             "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.TLET.primary.Si":    {"geometry": "depth_Z", "quantity": "TLET",    "filter": "primary", "medium": "Si",  "label": "T-LET – primary protons in Si",           "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.TLET.protons.Si":    {"geometry": "depth_Z", "quantity": "TLET",    "filter": "protons", "medium": "Si",  "label": "T-LET – all protons in Si",               "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.TLET.all.H2O":       {"geometry": "depth_Z", "quantity": "TLET",    "filter": "all",     "medium": "H2O", "label": "T-LET – all particles in H₂O",            "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.TLET.primary.H2O":   {"geometry": "depth_Z", "quantity": "TLET",    "filter": "primary", "medium": "H2O", "label": "T-LET – primary protons in H₂O",          "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+    "depth_Z.TLET.protons.H2O":   {"geometry": "depth_Z", "quantity": "TLET",    "filter": "protons", "medium": "H2O", "label": "T-LET – all protons in H₂O",              "axis_y": {"quantity": "TLET",    "unit": "MeV/cm"},        "render_as": "line_plot"},
+
+    "depth_Z.DQEFF.all.Si":       {"geometry": "depth_Z", "quantity": "DQEFF",   "filter": "all",     "medium": "Si",  "label": "D-Qₑₑₑ – all particles in Si",  "axis_y": {"quantity": "DQEFF",   "unit": ""},              "render_as": "line_plot"},
+    "depth_Z.DQEFF.primary.Si":   {"geometry": "depth_Z", "quantity": "DQEFF",   "filter": "primary", "medium": "Si",  "label": "D-Qₑₑₑ – primary protons in Si","axis_y": {"quantity": "DQEFF",   "unit": ""},              "render_as": "line_plot"},
+    "depth_Z.DQEFF.protons.Si":   {"geometry": "depth_Z", "quantity": "DQEFF",   "filter": "protons", "medium": "Si",  "label": "D-Qₑₑₑ – all protons in Si",    "axis_y": {"quantity": "DQEFF",   "unit": ""},              "render_as": "line_plot"},
+    "depth_Z.TQEFF.all.Si":       {"geometry": "depth_Z", "quantity": "TQEFF",   "filter": "all",     "medium": "Si",  "label": "T-Qₑₑₑ – all particles in Si",  "axis_y": {"quantity": "TQEFF",   "unit": ""},              "render_as": "line_plot"},
+    "depth_Z.TQEFF.primary.Si":   {"geometry": "depth_Z", "quantity": "TQEFF",   "filter": "primary", "medium": "Si",  "label": "T-Qₑₑₑ – primary protons in Si","axis_y": {"quantity": "TQEFF",   "unit": ""},              "render_as": "line_plot"},
+    "depth_Z.TQEFF.protons.Si":   {"geometry": "depth_Z", "quantity": "TQEFF",   "filter": "protons", "medium": "Si",  "label": "T-Qₑₑₑ – all protons in Si",    "axis_y": {"quantity": "TQEFF",   "unit": ""},              "render_as": "line_plot"},
+
+    "target.FLUENCE.all.Si":      {"geometry": "target",  "quantity": "FLUENCE", "filter": "all",     "medium": "Si",  "label": "Fluence – all particles in Si (target)",  "render_as": "scalar"},
+    "target.FLUENCE.primary.Si":  {"geometry": "target",  "quantity": "FLUENCE", "filter": "primary", "medium": "Si",  "label": "Fluence – primary protons in Si (target)","render_as": "scalar"},
+    "target.FLUENCE.protons.Si":  {"geometry": "target",  "quantity": "FLUENCE", "filter": "protons", "medium": "Si",  "label": "Fluence – all protons in Si (target)",    "render_as": "scalar"},
+    "target.DOSE.all.Si":         {"geometry": "target",  "quantity": "DOSE",    "filter": "all",     "medium": "Si",  "label": "Dose – all particles in Si (target)",     "render_as": "scalar"},
+    "target.DOSE.all.H2O":        {"geometry": "target",  "quantity": "DOSE",    "filter": "all",     "medium": "H2O", "label": "Dose – all particles in H₂O (target)",    "render_as": "scalar"},
+    "target.DLET.all.Si":         {"geometry": "target",  "quantity": "DLET",    "filter": "all",     "medium": "Si",  "label": "D-LET – all particles in Si (target)",    "render_as": "scalar"},
+    "target.DLET.primary.Si":     {"geometry": "target",  "quantity": "DLET",    "filter": "primary", "medium": "Si",  "label": "D-LET – primary protons in Si (target)",  "render_as": "scalar"},
+    "target.DLET.protons.Si":     {"geometry": "target",  "quantity": "DLET",    "filter": "protons", "medium": "Si",  "label": "D-LET – all protons in Si (target)",      "render_as": "scalar"},
+    "target.DLET.all.H2O":        {"geometry": "target",  "quantity": "DLET",    "filter": "all",     "medium": "H2O", "label": "D-LET – all particles in H₂O (target)",   "render_as": "scalar"},
+    "target.DLET.primary.H2O":    {"geometry": "target",  "quantity": "DLET",    "filter": "primary", "medium": "H2O", "label": "D-LET – primary protons in H₂O (target)", "render_as": "scalar"},
+    "target.DLET.protons.H2O":    {"geometry": "target",  "quantity": "DLET",    "filter": "protons", "medium": "H2O", "label": "D-LET – all protons in H₂O (target)",     "render_as": "scalar"},
+    "target.TLET.all.Si":         {"geometry": "target",  "quantity": "TLET",    "filter": "all",     "medium": "Si",  "label": "T-LET – all particles in Si (target)",    "render_as": "scalar"},
+    "target.TLET.primary.Si":     {"geometry": "target",  "quantity": "TLET",    "filter": "primary", "medium": "Si",  "label": "T-LET – primary protons in Si (target)",  "render_as": "scalar"},
+    "target.TLET.protons.Si":     {"geometry": "target",  "quantity": "TLET",    "filter": "protons", "medium": "Si",  "label": "T-LET – all protons in Si (target)",      "render_as": "scalar"},
+    "target.TLET.all.H2O":        {"geometry": "target",  "quantity": "TLET",    "filter": "all",     "medium": "H2O", "label": "T-LET – all particles in H₂O (target)",   "render_as": "scalar"},
+    "target.TLET.primary.H2O":    {"geometry": "target",  "quantity": "TLET",    "filter": "primary", "medium": "H2O", "label": "T-LET – primary protons in H₂O (target)", "render_as": "scalar"},
+    "target.TLET.protons.H2O":    {"geometry": "target",  "quantity": "TLET",    "filter": "protons", "medium": "H2O", "label": "T-LET – all protons in H₂O (target)",     "render_as": "scalar"},
+    "target.DQEFF.all.Si":        {"geometry": "target",  "quantity": "DQEFF",   "filter": "all",     "medium": "Si",  "label": "D-Qeff – all particles in Si (target)",   "render_as": "scalar"},
+    "target.DQEFF.primary.Si":    {"geometry": "target",  "quantity": "DQEFF",   "filter": "primary", "medium": "Si",  "label": "D-Qeff – primary protons in Si (target)", "render_as": "scalar"},
+    "target.DQEFF.protons.Si":    {"geometry": "target",  "quantity": "DQEFF",   "filter": "protons", "medium": "Si",  "label": "D-Qeff – all protons in Si (target)",     "render_as": "scalar"},
+    "target.TQEFF.all.Si":        {"geometry": "target",  "quantity": "TQEFF",   "filter": "all",     "medium": "Si",  "label": "T-Qeff – all particles in Si (target)",   "render_as": "scalar"},
+    "target.TQEFF.primary.Si":    {"geometry": "target",  "quantity": "TQEFF",   "filter": "primary", "medium": "Si",  "label": "T-Qeff – primary protons in Si (target)", "render_as": "scalar"},
+    "target.TQEFF.protons.Si":    {"geometry": "target",  "quantity": "TQEFF",   "filter": "protons", "medium": "Si",  "label": "T-Qeff – all protons in Si (target)",     "render_as": "scalar"},
+
+    "spectrum_target.FLUENCE.all.Si.vs_DEDX":       {"geometry": "spectrum_target", "quantity": "FLUENCE", "filter": "all",     "medium": "Si",  "diff_axis": "DEDX", "label": "Fluence spectrum – all particles in Si vs dE/dx",          "axis_x": {"quantity": "dE/dx", "unit": "keV/µm"}, "axis_y": {"quantity": "fluence differential", "unit": "1/(cm² primary keV/µm)"}, "render_as": "spectrum_plot"},
+    "spectrum_target.FLUENCE.primary.Si.vs_LET":    {"geometry": "spectrum_target", "quantity": "FLUENCE", "filter": "primary", "medium": "Si",  "diff_axis": "LET",  "label": "Fluence spectrum – primary protons in Si vs LET",           "axis_x": {"quantity": "LET",   "unit": "keV/µm"}, "axis_y": {"quantity": "fluence differential", "unit": "1/(cm² primary keV/µm)"}, "render_as": "spectrum_plot"},
+    "spectrum_target.FLUENCE.primary.Si.vs_DEDX":   {"geometry": "spectrum_target", "quantity": "FLUENCE", "filter": "primary", "medium": "Si",  "diff_axis": "DEDX", "label": "Fluence spectrum – primary protons in Si vs dE/dx",         "axis_x": {"quantity": "dE/dx", "unit": "keV/µm"}, "axis_y": {"quantity": "fluence differential", "unit": "1/(cm² primary keV/µm)"}, "render_as": "spectrum_plot"},
+    "spectrum_target.FLUENCE.all.H2O.vs_DEDX":      {"geometry": "spectrum_target", "quantity": "FLUENCE", "filter": "all",     "medium": "H2O", "diff_axis": "DEDX", "label": "Fluence spectrum – all particles in H₂O vs dE/dx",         "axis_x": {"quantity": "dE/dx", "unit": "keV/µm"}, "axis_y": {"quantity": "fluence differential", "unit": "1/(cm² primary keV/µm)"}, "render_as": "spectrum_plot"},
+    "spectrum_target.FLUENCE.primary.H2O.vs_LET":   {"geometry": "spectrum_target", "quantity": "FLUENCE", "filter": "primary", "medium": "H2O", "diff_axis": "LET",  "label": "Fluence spectrum – primary protons in H₂O vs LET",          "axis_x": {"quantity": "LET",   "unit": "keV/µm"}, "axis_y": {"quantity": "fluence differential", "unit": "1/(cm² primary keV/µm)"}, "render_as": "spectrum_plot"},
+
+    "map_XZ.DOSE.all.Si":         {"geometry": "map_XZ",  "quantity": "DOSE",    "filter": "all",     "medium": "Si",  "label": "Dose – all particles in Si (longitudinal map)", "render_as": "heatmap"},
+    "map_XY.DOSE.all.Si":         {"geometry": "map_XY",  "quantity": "DOSE",    "filter": "all",     "medium": "Si",  "label": "Dose – all particles in Si (transverse map)",   "render_as": "heatmap"}
+  }
+}

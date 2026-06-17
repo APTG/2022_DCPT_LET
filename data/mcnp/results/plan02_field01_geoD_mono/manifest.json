@@ -15,53 +15,39 @@
     "normalization": "per_source_particle"
   },
   "capabilities": {
-    "target_LET_spectrum_silicon": false,
-    "target_LET_spectrum_water": false,
-    "z_LET_profile_silicon": true,
-    "z_LET_profile_water": false,
-    "z_dose_profile_silicon": true,
-    "z_dose_profile_water": false,
-    "z_Qeff_profile": false
+    "notes": "Same scope as plan01: proton-only LET, depth dose/fluence, and target scalars. No water profiles, no spectra, no Qeff."
   },
   "outputs": [
     {
-      "semantic_id": "z_LET_profile_silicon",
-      "description": "Depth LET profiles along the Z axis in silicon. 2 files: DLET (p3) and TLET (p6) for primary protons only.",
-      "scorer": "z_narrow",
-      "quantity": "DLET",
-      "medium": "silicon",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "LET", "unit": "MeV/cm"},
+      "description": "Depth LET profiles in silicon (Z_narrow) – DLET and TLET for all protons",
       "role": "primary_data",
+      "notes": "Page numbering intentionally matches SHIELD-HIT12A convention (p3=DLET protons, p6=TLET protons).",
       "files": [
-        "HB_Z_narrow_LET_p3.dat",
-        "HB_Z_narrow_LET__p6.dat"
+        {"path": "HB_Z_narrow_LET_p3.dat",  "output_type": "depth_Z.DLET.protons.Si"},
+        {"path": "HB_Z_narrow_LET__p6.dat", "output_type": "depth_Z.TLET.protons.Si"}
       ]
     },
     {
-      "semantic_id": "z_dose_profile_silicon",
-      "description": "Depth profiles along the Z axis in silicon. 2 files: flux of primary particles (F4 tally) and dose (F6 tally, MeV/g/SP).",
-      "scorer": "z_narrow",
-      "quantity": "DOSE",
-      "medium": "silicon",
-      "axis_x": {"quantity": "depth", "unit": "cm"},
-      "axis_y": {"quantity": "dose", "unit": "MeV/g/primary"},
+      "description": "Depth fluence profile in silicon (Z_narrow) – F4 tally, primary particles",
       "role": "primary_data",
+      "notes": "File named with 'dose' prefix but contains F4 flux of primary particles.",
       "files": [
-        "HB_Z_narrow_dose_p1.dat",
-        "HB_Z_narrow_dose_p02.dat"
+        {"path": "HB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.primary.Si"}
       ]
     },
     {
-      "semantic_id": null,
-      "description": "Flux and dose in silicon target volume. 2 scalar outputs: F4 flux (p01) and F6 dose (p02, MeV/g/SP).",
-      "scorer": "target",
-      "quantity": "DOSE",
-      "medium": "silicon",
+      "description": "Depth dose profile in silicon (Z_narrow) – F6 tally (dose, MeV/g/SP)",
       "role": "primary_data",
       "files": [
-        "HB_target_p01.dat",
-        "HB_target_p02.dat"
+        {"path": "HB_Z_narrow_dose_p02.dat", "output_type": "depth_Z.DOSE.all.Si"}
+      ]
+    },
+    {
+      "description": "Target volume – fluence (F4) and dose (F6) scalars",
+      "role": "primary_data",
+      "files": [
+        {"path": "HB_target_p01.dat", "output_type": "target.FLUENCE.all.Si"},
+        {"path": "HB_target_p02.dat", "output_type": "target.DOSE.all.Si"}
       ]
     }
   ]
