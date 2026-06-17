@@ -16,8 +16,3 @@ The per-plan `manifest.json` files map each file to its semantic meaning.
 All results are normalised per source particle (SP).
 Stopping power values are interpreted in MeV/cm (F4 tally energy bins).
 
-## Known issues
-
-- Filename inconsistencies: some files use double underscores before the page
-  number (e.g. `HB_Z_narrow_LET__p6.dat`) while others do not. See individual
-  `manifest.json` files for details.

@@ -5,7 +5,7 @@
     "name": "MCNP",
     "short": "mcnp",
     "version": "unknown",
-    "notes": "Results contributed by Hrvoje Brkic (HB_ filename prefix). Output filenames use HB_ prefix and show inconsistent page numbering across files; see notes per output entry. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
+    "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
   },
   "provenance": {
     "date": "2023-01-01",
@@ -33,7 +33,6 @@
       "axis_x": {"quantity": "depth", "unit": "cm"},
       "axis_y": {"quantity": "LET", "unit": "MeV/cm"},
       "role": "primary_data",
-      "notes": "File names contain double underscore before page number; format is 2-column (depth, LET) with no uncertainty column.",
       "files": [
         "HB_Z_narrow_LET__p3.dat",
         "HB_Z_narrow_LET__p6.dat"
@@ -48,43 +47,39 @@
       "axis_x": {"quantity": "depth", "unit": "cm"},
       "axis_y": {"quantity": "dose", "unit": "MeV/g/primary"},
       "role": "primary_data",
-      "notes": "Filename is HB_narrow_dose_p02 (missing _Z_); naming inconsistency relative to plan02. Format is 3-column (depth, value, uncertainty).",
       "files": [
         "HB_narrow_dose_p02.dat"
       ]
     },
     {
       "semantic_id": null,
-      "description": "Flux of primary particles along the Z axis (F4 tally). Named as 'dose_p01' in the filename despite being a flux quantity.",
+      "description": "Flux of primary particles along the Z axis (F4 tally). File is named as a dose output but contains flux.",
       "scorer": "z_narrow",
       "quantity": "FLUENCE",
       "medium": "silicon",
       "role": "primary_data",
-      "notes": "Misleadingly named HB_Z_narrow_dose_p01 despite being a flux (F4) tally. Format is 3-column (depth, value, uncertainty).",
       "files": [
         "HB_Z_narrow_dose_p01.dat"
       ]
     },
     {
       "semantic_id": null,
-      "description": "Dose in silicon target volume (F6 tally, MeV/g/SP). Single integrated value.",
+      "description": "Dose in silicon target volume (F6 tally, MeV/g/SP). Single integrated value with uncertainty.",
       "scorer": "target",
       "quantity": "DOSE",
       "medium": "silicon",
       "role": "primary_data",
-      "notes": "HB_target_p02 corresponds to '*target_p02' in the results README. Single scalar value with uncertainty.",
       "files": [
         "HB_target_p02.dat"
       ]
     },
     {
       "semantic_id": null,
-      "description": "Flux in silicon target volume (F4 tally). Single integrated value. Naming deviates from page convention (01 without 'p' prefix).",
+      "description": "Flux in silicon target volume (F4 tally). Single integrated value with uncertainty.",
       "scorer": "target",
       "quantity": "FLUENCE",
       "medium": "silicon",
       "role": "primary_data",
-      "notes": "Named HB_target_01 (no 'p' prefix) unlike other files. Likely corresponds to F4 flux tally for the target volume.",
       "files": [
         "HB_target_01.dat"
       ]
