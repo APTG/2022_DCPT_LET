@@ -1,0 +1,225 @@
+{
+  "schema_version": "1",
+  "plan": "plan02_field01_geoD_mono",
+  "code": {
+    "name": "OpenShieldHIT",
+    "short": "openshieldhit",
+    "version": "unknown",
+    "notes": "Primary-particle-only transport; Gaussian energy straggling. Development run with 1e6 primaries."
+  },
+  "provenance": {
+    "date": null,
+    "input_path": "data/openshieldhit/input/plan02_field01_geoD_mono"
+  },
+  "statistics": {
+    "normalization": "per_primary"
+  },
+  "capabilities": {
+    "notes": "Same quantities as SHIELD-HIT12A for the Z_narrow depth profiles. Target scalars not yet page-extracted (raw BDO in NB_target.dat). Differential spectra derived via tools/render_diff_results.py from the raw target output. 2D map data exported as DAT."
+  },
+  "outputs": [
+    {
+      "description": "Depth profiles – fluence and dose in silicon (Z_narrow, 5 pages)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_dose_p1.dat",
+          "output_type": "depth_Z.FLUENCE.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p2.dat",
+          "output_type": "depth_Z.DOSE.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.Si"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p4.dat",
+          "output_type": "depth_Z.FLUENCE.primary.Si"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p5.dat",
+          "output_type": "depth_Z.FLUENCE.protons.Si"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles – dose in water (Z_narrow, 3 pages)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_dose_water_p1.dat",
+          "output_type": "depth_Z.FLUENCE.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p2.dat",
+          "output_type": "depth_Z.DOSE.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles – LET in silicon (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_LET_p1.dat",
+          "output_type": "depth_Z.DLET.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p2.dat",
+          "output_type": "depth_Z.DLET.primary.Si"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p3.dat",
+          "output_type": "depth_Z.DLET.protons.Si"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p4.dat",
+          "output_type": "depth_Z.TLET.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p5.dat",
+          "output_type": "depth_Z.TLET.primary.Si"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p6.dat",
+          "output_type": "depth_Z.TLET.protons.Si"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles – LET in water (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_LET_water_p1.dat",
+          "output_type": "depth_Z.DLET.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p2.dat",
+          "output_type": "depth_Z.DLET.primary.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p3.dat",
+          "output_type": "depth_Z.DLET.protons.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p4.dat",
+          "output_type": "depth_Z.TLET.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p5.dat",
+          "output_type": "depth_Z.TLET.primary.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p6.dat",
+          "output_type": "depth_Z.TLET.protons.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles – effective quality factor in silicon (Z_narrow, 6 pages: DQEFF and TQEFF × all / primary / protons)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_QEFF_p1.dat",
+          "output_type": "depth_Z.DQEFF.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p2.dat",
+          "output_type": "depth_Z.DQEFF.primary.Si"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p3.dat",
+          "output_type": "depth_Z.DQEFF.protons.Si"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p4.dat",
+          "output_type": "depth_Z.TQEFF.all.Si"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p5.dat",
+          "output_type": "depth_Z.TQEFF.primary.Si"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p6.dat",
+          "output_type": "depth_Z.TQEFF.protons.Si"
+        }
+      ]
+    },
+    {
+      "description": "Differential fluence spectra in silicon target (4 pages, derived from NB_target.dat via render_diff_results.py)",
+      "role": "derived",
+      "notes": "Generated by tools/render_diff_results.py using the SH12A detect.dat as page-order reference. p1: all vs dE/dx; p2: primary vs LET; p3: all vs dE/dx (explicit Si); p4: primary vs dE/dx (explicit Si).",
+      "files": [
+        {
+          "path": "NB_target_diff_p1.dat",
+          "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"
+        },
+        {
+          "path": "NB_target_diff_p2.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_LET"
+        },
+        {
+          "path": "NB_target_diff_p3.dat",
+          "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"
+        },
+        {
+          "path": "NB_target_diff_p4.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"
+        }
+      ]
+    },
+    {
+      "description": "Differential fluence spectra in water target (2 pages, derived from NB_target_water.dat)",
+      "role": "derived",
+      "notes": "Generated by tools/render_diff_results.py.",
+      "files": [
+        {
+          "path": "NB_target_water_diff_p1.dat",
+          "output_type": "spectrum_target.FLUENCE.all.H2O.vs_DEDX"
+        },
+        {
+          "path": "NB_target_water_diff_p2.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.H2O.vs_LET"
+        }
+      ]
+    },
+    {
+      "description": "Raw silicon target output – all pages merged (not yet page-extracted)",
+      "role": "raw_output",
+      "notes": "Multi-page BDO-converted output. Individual target scalars (FLUENCE, DOSE, DLET, TLET, DQEFF, TQEFF per filter) are embedded but not yet split into per-page files.",
+      "files": [
+        {
+          "path": "NB_target.dat"
+        }
+      ]
+    },
+    {
+      "description": "Raw water target output – all pages merged (not yet page-extracted)",
+      "role": "raw_output",
+      "files": [
+        {
+          "path": "NB_target_water.dat"
+        }
+      ]
+    },
+    {
+      "description": "2D map PNG previews",
+      "role": "preview_image",
+      "files": [
+        {
+          "path": "NB_XZ_map.png"
+        },
+        {
+          "path": "NB_XY.png"
+        }
+      ]
+    }
+  ]
+}

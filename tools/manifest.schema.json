@@ -41,13 +41,14 @@
     },
     "provenance": {
       "type": "object",
-      "required": ["date"],
       "additionalProperties": false,
       "properties": {
         "date": {
-          "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
-          "description": "ISO 8601 date (YYYY-MM-DD) when the simulation was run."
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+            {"type": "null"}
+          ],
+          "description": "ISO 8601 date (YYYY-MM-DD) when the simulation was run, or null if unknown."
         },
         "input_path": {
           "type": "string",
