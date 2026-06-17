@@ -328,6 +328,15 @@ a { color: var(--accent); }
 .plot-card .plot-link:hover { background: var(--accent-soft); }
 .plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
 
+/* PDF download button */
+.btn-pdf {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--accent); color: #fff; border-radius: 6px;
+  padding: .45rem 1rem; font-size: .9rem; font-weight: 600;
+  text-decoration: none; margin-top: 1rem;
+}
+.btn-pdf:hover { opacity: .85; }
+
 /* download links */
 .dl-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .1rem; }
 .dl-label { font-size: .75rem; color: var(--muted); margin-right: .2rem; white-space: nowrap; }
@@ -580,6 +589,7 @@ def render_index(
       <strong>Click any plot to open an interactive view</strong> — hover for exact values,
       click the legend to toggle codes.
     </p>
+    <a class="btn-pdf" href="report.pdf" download>⬇ Download PDF report (all plots)</a>
     <div class="hero-grid">
       <div class="stat"><strong>{len(plans)}</strong><span>plans</span></div>
       <div class="stat"><strong>{len(code_styles)}</strong><span>MC codes</span></div>

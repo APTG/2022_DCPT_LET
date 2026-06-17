@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: python -m pip install --upgrade pip numpy plotly pyyaml jsonschema
+        run: python -m pip install --upgrade pip numpy plotly pyyaml jsonschema matplotlib
 
       - name: Validate manifests
         run: python tools/validate_manifests.py
@@ -47,6 +47,9 @@ jobs:
             --data-root data \
             --plots-dir pages-site/plots \
             --out-dir pages-site
+
+      - name: Generate PDF report
+        run: python tools/generate_pdf_report.py --out pages-site/report.pdf
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

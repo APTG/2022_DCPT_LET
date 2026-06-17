@@ -33,7 +33,10 @@ pip install -e .
 # 4. Build the static site (written to pages-site/)
 .venv/bin/python tools/build_pages_site.py --plots-dir pages-site/plots --out-dir pages-site
 
-# 5. Open in browser
+# 5. Generate the PDF report (written to pages-site/report.pdf)
+.venv/bin/python tools/generate_pdf_report.py --out pages-site/report.pdf
+
+# 6. Open in browser
 google-chrome pages-site/index.html   # or: xdg-open / open on macOS
 ```
 
@@ -45,6 +48,7 @@ google-chrome pages-site/index.html   # or: xdg-open / open on macOS
 |---|---|
 | `validate_manifests.py` | Schema-validate all `manifest.json` files under `data/` |
 | `generate_comparison_plots.py` | Read manifests + data files, write one Plotly HTML per output type per plan |
+| `generate_pdf_report.py` | Write a multi-page PDF with all plots for offline visual inspection |
 | `build_pages_site.py` | Discover codes/plans from manifests, generate `index.html` and per-plan pages |
 | `bootstrap_manifests.py` | Generate stub manifests for plan directories that have data but no manifest yet |
 | `manifest.schema.json` | JSON Schema (draft-07) for manifest validation |
