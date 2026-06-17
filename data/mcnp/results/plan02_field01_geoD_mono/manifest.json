@@ -5,7 +5,7 @@
     "name": "MCNP",
     "short": "mcnp",
     "version": "unknown",
-    "notes": "Results contributed by H. Burigo. Output filenames use HB_ prefix. Note naming inconsistencies: HB_Z_narrow_LET__p6 has a double underscore while HB_Z_narrow_LET_p3 does not."
+    "notes": "Results contributed by Hrvoje Brkic (HB_ filename prefix). Output filenames use HB_ prefix. Note naming inconsistencies: HB_Z_narrow_LET__p6 has a double underscore while HB_Z_narrow_LET_p3 does not."
   },
   "provenance": {
     "date": "2023-01-01",

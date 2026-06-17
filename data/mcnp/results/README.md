@@ -1,17 +1,23 @@
-Results are shown for each phase-space file, and I tried to adjust the naming according to SHIELD-hit results.
+Results contributed by Hrvoje Brkic. All output filenames use the `HB_` prefix.
+Output files were named loosely following the SHIELD-HIT12A convention, but
+with inconsistencies in page numbering and underscore use across plans.
+The per-plan `manifest.json` files map each file to its semantic meaning.
 
-Plan_1_1 - corresponds to plan 1 - simulated form phase-space plan_1_1
+## File naming key
 
-MCNP for F4 tally uses "track length estimate of particle flux", and all the results are normalized per SP (Spurce Particle). "The values provided in the energy bins are interpreted as stopping power values with units of
-MeV/cm". 
+| Pattern | Tally | Quantity | Unit |
+|---|---|---|---|
+| `*narrow_LET_p3` | F4 | DLET protons | MeV/cm |
+| `*narrow_LET_p6` | F4 | TLET protons | MeV/cm |
+| `*narrow_dose_p01` | F4 | Flux of primary particles along Z | per SP |
+| `*narrow_dose_p02` | F6 | Dose along Z-axis | MeV/g/SP |
+| `*target_p02` | F6 | Dose in target volume | MeV/g/SP |
 
+All results are normalised per source particle (SP).
+Stopping power values are interpreted in MeV/cm (F4 tally energy bins).
 
-*narrow_dose_p02 - dose  (F6 tally)  along the Z-axis in MeV/g/SP
+## Known issues
 
-*target_p02 - dose  (F6 tally) in target volume in MeV/g/SP
-
-*narrow dose_p01 - flux of primary particles along z-axis
-
-*narrow_LET_p3 - DLET Protons [MEV/cm]
-
-*narrow_LET_p6 - TLET Protons [MEV/cm]
+- Filename inconsistencies: some files use double underscores before the page
+  number (e.g. `HB_Z_narrow_LET__p6.dat`) while others do not. See individual
+  `manifest.json` files for details.

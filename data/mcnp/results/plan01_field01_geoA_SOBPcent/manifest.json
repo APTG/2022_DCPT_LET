@@ -5,7 +5,7 @@
     "name": "MCNP",
     "short": "mcnp",
     "version": "unknown",
-    "notes": "Results contributed by H. Burigo. Output filenames use HB_ prefix and show inconsistent page numbering across files; see notes per output entry. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
+    "notes": "Results contributed by Hrvoje Brkic (HB_ filename prefix). Output filenames use HB_ prefix and show inconsistent page numbering across files; see notes per output entry. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
   },
   "provenance": {
     "date": "2023-01-01",
