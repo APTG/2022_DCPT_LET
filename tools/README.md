@@ -11,3 +11,40 @@ Generate MCPL files from dicom file and default beam model, use like `make_spotl
 
 ## `make_plandirs.sh`
 Generates the directory structure for all plans. Will create any missing directories.
+
+---
+
+## Local site build (developer workflow)
+
+The Pages site is built automatically by CI on every push to `main`, but you can
+build and inspect it locally before pushing:
+
+```bash
+# 1. Create venv and install dependencies (once)
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+# 2. Validate all manifests
+.venv/bin/python tools/validate_manifests.py
+
+# 3. Generate comparison plots (written to pages-site/plots/)
+.venv/bin/python tools/generate_comparison_plots.py --out-dir pages-site/plots
+
+# 4. Build the static site (written to pages-site/)
+.venv/bin/python tools/build_pages_site.py --plots-dir pages-site/plots --out-dir pages-site
+
+# 5. Open in browser
+google-chrome pages-site/index.html   # or: xdg-open / open on macOS
+```
+
+`pages-site/` is git-ignored; it is rebuilt from scratch on each run.
+
+### Key tools
+
+| Script | Purpose |
+|---|---|
+| `validate_manifests.py` | Schema-validate all `manifest.json` files under `data/` |
+| `generate_comparison_plots.py` | Read manifests + data files, write one Plotly HTML per output type per plan |
+| `build_pages_site.py` | Discover codes/plans from manifests, generate `index.html` and per-plan pages |
+| `bootstrap_manifests.py` | Generate stub manifests for plan directories that have data but no manifest yet |
+| `manifest.schema.json` | JSON Schema (draft-07) for manifest validation |
