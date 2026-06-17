@@ -72,9 +72,9 @@ def validate_manifest(
 
     plan_dir = manifest_path.parent
     declared_plan = data.get("plan")
-    if declared_plan and declared_plan != plan_dir.name:
+    if declared_plan != plan_dir.name:
         errors.append(
-            f"'plan' value '{declared_plan}' does not match directory name '{plan_dir.name}'"
+            f"'plan' value '{declared_plan!r}' does not match directory name '{plan_dir.name}'"
         )
 
     for i, entry in enumerate(data.get("outputs", [])):
@@ -84,7 +84,7 @@ def validate_manifest(
             if not path:
                 errors.append(f"empty path at outputs[{i}].files[{j}]")
                 continue
-            if not (plan_dir / path).exists():
+            if not (plan_dir / path).is_file():
                 errors.append(f"missing file '{path}' (output: {entry_label})")
             output_type = f.get("output_type") if isinstance(f, dict) else None
             if output_type and catalog_keys is not None and output_type not in catalog_keys:

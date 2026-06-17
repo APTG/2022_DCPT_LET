@@ -20,7 +20,6 @@ Modifies in-place:
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 DATA_ROOT = Path("data")
@@ -38,7 +37,7 @@ def build_rename_map(catalog: dict) -> dict[str, str]:
         geom = parts[0]
         if geom not in RENAME_GEOMETRIES:
             continue
-        # key ends with .Si (possibly before .vs_*)
+        # key ends with .Si as the final segment (no .vs_* suffix in these geometries)
         # e.g. depth_Z.DOSE.all.Si  or  target.DLET.primary.Si
         if parts[-1] == "Si":
             new_key = ".".join(parts[:-1]) + ".mat"

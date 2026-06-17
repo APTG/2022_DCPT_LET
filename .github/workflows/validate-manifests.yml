@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - "data/**/manifest.json"
+      - "data/output_catalog.json"
       - "tools/manifest.schema.json"
       - "tools/validate_manifests.py"
   pull_request:
     paths:
       - "data/**/manifest.json"
+      - "data/output_catalog.json"
       - "tools/manifest.schema.json"
       - "tools/validate_manifests.py"
   workflow_dispatch:

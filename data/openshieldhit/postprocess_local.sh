@@ -121,8 +121,9 @@ for input_dir in "${input_dirs[@]}"; do
 
     # Extract per-page scalar text files for the target scorers.
     # "plotdata" produces a merged .dat unsuitable for the scalar comparison;
-    # "txt" produces NB_target_p01.txt … NB_target_pNN.txt which match the
-    # SH12A output format and are referenced in manifest output_type entries.
+    # "txt" produces NB_target_p*.txt files (page numbering depends on the
+    # convertmc version) which match the SH12A output format and are
+    # referenced in manifest output_type entries.
     echo "  Generating text output for target scorers..."
     for bdo in NB_target.bdo NB_target_water.bdo; do
         [[ -f "$bdo" ]] || continue
