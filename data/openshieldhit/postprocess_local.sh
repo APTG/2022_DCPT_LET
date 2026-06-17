@@ -109,7 +109,9 @@ for input_dir in "${input_dirs[@]}"; do
     echo "  Generating plotdata..."
     for bdo in ./*.bdo; do
         case "$(basename "$bdo")" in
-            NB_XY*.bdo|NB_XZ_map*.bdo)
+            NB_XY*.bdo|NB_XZ_map*.bdo|NB_target.bdo|NB_target_water.bdo)
+                # 2D maps: kept as images only (too large for ASCII plotdata)
+                # target scalars: handled below by convertmc txt
                 ;;
             *)
                 run_plotdata_checked "$bdo"
