@@ -15,7 +15,7 @@
     "normalization": "per_source_particle"
   },
   "capabilities": {
-    "notes": "Same scope as plan01: proton-only LET, depth dose/fluence, and target scalars. No water profiles, no spectra, no Qeff."
+    "notes": "Same scope as plan01: proton-only LET, depth dose/fluence, and target scalars. No water profiles, no spectra, no Qeff. Note: the simulation input for this plan may use a monoenergetic beam rather than the SOBP defined in the benchmark — verify against sh12a/osh before drawing conclusions."
   },
   "outputs": [
     {

@@ -117,8 +117,19 @@ for input_dir in "${input_dirs[@]}"; do
         esac
     done
 
+    # Extract per-page scalar text files for the target scorers.
+    # "plotdata" produces a merged .dat unsuitable for the scalar comparison;
+    # "txt" produces NB_target_p01.txt … NB_target_pNN.txt which match the
+    # SH12A output format and are referenced in manifest output_type entries.
+    echo "  Generating text output for target scorers..."
+    for bdo in NB_target.bdo NB_target_water.bdo; do
+        [[ -f "$bdo" ]] || continue
+        run_checked "$exe" txt "$bdo"
+    done
+
     png_files=( NB*.png )
     dat_files=( NB*.dat )
+    txt_files=( NB_target_p*.txt NB_target_water_p*.txt )
 
     if [[ ${#png_files[@]} -gt 0 ]]; then
         ((moved_png += ${#png_files[@]}))
@@ -128,6 +139,10 @@ for input_dir in "${input_dirs[@]}"; do
     if [[ ${#dat_files[@]} -gt 0 ]]; then
         ((moved_dat += ${#dat_files[@]}))
         run_checked mv -v "${dat_files[@]}" "$results_dir"/
+    fi
+
+    if [[ ${#txt_files[@]} -gt 0 ]]; then
+        run_checked mv -v "${txt_files[@]}" "$results_dir"/
     fi
 
     if [[ -f "$render_diff_script" ]]; then

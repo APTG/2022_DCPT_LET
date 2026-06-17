@@ -113,6 +113,64 @@ def collect_preview_images(
     return dict(previews)
 
 
+def build_download_index(
+    manifests: list[dict],
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Returns {(plan, output_type): [{code_short, src_path, filename}, ...]}.
+    Only primary_data and derived files that carry an output_type.
+    """
+    index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        result_dir = m["_dir"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if not ot:
+                    continue
+                src = result_dir / f["path"]
+                if src.exists():
+                    index[(plan, ot)].append({
+                        "code_short": code_short,
+                        "src_path": src,
+                        "filename": src.name,
+                    })
+    return dict(index)
+
+
+def copy_data_files(
+    download_index: dict[tuple[str, str], list[dict]],
+    site_root: Path,
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Copy data files into {site_root}/data/{plan}/{code}/{filename}.
+    Returns the same index enriched with a 'dest_rel' key (relative to site_root).
+    """
+    enriched: dict[tuple[str, str], list[dict]] = {}
+    for (plan, ot), files in download_index.items():
+        enriched[(plan, ot)] = []
+        seen: set[Path] = set()
+        for item in files:
+            src = item["src_path"]
+            if src in seen:
+                continue
+            seen.add(src)
+            dest = site_root / "data" / plan / item["code_short"] / item["filename"]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+            enriched[(plan, ot)].append({
+                **item,
+                "dest_rel": f"data/{plan}/{item['code_short']}/{item['filename']}",
+            })
+    return enriched
+
+
+
+
 # ---------------------------------------------------------------------------
 # HTML helpers
 # ---------------------------------------------------------------------------
@@ -270,6 +328,18 @@ a { color: var(--accent); }
 .plot-card .plot-link:hover { background: var(--accent-soft); }
 .plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
 
+/* download links */
+.dl-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .1rem; }
+.dl-label { font-size: .75rem; color: var(--muted); margin-right: .2rem; white-space: nowrap; }
+.dl-link {
+  display: inline-flex; align-items: center; gap: .2rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .15rem .55rem; font-size: .75rem;
+  color: var(--muted); text-decoration: none; background: #fff;
+  white-space: nowrap;
+}
+.dl-link:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
 /* back link */
 .back-link {
   display: inline-flex; align-items: center;
@@ -341,6 +411,7 @@ def render_plot_card(
     plot_rel: str,
     plot_exists: bool,
     catalog_meta: dict,
+    download_files: list[dict],
 ) -> str:
     label = html.escape(catalog_meta.get("label", output_type))
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
@@ -351,11 +422,31 @@ def render_plot_card(
         )
     else:
         link_html = '<span class="missing">Plot not yet generated</span>'
+
+    dl_html = ""
+    if download_files:
+        links: list[str] = []
+        for item in download_files:
+            cs = code_styles.get(item["code_short"], {})
+            code_name = html.escape(cs.get("name", item["code_short"]))
+            fname = html.escape(item["filename"])
+            dest = html.escape(f"../{item['dest_rel']}")
+            links.append(
+                f'<a class="dl-link" href="{dest}" download title="{code_name}">'
+                f"↓ {code_name} · {fname}</a>"
+            )
+        dl_html = (
+            '<div class="dl-row"><span class="dl-label">Data:</span>'
+            + "".join(links)
+            + "</div>"
+        )
+
     return f"""
 <article class="plot-card">
   <h3>{label}</h3>
   <div class="pill-row">{pills}</div>
   {link_html}
+  {dl_html}
 </article>"""
 
 
@@ -368,6 +459,7 @@ def render_plan_page(
     plots_rel_from_plan: str,
     plots_dir: Path,
     preview_images: dict[str, list[str]],
+    download_index: dict[tuple[str, str], list[dict]],
 ) -> str:
     output_types = catalog["output_types"]
     pills = " ".join(code_pill(c, code_styles) for c in sorted(plan_codes))
@@ -417,6 +509,7 @@ def render_plan_page(
                         ot, codes, code_styles,
                         plot_rel, plot_file.exists(),
                         output_types.get(ot, {}),
+                        download_index.get((plan, ot), []),
                     )
                 )
             inner = f'<div class="plot-grid">{"".join(cards)}</div>'
@@ -550,6 +643,7 @@ def main() -> int:
     availability = build_availability(manifests)
     plan_codes = codes_per_plan(manifests)
     preview_images = collect_preview_images(manifests)
+    raw_download_index = build_download_index(manifests)
 
     plans = sorted(availability)
     print(
@@ -567,6 +661,8 @@ def main() -> int:
             else:
                 child.unlink()
     site_root.mkdir(parents=True, exist_ok=True)
+
+    download_index = copy_data_files(raw_download_index, site_root)
 
     write_text(site_root / ".nojekyll", "")
     write_text(site_root / "assets/site.css", css_text())
@@ -601,6 +697,7 @@ def main() -> int:
                 plots_rel_from_plan=plots_rel_from_plan,
                 plots_dir=plots_dir,
                 preview_images=preview_images.get(plan, {}),
+                download_index=download_index,
             ),
         )
         print(f"  wrote plans/{plan}.html")
