@@ -537,6 +537,7 @@ def render_plan_page(
     <p class="eyebrow">Plan browser</p>
     <h1>{html.escape(plan)}</h1>
     <div class="pill-row" style="margin-top:.8rem">{pills}</div>
+    <a class="btn-pdf" href="{html.escape(plan)}.pdf" download>⬇ Download PDF (all plots for this plan)</a>
   </section>
   {"".join(sections_html)}
 </main>"""
@@ -589,7 +590,6 @@ def render_index(
       <strong>Click any plot to open an interactive view</strong> — hover for exact values,
       click the legend to toggle codes.
     </p>
-    <a class="btn-pdf" href="report.pdf" download>⬇ Download PDF report (all plots)</a>
     <div class="hero-grid">
       <div class="stat"><strong>{len(plans)}</strong><span>plans</span></div>
       <div class="stat"><strong>{len(code_styles)}</strong><span>MC codes</span></div>
@@ -714,12 +714,12 @@ def main() -> int:
 
     print(f"\nSite written to: {site_root}")
 
-    # Generate PDF report so the download link on index.html works immediately
-    print("\nGenerating PDF report...")
+    # Generate per-plan PDF reports (parallel) so the download links work
+    print("\nGenerating per-plan PDF reports...")
     import sys as _sys
     _sys.path.insert(0, str(Path(__file__).parent))
     from generate_pdf_report import generate as _gen_pdf
-    _gen_pdf(args.data_root, args.catalog, site_root / "report.pdf")
+    _gen_pdf(args.data_root, args.catalog, site_root / "plans")
 
     return 0
 

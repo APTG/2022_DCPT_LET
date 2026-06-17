@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""Generate a multi-page PDF report of all MC comparison plots.
+"""Generate per-plan PDF reports with clickable section bookmarks.
 
-One matplotlib figure per (plan, output_type), organised by plan then
-geometry section. 2D map sections show PNG previews side-by-side.
+One PDF per plan written to {out_dir}/{plan}.pdf.  Each PDF has a
+PDF outline (visible in the viewer sidebar) with one entry per
+geometry section.  All plans are generated in parallel.
 
 Usage:
-    python tools/generate_pdf_report.py
-    python tools/generate_pdf_report.py --out pages-site/report.pdf
+    python tools/generate_pdf_report.py --out-dir pages-site/plans
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import tempfile
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,14 +25,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
+from pypdf import PdfReader, PdfWriter
 import yaml
 
 
-PAGE_SIZE = (11.69, 8.27)   # A4 landscape, inches
+PAGE_SIZE = (11.69, 8.27)  # A4 landscape, inches
 
 GEOMETRY_SECTIONS = [
     ("depth_Z",         "Depth profiles"),
-    ("spectrum_target", "LET / dE/dx spectra"),
+    ("spectrum_target", "LET / dE⁠/⁠dx spectra"),
     ("target",          "Target volume scalars"),
     ("map_XZ",          "2D longitudinal maps (XZ)"),
     ("map_XY",          "2D transverse maps (XY)"),
@@ -37,7 +41,7 @@ GEOMETRY_SECTIONS = [
 
 
 # ---------------------------------------------------------------------------
-# Data loading  (mirrors generate_comparison_plots.py)
+# Data loading
 # ---------------------------------------------------------------------------
 
 def load_catalog(path: Path) -> dict:
@@ -62,7 +66,6 @@ def load_manifests(data_root: Path) -> list[dict]:
 
 
 def build_index(manifests: list[dict]) -> dict[tuple[str, str], list[dict]]:
-    """First file per (plan, output_type, code) only — same deduplication as plot generator."""
     index: dict[tuple[str, str], list[dict]] = defaultdict(list)
     seen: set[tuple[str, str, str]] = set()
     for m in manifests:
@@ -125,7 +128,7 @@ def read_scalar(path: Path) -> tuple[float, float | None]:
 
 
 # ---------------------------------------------------------------------------
-# Axes-level figure builders
+# Axes-level drawing helpers
 # ---------------------------------------------------------------------------
 
 def _axis_label(meta: dict, axis: str) -> str:
@@ -135,11 +138,12 @@ def _axis_label(meta: dict, axis: str) -> str:
     return f"{quant} [{unit}]" if unit else quant
 
 
-def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict, meta: dict, is_spectrum: bool) -> None:
+def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
+                 meta: dict, is_spectrum: bool) -> None:
     for t in traces:
         style = code_styles.get(t["code_short"], {})
         color = style.get("display_color", "#888888")
-        name = style.get("name", t["code_short"])
+        name  = style.get("name", t["code_short"])
         try:
             x, y, yerr = read_profile(t["path"])
         except Exception as exc:
@@ -151,7 +155,6 @@ def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict, meta: dict
         ax.plot(x, y, **kw)
         if yerr is not None and not is_spectrum:
             ax.fill_between(x, y - yerr, y + yerr, alpha=0.15, color=color)
-
     ax.set_xlabel(_axis_label(meta, "axis_x"), fontsize=8)
     ax.set_ylabel(_axis_label(meta, "axis_y"), fontsize=8)
     ax.tick_params(labelsize=7)
@@ -175,11 +178,9 @@ def draw_scalar(ax: plt.Axes, traces: list[dict], code_styles: dict, meta: dict)
         values.append(val)
         errors.append(err if err is not None else 0.0)
         colors.append(style.get("display_color", "#888888"))
-
     if not values:
         ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
         return
-
     y_pos = list(range(len(names)))
     ax.barh(y_pos, values, xerr=errors if any(errors) else None,
             color=colors, height=0.5, error_kw={"linewidth": 0.8, "capsize": 3})
@@ -191,205 +192,71 @@ def draw_scalar(ax: plt.Axes, traces: list[dict], code_styles: dict, meta: dict)
 
 
 # ---------------------------------------------------------------------------
-# Page-count pre-calculation (needed for TOC)
+# Per-plan PDF generation
 # ---------------------------------------------------------------------------
 
-def count_plan_pages(
-    plan: str,
-    by_geom: dict[str, list[str]],
-    preview_images: dict[str, dict[str, list[Path]]],
-) -> int:
-    """Return the number of plot/image pages a plan will produce (excluding its header page)."""
-    n = 0
-    plan_prev = preview_images.get(plan, {})
-    for geom_class, _ in GEOMETRY_SECTIONS:
-        ots = by_geom.get(geom_class, [])
-        if not ots:
-            continue
-        if geom_class in ("map_XZ", "map_XY"):
-            has_img = any(
-                any((geom_class == "map_XZ") == ("XZ" in p.name) for p in paths)
-                for paths in plan_prev.values()
-            )
-            if has_img:
-                n += 1
-        else:
-            n += len(ots)
-    return n
-
-
-def build_page_map(
-    plans: list[str],
-    plans_by_geom: dict[str, dict[str, list[str]]],
-    preview_images: dict[str, dict[str, list[Path]]],
-) -> dict[str, int]:
-    """
-    Return {plan: first_page_number} where page 1 = cover, page 2 = TOC.
-    Each plan occupies 1 header page + count_plan_pages() plot pages.
-    """
-    page = 3  # cover=1, toc=2
-    plan_start: dict[str, int] = {}
-    for plan in plans:
-        plan_start[plan] = page
-        page += 1 + count_plan_pages(plan, plans_by_geom[plan], preview_images)
-    return plan_start
-
-
-# ---------------------------------------------------------------------------
-# Cover / TOC / section header pages
-# ---------------------------------------------------------------------------
-
-def write_report_cover(pdf: PdfPages, plans: list[str], code_styles: dict, generated_at: str) -> None:
-    fig = plt.figure(figsize=PAGE_SIZE)
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax.set_facecolor("white")
-    ax.axis("off")
-
-    ax.text(0.5, 0.80, "DCPT LET-measurements 2022",
-            fontsize=24, fontweight="bold", ha="center", transform=ax.transAxes)
-    ax.text(0.5, 0.70, "MC Code Comparison Report",
-            fontsize=16, color="#555", ha="center", transform=ax.transAxes)
-
-    code_names = [s.get("name", k) for k, s in sorted(code_styles.items())]
-    ax.text(0.5, 0.55, f"Codes:  {',  '.join(code_names)}",
-            fontsize=11, ha="center", transform=ax.transAxes)
-    ax.text(0.5, 0.47, f"{len(plans)} plans",
-            fontsize=11, ha="center", transform=ax.transAxes)
-    ax.text(0.5, 0.32, generated_at,
-            fontsize=9, color="#999", ha="center", transform=ax.transAxes)
-
-    pdf.savefig(fig)
-    plt.close(fig)
-
-
-def write_toc(
-    pdf: PdfPages,
-    plans: list[str],
-    plan_start: dict[str, int],
-    plans_by_geom: dict[str, dict[str, list[str]]],
-    preview_images: dict[str, dict[str, list[Path]]],
-) -> None:
-    fig = plt.figure(figsize=PAGE_SIZE)
-    ax = fig.add_axes([0.08, 0.05, 0.84, 0.88])
-    ax.axis("off")
-
-    fig.text(0.5, 0.96, "Table of Contents", fontsize=14, fontweight="bold",
-             ha="center", va="top")
-
-    col_x_plan = 0.0
-    col_x_n    = 0.72
-    col_x_page = 0.88
-
-    # Header row
-    ax.text(col_x_plan, 1.0, "Plan", fontsize=8, fontweight="bold", va="top", transform=ax.transAxes)
-    ax.text(col_x_n,    1.0, "Plots", fontsize=8, fontweight="bold", va="top", ha="right", transform=ax.transAxes)
-    ax.text(col_x_page, 1.0, "Page", fontsize=8, fontweight="bold", va="top", ha="right", transform=ax.transAxes)
-    ax.axhline(0.985, color="#aaa", linewidth=0.5)
-
-    row_h = 0.96 / max(len(plans), 1)
-    for i, plan in enumerate(plans):
-        y = 0.97 - (i + 1) * row_h
-        n_plots = count_plan_pages(plan, plans_by_geom[plan], preview_images)
-        page = plan_start[plan]
-        bg = "#f5f5f5" if i % 2 == 0 else "white"
-        ax.axhspan(y, y + row_h, color=bg, zorder=0)
-        ax.text(col_x_plan, y + row_h * 0.35, plan, fontsize=8, va="bottom", transform=ax.transAxes)
-        ax.text(col_x_n,    y + row_h * 0.35, str(n_plots), fontsize=8, va="bottom",
-                ha="right", color="#555", transform=ax.transAxes)
-        ax.text(col_x_page, y + row_h * 0.35, str(page), fontsize=8, va="bottom",
-                ha="right", transform=ax.transAxes)
-
-    pdf.savefig(fig)
-    plt.close(fig)
-
-
-def write_plan_header(pdf: PdfPages, plan: str, codes: set[str], code_styles: dict, n_plots: int) -> None:
+def _plan_header_page(pdf: PdfPages, plan: str, codes: set[str],
+                      code_styles: dict, generated_at: str) -> None:
     fig = plt.figure(figsize=PAGE_SIZE)
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_facecolor("#f7f7f7")
     ax.axis("off")
-
-    ax.text(0.5, 0.62, plan,
-            fontsize=20, fontweight="bold", ha="center", transform=ax.transAxes)
+    ax.text(0.5, 0.62, plan, fontsize=18, fontweight="bold",
+            ha="center", transform=ax.transAxes)
     code_names = [code_styles.get(c, {}).get("name", c) for c in sorted(codes)]
-    ax.text(0.5, 0.48, f"Codes:  {',  '.join(code_names)}",
-            fontsize=12, ha="center", transform=ax.transAxes)
-    ax.text(0.5, 0.38, f"{n_plots} output types",
-            fontsize=10, color="#777", ha="center", transform=ax.transAxes)
-
+    ax.text(0.5, 0.47, f"Codes:  {',  '.join(code_names)}",
+            fontsize=11, ha="center", transform=ax.transAxes)
+    ax.text(0.5, 0.30, generated_at, fontsize=9, color="#999",
+            ha="center", transform=ax.transAxes)
     pdf.savefig(fig)
     plt.close(fig)
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
+def generate_plan_pdf(
+    plan: str,
+    by_geom: dict[str, list[str]],
+    plan_index: dict[str, list[dict]],
+    plan_previews: dict[str, list[Path]],
+    catalog: dict,
+    code_styles: dict,
+    generated_at: str,
+    out_path: Path,
+) -> int:
+    """
+    Generate one plan PDF.  Returns the number of plot pages written.
+    Uses a temp file then post-processes with pypdf to add outline bookmarks.
+    """
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
-def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--data-root", type=Path, default=Path("data"))
-    p.add_argument("--catalog", type=Path, default=Path("data/output_catalog.json"))
-    p.add_argument("--out", type=Path, default=Path("pages-site/report.pdf"))
-    return p.parse_args()
-
-
-def generate(data_root: Path, catalog_path: Path, out: Path) -> int:
-    """Entry point callable as a library function (used by build_pages_site.py)."""
-    catalog = load_catalog(catalog_path)
-    code_styles = load_code_styles(data_root)
-    manifests = load_manifests(data_root)
-    index = build_index(manifests)
-    preview_images = collect_preview_images(manifests)
-
-    # Collect plans → output_types and plans → codes
-    plans_ots: dict[str, set[str]] = defaultdict(set)
-    plan_codes: dict[str, set[str]] = defaultdict(set)
-    for (plan, ot), traces in index.items():
-        plans_ots[plan].add(ot)
+    # Collect codes present in this plan
+    codes: set[str] = set()
+    for traces in plan_index.values():
         for t in traces:
-            plan_codes[plan].add(t["code_short"])
+            codes.add(t["code_short"])
 
-    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    out.parent.mkdir(parents=True, exist_ok=True)
+    section_pages: list[tuple[str, int]] = []  # (title, 0-indexed page number)
+    page = 0
+    total_plots = 0
 
-    sorted_plans = sorted(plans_ots)
+    fd, tmp_path_str = tempfile.mkstemp(suffix=".pdf")
+    os.close(fd)
+    tmp_path = Path(tmp_path_str)
 
-    # Pre-compute geometry groupings and page map for TOC
-    plans_by_geom: dict[str, dict[str, list[str]]] = {}
-    for plan in sorted_plans:
-        by_geom: dict[str, list[str]] = defaultdict(list)
-        for ot in plans_ots[plan]:
-            geom = catalog.get(ot, {}).get("geometry", ot.split(".")[0])
-            by_geom[geom].append(ot)
-        plans_by_geom[plan] = {g: sorted(v) for g, v in by_geom.items()}
-
-    plan_start = build_page_map(sorted_plans, plans_by_geom, preview_images)
-
-    total_pages = 0
-    with PdfPages(out) as pdf:
-        d = pdf.infodict()
-        d["Title"] = "DCPT LET-measurements 2022 — MC Comparison Report"
-        d["Author"] = "APTG"
-        d["CreationDate"] = datetime.now(timezone.utc)
-
-        write_report_cover(pdf, sorted_plans, code_styles, generated_at)
-        write_toc(pdf, sorted_plans, plan_start, plans_by_geom, preview_images)
-
-        for plan in sorted_plans:
-            by_geom = plans_by_geom[plan]
-            n_plots = count_plan_pages(plan, by_geom, preview_images)
-            write_plan_header(pdf, plan, plan_codes[plan], code_styles, n_plots)
+    try:
+        with PdfPages(tmp_path) as pdf:
+            _plan_header_page(pdf, plan, codes, code_styles, generated_at)
+            page += 1
 
             for geom_class, section_title in GEOMETRY_SECTIONS:
-                ots = sorted(by_geom.get(geom_class, []))
+                ots = by_geom.get(geom_class, [])
                 if not ots:
                     continue
 
+                section_start = page
+
                 if geom_class in ("map_XZ", "map_XY"):
-                    plan_prev = preview_images.get(plan, {})
-                    # Collect the matching preview per code
                     imgs: list[tuple[str, Path]] = []
-                    for code_short, paths in sorted(plan_prev.items()):
+                    for code_short, paths in sorted(plan_previews.items()):
                         for p in paths:
                             if (geom_class == "map_XZ") == ("XZ" in p.name):
                                 imgs.append((code_short, p))
@@ -398,32 +265,30 @@ def generate(data_root: Path, catalog_path: Path, out: Path) -> int:
                         continue
                     n = len(imgs)
                     fig, axes = plt.subplots(1, n, figsize=PAGE_SIZE, squeeze=False)
-                    fig.suptitle(f"{plan}  —  {section_title}", fontsize=10, fontweight="bold")
-                    for ax, (code_short, img_path) in zip(axes[0], imgs):
+                    fig.suptitle(section_title, fontsize=10, fontweight="bold")
+                    for ax, (cs, img_path) in zip(axes[0], imgs):
                         try:
                             ax.imshow(plt.imread(str(img_path)))
                             ax.axis("off")
-                            ax.set_title(code_styles.get(code_short, {}).get("name", code_short), fontsize=8)
+                            ax.set_title(code_styles.get(cs, {}).get("name", cs), fontsize=8)
                         except Exception as exc:
-                            print(f"  WARNING: cannot load {img_path}: {exc}")
+                            print(f"  WARNING: {img_path}: {exc}")
                             ax.axis("off")
                     plt.tight_layout(rect=[0, 0, 1, 0.93])
                     pdf.savefig(fig)
                     plt.close(fig)
-                    total_pages += 1
-                    print(f"  {plan}/{geom_class}  (preview images)")
+                    page += 1
+                    total_plots += 1
 
                 else:
                     for ot in ots:
-                        traces = index.get((plan, ot), [])
+                        traces = plan_index.get(ot, [])
                         if not traces:
                             continue
                         meta = catalog.get(ot, {})
-                        label = meta.get("label", ot)
-
                         fig, ax = plt.subplots(figsize=PAGE_SIZE)
                         fig.suptitle(
-                            f"{plan}  —  {section_title}\n{label}",
+                            f"{section_title}  —  {meta.get('label', ot)}",
                             fontsize=10, fontweight="bold",
                         )
                         try:
@@ -433,23 +298,117 @@ def generate(data_root: Path, catalog_path: Path, out: Path) -> int:
                                 draw_profile(ax, traces, code_styles, meta,
                                              is_spectrum=(geom_class == "spectrum_target"))
                         except Exception as exc:
-                            print(f"  WARNING: error rendering {plan}/{ot}: {exc}")
-                            ax.text(0.5, 0.5, f"Error: {exc}", ha="center", va="center",
-                                    transform=ax.transAxes, color="red", fontsize=8)
-
-                        plt.tight_layout(rect=[0, 0, 1, 0.90])
+                            print(f"  WARNING {plan}/{ot}: {exc}")
+                            ax.text(0.5, 0.5, f"Error: {exc}", ha="center",
+                                    va="center", transform=ax.transAxes,
+                                    color="red", fontsize=8)
+                        plt.tight_layout(rect=[0, 0, 1, 0.93])
                         pdf.savefig(fig)
                         plt.close(fig)
-                        total_pages += 1
-                        print(f"  {plan}/{ot}")
+                        page += 1
+                        total_plots += 1
 
-    print(f"\nPDF written to: {out}  ({total_pages} plot pages)")
-    return 0
+                section_pages.append((section_title, section_start))
+
+        # Post-process: add PDF outline (sidebar bookmarks) with pypdf
+        reader = PdfReader(str(tmp_path))
+        writer = PdfWriter()
+        writer.append(reader)
+        for title, pg in section_pages:
+            writer.add_outline_item(title, pg)
+        with open(str(out_path), "wb") as fh:
+            writer.write(fh)
+
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    return total_plots
+
+
+# ---------------------------------------------------------------------------
+# Worker (top-level so ProcessPoolExecutor can pickle it)
+# ---------------------------------------------------------------------------
+
+def _worker(args: tuple) -> tuple[str, int]:
+    (plan, by_geom, plan_index, plan_previews,
+     catalog, code_styles, generated_at, out_path) = args
+    n = generate_plan_pdf(plan, by_geom, plan_index, plan_previews,
+                          catalog, code_styles, generated_at, out_path)
+    return plan, n
+
+
+# ---------------------------------------------------------------------------
+# Public entry point
+# ---------------------------------------------------------------------------
+
+def generate(data_root: Path, catalog_path: Path, out_dir: Path) -> int:
+    """Generate one PDF per plan in parallel. Returns 0 on success."""
+    catalog    = load_catalog(catalog_path)
+    code_styles = load_code_styles(data_root)
+    manifests  = load_manifests(data_root)
+    index      = build_index(manifests)
+    previews   = collect_preview_images(manifests)
+
+    # Organise by plan
+    plans_ots: dict[str, set[str]] = defaultdict(set)
+    for (plan, ot) in index:
+        plans_ots[plan].add(ot)
+
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    worker_args = []
+    for plan in sorted(plans_ots):
+        by_geom: dict[str, list[str]] = defaultdict(list)
+        for ot in plans_ots[plan]:
+            geom = catalog.get(ot, {}).get("geometry", ot.split(".")[0])
+            by_geom[geom].append(ot)
+        by_geom = {g: sorted(v) for g, v in by_geom.items()}
+
+        plan_index   = {ot: index[(plan, ot)] for ot in plans_ots[plan]
+                        if (plan, ot) in index}
+        plan_previews = previews.get(plan, {})
+        out_path      = out_dir / f"{plan}.pdf"
+
+        worker_args.append((
+            plan, by_geom, plan_index, plan_previews,
+            catalog, code_styles, generated_at, out_path,
+        ))
+
+    workers = min(len(worker_args), os.cpu_count() or 4)
+    print(f"Generating {len(worker_args)} plan PDFs "
+          f"({workers} parallel workers)...")
+
+    errors = 0
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(_worker, a): a[0] for a in worker_args}
+        for fut in as_completed(futures):
+            plan = futures[fut]
+            try:
+                _, n_plots = fut.result()
+                print(f"  done  {plan}  ({n_plots} pages)")
+            except Exception as exc:
+                print(f"  ERROR {plan}: {exc}")
+                errors += 1
+
+    return 1 if errors else 0
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--data-root", type=Path, default=Path("data"))
+    p.add_argument("--catalog",   type=Path, default=Path("data/output_catalog.json"))
+    p.add_argument("--out-dir",   type=Path, default=Path("pages-site/plans"))
+    return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    return generate(args.data_root, args.catalog, args.out)
+    return generate(args.data_root, args.catalog, args.out_dir)
 
 
 if __name__ == "__main__":
