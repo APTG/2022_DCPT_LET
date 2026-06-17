@@ -65,10 +65,11 @@ def build_index(
     """
     Returns {(plan, output_type): [{code_short, path, role}, ...]}.
     Only includes primary_data and derived entries that carry an output_type.
-    Multiple files from the same code with the same output_type are all kept
-    (e.g. the two equivalent NB_target_diff_p1 / _p3 pages in sh12a).
+    Only the first file per (code, output_type) pair is kept — duplicates
+    (e.g. NB_target_diff_p1 and _p3 sharing the same output_type) are dropped.
     """
     index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    seen: set[tuple[str, str, str]] = set()  # (plan, output_type, code_short)
     for m in manifests:
         plan = m["plan"]
         code_short = m["code"]["short"]
@@ -81,6 +82,10 @@ def build_index(
                 output_type = f.get("output_type")
                 if not output_type:
                     continue
+                key = (plan, output_type, code_short)
+                if key in seen:
+                    continue
+                seen.add(key)
                 index[(plan, output_type)].append(
                     {"code_short": code_short, "path": result_dir / f["path"], "role": role}
                 )
@@ -202,6 +207,7 @@ def make_profile_figure(
                     "color": color,
                     "dash": _DASH_STYLES[file_idx % len(_DASH_STYLES)],
                     "width": 1.5,
+                    **({"shape": "hv"} if is_spectrum else {}),
                 },
                 "hovertemplate": (
                     f"<b>{name}</b><br>"
