@@ -1,4 +1,7 @@
 # DCPT LET-measurements 2022
+
+**[→ Interactive plot browser](https://aptg.github.io/2022_DCPT_LET/)**
+
 All data in this repository is only preliminary, and may still be subject to change.
 
 
@@ -27,7 +30,7 @@ We here always assume beam transport along the positive Z-axis, as is convention
 - Simulation geometry: [docs/geometry.md](docs/geometry.md)
 - Irradiation Plans: [data/resources/plans/](data/resources/plans/)
 - Scoring geometry: [docs/scoring.md](docs/scoring.md)
-- Static plot browser: GitHub Pages is generated from tracked result files plus CI-built comparison plots in [`.github/workflows/pages-gallery.yml`](.github/workflows/pages-gallery.yml)
+- **Interactive plot browser**: [aptg.github.io/2022_DCPT_LET](https://aptg.github.io/2022_DCPT_LET/) — comparison plots across MC codes, built automatically from tracked result files via [`.github/workflows/pages-gallery.yml`](.github/workflows/pages-gallery.yml)
 
 
 ## Contributing

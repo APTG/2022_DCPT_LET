@@ -28,20 +28,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install plotting dependencies
-        run: python -m pip install --upgrade pip matplotlib numpy
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip numpy plotly pyyaml jsonschema matplotlib "pypdf>=4.0"
 
-      - name: Build comparison figures and PDF report
+      - name: Validate manifests
+        run: python tools/validate_manifests.py
+
+      - name: Generate comparison plots
         run: |
-          python tools/plot_sh12a_vs_osh.py \
-            --out-dir .pages-build/comparisons/sh12a_vs_osh \
-            --pdf-report .pages-build/reports/sh12a_vs_osh_report.pdf
+          python tools/generate_comparison_plots.py \
+            --data-root data \
+            --out-dir pages-site/plots \
+            --min-codes 1
 
-      - name: Build static Pages site
+      - name: Build static Pages site (includes PDF report)
         run: |
           python tools/build_pages_site.py \
-            --comparison-root .pages-build/comparisons/sh12a_vs_osh \
-            --pdf-root .pages-build/reports \
+            --data-root data \
+            --plots-dir pages-site/plots \
             --out-dir pages-site
 
       - name: Upload Pages artifact

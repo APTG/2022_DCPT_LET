@@ -1,111 +1,199 @@
 #!/usr/bin/env python3
+"""Build a static GitHub Pages site from manifest-driven comparison plots.
+
+Discovery flow:
+  data/*/code.yaml            → registered MC codes (name, colour, url)
+  data/output_catalog.json    → canonical output type labels and geometry
+  data/**/manifest.json       → per-code, per-plan output file index
+  {plots_dir}/{plan}/*.html   → interactive Plotly plots already generated
+                                by tools/generate_comparison_plots.py
+
+Site layout:
+  {out_dir}/
+    index.html                → landing page with code list and plan cards
+    plans/{plan}.html         → per-plan page with grouped plot cards
+    assets/site.css
+
+Usage:
+    python tools/build_pages_site.py
+    python tools/build_pages_site.py --out-dir pages-site --plots-dir pages-site/plots
+"""
 
 from __future__ import annotations
 
 import argparse
 import html
 import json
-import os
 import shutil
-from dataclasses import dataclass, field
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from plot_sh12a_vs_osh import (
-    PAGE_RE,
-    format_page_title,
-    humanize_geo_label,
-    infer_x_label,
-    infer_y_label,
-    is_diff_plot,
-    lookup_output_metadata,
-    normalize_metric_name,
-    plan_input_hint,
-)
+import yaml
 
 
-@dataclass(frozen=True)
-class DownloadLink:
-    label: str
-    href: str
+# ---------------------------------------------------------------------------
+# Data loading
+# ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
-class GalleryItem:
-    plan: str
-    title: str
-    subtitle: str
-    details: tuple[str, ...]
-    image_href: str
-    thumb_href: str
-    downloads: tuple[DownloadLink, ...] = ()
+def load_catalog(path: Path) -> dict:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "output_types": data.get("output_types", {}),
+        "geometry_classes": data.get("geometry_classes", {}),
+    }
 
 
-@dataclass
-class PlanSection:
-    title: str
-    intro: str
-    items: list[GalleryItem] = field(default_factory=list)
+def load_code_styles(data_root: Path) -> dict[str, dict]:
+    styles: dict[str, dict] = {}
+    for p in sorted(data_root.glob("*/code.yaml")):
+        info = yaml.safe_load(p.read_text(encoding="utf-8"))
+        styles[info["short"]] = info
+    return styles
 
 
-@dataclass
-class PlanPage:
-    plan: str
-    summary: tuple[str, ...]
-    sections: list[PlanSection]
+def load_manifests(data_root: Path) -> list[dict]:
+    manifests = []
+    for p in sorted(data_root.rglob("manifest.json")):
+        data = json.loads(p.read_text(encoding="utf-8"))
+        data["_dir"] = p.parent
+        manifests.append(data)
+    return manifests
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Build a static GitHub Pages gallery for OpenShieldHit results and "
-            "SH12A-vs-OpenShieldHit comparison plots."
-        )
+def build_availability(
+    manifests: list[dict],
+) -> dict[str, dict[str, set[str]]]:
+    """
+    Returns {plan: {output_type: {code_short, ...}}}.
+    Only includes primary_data and derived entries with an output_type.
+    """
+    avail: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if ot:
+                    avail[plan][ot].add(code_short)
+    return {p: dict(d) for p, d in avail.items()}
+
+
+def codes_per_plan(manifests: list[dict]) -> dict[str, set[str]]:
+    """Which codes have any result for each plan."""
+    cpp: dict[str, set[str]] = defaultdict(set)
+    for m in manifests:
+        cpp[m["plan"]].add(m["code"]["short"])
+    return dict(cpp)
+
+
+def collect_preview_images(
+    manifests: list[dict],
+) -> dict[str, dict[str, list[str]]]:
+    """
+    {plan: {code_short: [rel_paths_to_preview_pngs, ...]}}.
+    Used to show 2D map previews on plan pages.
+    """
+    previews: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        result_dir = m["_dir"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") != "preview_image":
+                continue
+            for f in entry.get("files", []):
+                path = result_dir / f["path"]
+                if path.exists():
+                    previews[plan][code_short].append(str(path))
+    return dict(previews)
+
+
+def build_download_index(
+    manifests: list[dict],
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Returns {(plan, output_type): [{code_short, src_path, filename}, ...]}.
+    Only primary_data and derived files that carry an output_type.
+    """
+    index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        result_dir = m["_dir"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if not ot:
+                    continue
+                src = result_dir / f["path"]
+                if src.exists():
+                    index[(plan, ot)].append({
+                        "code_short": code_short,
+                        "src_path": src,
+                        "filename": src.name,
+                    })
+    return dict(index)
+
+
+def copy_data_files(
+    download_index: dict[tuple[str, str], list[dict]],
+    site_root: Path,
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Copy data files into {site_root}/data/{plan}/{code}/{filename}.
+    Returns the same index enriched with a 'dest_rel' key (relative to site_root).
+    """
+    enriched: dict[tuple[str, str], list[dict]] = {}
+    for (plan, ot), files in download_index.items():
+        enriched[(plan, ot)] = []
+        seen: set[Path] = set()
+        for item in files:
+            src = item["src_path"]
+            if src in seen:
+                continue
+            seen.add(src)
+            dest = site_root / "data" / plan / item["code_short"] / item["filename"]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+            enriched[(plan, ot)].append({
+                **item,
+                "dest_rel": f"data/{plan}/{item['code_short']}/{item['filename']}",
+            })
+    return enriched
+
+
+
+
+# ---------------------------------------------------------------------------
+# HTML helpers
+# ---------------------------------------------------------------------------
+
+
+def text_on_bg(hex_color: str) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return "#ffffff" if (0.299 * r + 0.587 * g + 0.114 * b) < 140 else "#1b2226"
+
+
+def code_pill(code_short: str, code_styles: dict[str, dict], *, size: str = "normal") -> str:
+    style = code_styles.get(code_short, {})
+    color = style.get("display_color", "#888888")
+    fg = text_on_bg(color)
+    name = html.escape(style.get("name", code_short))
+    font_size = "0.75rem" if size == "small" else "0.85rem"
+    padding = "0.2rem 0.55rem" if size == "small" else "0.3rem 0.75rem"
+    return (
+        f'<span class="code-pill" '
+        f'style="background:{color};color:{fg};font-size:{font_size};padding:{padding};">'
+        f"{name}</span>"
     )
-    parser.add_argument(
-        "--osh-results-root",
-        type=Path,
-        default=Path("data/openshieldhit/results"),
-        help="Root directory with tracked OpenShieldHit result PNG/DAT files.",
-    )
-    parser.add_argument(
-        "--comparison-root",
-        type=Path,
-        default=Path("data/comparisons/sh12a_vs_osh"),
-        help="Root directory with comparison PNG files.",
-    )
-    parser.add_argument(
-        "--pdf-root",
-        action="append",
-        type=Path,
-        default=[],
-        help="Directory scanned recursively for PDF reports. Repeat as needed.",
-    )
-    parser.add_argument(
-        "--osh-input-root",
-        type=Path,
-        default=Path("data/openshieldhit/input"),
-        help="OpenShieldHit input root used for plot metadata.",
-    )
-    parser.add_argument(
-        "--sh12a-input-root",
-        type=Path,
-        default=Path("data/sh12a/input"),
-        help="SH12A input root used for plot metadata.",
-    )
-    parser.add_argument(
-        "--sh12a-results-root",
-        type=Path,
-        default=Path("data/sh12a/results"),
-        help="SH12A results root used for downloadable ASCII source links.",
-    )
-    parser.add_argument(
-        "--out-dir",
-        type=Path,
-        default=Path("_pages"),
-        help="Output directory for the generated static site.",
-    )
-    return parser.parse_args()
 
 
 def write_text(path: Path, content: str) -> None:
@@ -113,23 +201,14 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def copy_file(source: Path, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, destination)
-
-
-def relative_href(from_file: Path, to_file: Path) -> str:
-    return os.path.relpath(to_file, start=from_file.parent).replace(os.sep, "/")
-
-
 def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
-    escaped_title = html.escape(title)
+    escaped = html.escape(title)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{escaped_title}</title>
+  <title>{escaped}</title>
   <link rel="stylesheet" href="{root_prefix}/assets/site.css">
 </head>
 <body>
@@ -138,7 +217,7 @@ def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
       <a class="brand" href="{root_prefix}/index.html">2022 DCPT LET</a>
       <nav class="nav">
         <a href="{root_prefix}/index.html#plans">Plans</a>
-        <a href="{root_prefix}/index.html#reports">Reports</a>
+        <a href="{root_prefix}/index.html#codes">Codes</a>
       </nav>
     </header>
     {body}
@@ -149,7 +228,7 @@ def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
 
 
 def css_text() -> str:
-    return """
+    return """\
 :root {
   color-scheme: light;
   --bg: #f6f4ef;
@@ -160,599 +239,488 @@ def css_text() -> str:
   --border: #d8d2c6;
   --accent: #005f73;
   --accent-soft: #d8eef1;
-  --shadow: 0 14px 34px rgba(27, 34, 38, 0.08);
+  --shadow: 0 14px 34px rgba(27,34,38,.08);
 }
-
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(238, 155, 0, 0.12), transparent 28rem),
+    radial-gradient(circle at top left, rgba(238,155,0,.12), transparent 28rem),
     linear-gradient(180deg, #fbfaf6 0%, var(--bg) 100%);
 }
-
-a {
-  color: var(--accent);
-}
-
+a { color: var(--accent); }
 .shell {
   width: min(1200px, calc(100vw - 2rem));
   margin: 0 auto;
   padding: 1rem 0 3rem;
 }
-
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
   margin-bottom: 2rem;
 }
+.brand { font-size: 1.15rem; font-weight: 700; text-decoration: none; color: var(--text); }
+.nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+.nav a { text-decoration: none; }
 
-.brand {
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--text);
+.hero, .panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 20px; box-shadow: var(--shadow);
 }
+.hero { padding: 2rem; margin-bottom: 2rem; }
+.hero h1 { margin: 0 0 .75rem; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.05; }
+.panel { padding: 1.4rem; margin-bottom: 1.6rem; }
+.section-title { margin: 0 0 .3rem; font-size: 1.4rem; }
+.section-desc { color: var(--muted); margin: 0 0 1rem; font-size: .95rem; }
 
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.hero p, .panel p, .plan-meta, .eyebrow, .empty-state, .footer-note { color: var(--muted); }
+
+/* stat strip */
+.hero-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-top: 1.5rem; }
+.stat { background: var(--panel-strong); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; }
+.stat strong { display: block; font-size: 1.5rem; color: var(--text); }
+.stat span { font-size: .85rem; color: var(--muted); }
+
+/* code pill */
+.code-pill {
+  display: inline-flex; align-items: center;
+  border-radius: 999px; font-weight: 600;
+  padding: .3rem .75rem; font-size: .85rem;
 }
+.pill-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
 
-.nav a {
-  text-decoration: none;
-}
-
-.hero,
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-}
-
-.hero {
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.hero h1 {
-  margin: 0 0 0.75rem;
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  line-height: 1.05;
-}
-
-.hero p,
-.panel p,
-.plan-meta,
-.card-copy,
-.eyebrow,
-.download-list,
-.empty-state,
-.footer-note {
-  color: var(--muted);
-}
-
-.hero-grid,
-.plan-grid,
-.gallery {
-  display: grid;
-  gap: 1rem;
-}
-
-.hero-grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  margin-top: 1.5rem;
-}
-
-.stat {
-  background: var(--panel-strong);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1rem;
-}
-
-.stat strong {
-  display: block;
-  font-size: 1.6rem;
-  color: var(--text);
-}
-
-.section-title {
-  margin: 0 0 0.4rem;
-  font-size: 1.6rem;
-}
-
-.panel {
-  padding: 1.4rem;
-  margin-bottom: 1.6rem;
-}
-
-.plan-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.plan-card,
-.gallery-card {
-  background: var(--panel-strong);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  overflow: hidden;
-}
-
+/* plan grid */
+.plan-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 1rem; }
 .plan-card {
-  padding: 1rem;
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 18px; padding: 1rem;
 }
+.plan-card h3 { margin: 0 0 .5rem; }
+.plan-card .plan-meta { font-size: .85rem; }
 
-.plan-card h3,
-.gallery-card h3 {
-  margin: 0 0 0.5rem;
+/* code registry cards */
+.code-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 1rem; }
+.code-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1rem;
+  border-top: 4px solid var(--accent);
 }
+.code-card h3 { margin: 0 0 .3rem; font-size: 1rem; }
+.code-card .muted { color: var(--muted); font-size: .85rem; }
 
-.pill-row,
-.download-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+/* plot card grid */
+.plot-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.plot-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 14px; padding: .9rem 1rem;
+  display: flex; flex-direction: column; gap: .6rem;
 }
+.plot-card h3 { margin: 0; font-size: .95rem; font-weight: 600; }
+.plot-card .plot-link {
+  display: inline-flex; align-items: center; gap: .35rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .3rem .8rem; font-size: .85rem;
+  color: var(--accent); text-decoration: none; background: #fff;
+  width: fit-content;
+}
+.plot-card .plot-link:hover { background: var(--accent-soft); }
+.plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
 
-.pill,
-.download-row a,
+/* PDF download button */
+.btn-pdf {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--accent); color: #fff; border-radius: 6px;
+  padding: .45rem 1rem; font-size: .9rem; font-weight: 600;
+  text-decoration: none; margin-top: 1rem;
+}
+.btn-pdf:hover { opacity: .85; }
+
+/* download links */
+.dl-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .1rem; }
+.dl-label { font-size: .75rem; color: var(--muted); margin-right: .2rem; white-space: nowrap; }
+.dl-link {
+  display: inline-flex; align-items: center; gap: .2rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .15rem .55rem; font-size: .75rem;
+  color: var(--muted); text-decoration: none; background: #fff;
+  white-space: nowrap;
+}
+.dl-link:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+/* back link */
 .back-link {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  text-decoration: none;
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .3rem .8rem; font-size: .85rem;
+  color: var(--text); text-decoration: none; background: #fff;
+  margin-bottom: 1rem;
 }
 
-.pill {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
+/* preview images (2D maps) */
+.preview-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.preview-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
 }
+.preview-card img { display: block; width: 100%; object-fit: cover; background: #f1f1f1; }
+.preview-card .preview-label { padding: .5rem .8rem; font-size: .85rem; color: var(--muted); }
 
-.download-row a,
-.back-link {
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: #fff;
-}
-
-.gallery {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.gallery-card img {
-  display: block;
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  background: #f1f1f1;
-}
-
-.card-body {
-  padding: 1rem;
-}
-
-.card-copy {
-  margin: 0.3rem 0 0.7rem;
-}
-
-.detail-list {
-  margin: 0 0 0.9rem;
-  padding-left: 1rem;
-  color: var(--muted);
-}
-
-.detail-list li {
-  margin: 0.2rem 0;
-}
-
-.footer-note {
-  margin-top: 2rem;
-  font-size: 0.95rem;
-}
+.footer-note { margin-top: 2rem; font-size: .9rem; }
 
 @media (max-width: 640px) {
-  .shell {
-    width: min(100vw - 1rem, 100%);
-  }
-
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .hero,
-  .panel {
-    padding: 1rem;
-  }
+  .shell { width: min(100vw - 1rem, 100%); }
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .hero, .panel { padding: 1rem; }
 }
 """
 
 
-def render_gallery(items: list[GalleryItem]) -> str:
-    if not items:
-        return '<p class="empty-state">No figures available in this section.</p>'
+# ---------------------------------------------------------------------------
+# Page renderers
+# ---------------------------------------------------------------------------
 
-    cards: list[str] = []
-    for item in items:
-        details = "".join(f"<li>{html.escape(line)}</li>" for line in item.details)
-        downloads = "".join(
-            f'<a href="{html.escape(link.href)}">{html.escape(link.label)}</a>'
-            for link in item.downloads
-        )
-        cards.append(
-            f"""
-<article class="gallery-card">
-  <a href="{html.escape(item.image_href)}">
-    <img loading="lazy" src="{html.escape(item.thumb_href)}" alt="{html.escape(item.title)}">
-  </a>
-  <div class="card-body">
-    <h3>{html.escape(item.title)}</h3>
-    <p class="card-copy">{html.escape(item.subtitle)}</p>
-    <ul class="detail-list">{details}</ul>
-    <div class="download-row">{downloads}</div>
-  </div>
-</article>
-"""
-        )
-    return f'<div class="gallery">{"".join(cards)}</div>'
-
-
-def plot_title_parts(
-    rel_path: Path,
-    sh12a_input_root: Path,
-    osh_input_root: Path,
-) -> tuple[str, str, tuple[str, ...]]:
-    output_meta, page_index = lookup_output_metadata(rel_path, sh12a_input_root, osh_input_root)
-    page_meta = output_meta.pages[page_index] if output_meta else None
-    geo_label = humanize_geo_label(output_meta.geo) if output_meta else None
-    block_label = output_meta.name if output_meta else PAGE_RE.sub(r"\g<stem>", rel_path.stem)
-    metric = format_page_title(page_meta) if page_meta else normalize_metric_name(rel_path.name)
-    page_label = ""
-    if page_meta and output_meta and len(output_meta.pages) > 1:
-        page_label = f"page {page_index + 1}"
-    hint = plan_input_hint(rel_path.parts[0], sh12a_input_root, osh_input_root)
-    kind = "Differential" if is_diff_plot(rel_path, page_meta) else "Profile / map"
-    x_label = infer_x_label(rel_path, page_meta)
-    y_label = infer_y_label(page_meta)
-
-    subtitle_parts = [part for part in (geo_label, block_label, page_label) if part]
-    if hint:
-        subtitle_parts.append(f"input: {hint}")
-
-    details = [kind, f"x: {x_label}", f"y: {y_label}"]
-    return metric, " | ".join(subtitle_parts) if subtitle_parts else rel_path.parts[0], tuple(details)
+# Ordered sections: (geometry class, section title, description)
+GEOMETRY_SECTIONS = [
+    (
+        "depth_Z",
+        "Depth profiles",
+        "1D profiles along the beam (Z) axis, narrow lateral acceptance. "
+        "One plot per quantity × medium × particle filter. All available codes overlaid.",
+    ),
+    (
+        "spectrum_target",
+        "LET / dE/dx spectra",
+        "Differential fluence spectra in the target volume. Log–log scale.",
+    ),
+    (
+        "target",
+        "Target scalars",
+        "Single integrated values in the target detector volume (5×5×2 mm³). "
+        "Shown as a grouped bar chart per code.",
+    ),
+    (
+        "map_XZ",
+        "Longitudinal dose maps (XZ)",
+        "2D dose maps in the longitudinal plane. Preview images only.",
+    ),
+    (
+        "map_XY",
+        "Transverse dose maps (XY)",
+        "2D dose maps in the transverse plane. Preview images only.",
+    ),
+]
 
 
-def collect_results_items(
-    site_root: Path,
-    osh_results_root: Path,
-    osh_input_root: Path,
-) -> dict[str, list[GalleryItem]]:
-    items_by_plan: dict[str, list[GalleryItem]] = {}
-    for image_source in sorted(osh_results_root.rglob("*.png")):
-        rel_from_root = image_source.relative_to(osh_results_root)
-        if len(rel_from_root.parts) != 2:
-            continue
-        plan = rel_from_root.parts[0]
-        site_image = Path("assets/openshieldhit") / rel_from_root
-        copy_file(image_source, site_root / site_image)
-
-        downloads = [DownloadLink("PNG", relative_href(site_root / f"plans/{plan}.html", site_root / site_image))]
-
-        dat_source = image_source.with_suffix(".dat")
-        if dat_source.exists():
-            site_dat = Path("assets/openshieldhit-data") / dat_source.relative_to(osh_results_root)
-            copy_file(dat_source, site_root / site_dat)
-            downloads.append(
-                DownloadLink(
-                    "DAT",
-                    relative_href(site_root / f"plans/{plan}.html", site_root / site_dat),
-                )
-            )
-
-        metric, subtitle, details = plot_title_parts(
-            rel_from_root,
-            osh_input_root,
-            osh_input_root,
-        )
-        item = GalleryItem(
-            plan=plan,
-            title=metric,
-            subtitle=subtitle,
-            details=details,
-            image_href=relative_href(site_root / f"plans/{plan}.html", site_root / site_image),
-            thumb_href=relative_href(site_root / f"plans/{plan}.html", site_root / site_image),
-            downloads=tuple(downloads),
-        )
-        items_by_plan.setdefault(plan, []).append(item)
-    return items_by_plan
-
-
-def collect_comparison_items(
-    site_root: Path,
-    comparison_root: Path,
-    sh12a_results_root: Path,
-    osh_results_root: Path,
-    sh12a_input_root: Path,
-    osh_input_root: Path,
-) -> dict[str, list[GalleryItem]]:
-    items_by_plan: dict[str, list[GalleryItem]] = {}
-    for image_source in sorted(comparison_root.rglob("*.png")):
-        rel_from_root = image_source.relative_to(comparison_root)
-        if len(rel_from_root.parts) != 2:
-            continue
-        plan = rel_from_root.parts[0]
-        site_image = Path("assets/comparisons") / rel_from_root
-        copy_file(image_source, site_root / site_image)
-
-        downloads = [DownloadLink("PNG", relative_href(site_root / f"plans/{plan}.html", site_root / site_image))]
-        shared_dat_rel = rel_from_root.with_suffix(".dat")
-        sh12a_dat = sh12a_results_root / shared_dat_rel
-        osh_dat = osh_results_root / shared_dat_rel
-        if sh12a_dat.exists():
-            site_dat = Path("assets/comparison-data/sh12a") / shared_dat_rel
-            copy_file(sh12a_dat, site_root / site_dat)
-            downloads.append(
-                DownloadLink(
-                    "SH12A DAT",
-                    relative_href(site_root / f"plans/{plan}.html", site_root / site_dat),
-                )
-            )
-        if osh_dat.exists():
-            site_dat = Path("assets/comparison-data/openshieldhit") / shared_dat_rel
-            copy_file(osh_dat, site_root / site_dat)
-            downloads.append(
-                DownloadLink(
-                    "OpenShieldHit DAT",
-                    relative_href(site_root / f"plans/{plan}.html", site_root / site_dat),
-                )
-            )
-
-        metric, subtitle, details = plot_title_parts(
-            rel_from_root,
-            sh12a_input_root,
-            osh_input_root,
-        )
-        item = GalleryItem(
-            plan=plan,
-            title=metric,
-            subtitle=subtitle,
-            details=details,
-            image_href=relative_href(site_root / f"plans/{plan}.html", site_root / site_image),
-            thumb_href=relative_href(site_root / f"plans/{plan}.html", site_root / site_image),
-            downloads=tuple(downloads),
-        )
-        items_by_plan.setdefault(plan, []).append(item)
-    return items_by_plan
-
-
-def collect_report_links(site_root: Path, page_file: Path, pdf_roots: list[Path]) -> list[DownloadLink]:
-    links: list[DownloadLink] = []
-    for pdf_root in pdf_roots:
-        if not pdf_root.exists():
-            continue
-        for pdf_source in sorted(pdf_root.rglob("*.pdf")):
-            site_pdf = Path("assets/reports") / pdf_source.name
-            copy_file(pdf_source, site_root / site_pdf)
-            links.append(
-                DownloadLink(
-                    pdf_source.name,
-                    relative_href(page_file, site_root / site_pdf),
-                )
-            )
-    return links
-
-
-def render_home_page(
-    site_root: Path,
-    plan_pages: list[PlanPage],
-    report_links: list[DownloadLink],
+def render_plot_card(
+    output_type: str,
+    codes: set[str],
+    code_styles: dict[str, dict],
+    plot_rel: str,
+    plot_exists: bool,
+    catalog_meta: dict,
+    download_files: list[dict],
 ) -> str:
-    total_result_figures = sum(len(section.items) for page in plan_pages for section in page.sections[:1])
-    total_comparison_figures = sum(
-        len(section.items) for page in plan_pages for section in page.sections[1:]
-    )
+    label = html.escape(catalog_meta.get("label", output_type))
+    pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
+    if plot_exists:
+        link_html = (
+            f'<a class="plot-link" href="{html.escape(plot_rel)}" target="_blank">'
+            f"Open interactive plot ↗</a>"
+        )
+    else:
+        link_html = '<span class="missing">Plot not yet generated</span>'
 
-    plan_cards = []
-    for page in plan_pages:
-        plan_href = relative_href(site_root / "index.html", site_root / f"plans/{page.plan}.html")
-        plan_cards.append(
-            f"""
-<article class="plan-card">
-  <div class="pill-row"><span class="pill">{html.escape(page.plan)}</span></div>
-  <h3><a href="{html.escape(plan_href)}">{html.escape(page.plan)}</a></h3>
-  <p class="plan-meta">{html.escape(" | ".join(page.summary))}</p>
-</article>
-"""
+    dl_html = ""
+    if download_files:
+        links: list[str] = []
+        for item in download_files:
+            cs = code_styles.get(item["code_short"], {})
+            code_name = html.escape(cs.get("name", item["code_short"]))
+            fname = html.escape(item["filename"])
+            dest = html.escape(f"../{item['dest_rel']}")
+            links.append(
+                f'<a class="dl-link" href="{dest}" download title="{code_name}">'
+                f"↓ {code_name} · {fname}</a>"
+            )
+        dl_html = (
+            '<div class="dl-row"><span class="dl-label">Data:</span>'
+            + "".join(links)
+            + "</div>"
         )
 
-    report_html = "".join(
-        f'<a href="{html.escape(link.href)}">{html.escape(link.label)}</a>' for link in report_links
-    )
-    report_panel = (
-        f'<div class="download-row">{report_html}</div>'
-        if report_links
-        else '<p class="empty-state">No PDF reports were generated for this build.</p>'
-    )
+    return f"""
+<article class="plot-card">
+  <h3>{label}</h3>
+  <div class="pill-row">{pills}</div>
+  {link_html}
+  {dl_html}
+</article>"""
+
+
+def render_plan_page(
+    plan: str,
+    plan_codes: set[str],
+    availability: dict[str, set[str]],
+    catalog: dict,
+    code_styles: dict[str, dict],
+    plots_rel_from_plan: str,
+    plots_dir: Path,
+    preview_images: dict[str, list[str]],
+    download_index: dict[tuple[str, str], list[dict]],
+) -> str:
+    output_types = catalog["output_types"]
+    pills = " ".join(code_pill(c, code_styles) for c in sorted(plan_codes))
+
+    # Group available output types by geometry class
+    by_geometry: dict[str, dict[str, set[str]]] = defaultdict(dict)
+    for ot, codes in sorted(availability.items()):
+        meta = output_types.get(ot, {})
+        geom = meta.get("geometry", ot.split(".")[0])
+        by_geometry[geom][ot] = codes
+
+    sections_html: list[str] = []
+    for geom_class, title, desc in GEOMETRY_SECTIONS:
+        if geom_class in ("map_XZ", "map_XY"):
+            # Show preview images instead of plot links
+            imgs: list[str] = []
+            for code_short, paths in preview_images.items():
+                for img_path in paths:
+                    img_name = Path(img_path).name
+                    # Only show maps that match this geometry
+                    if geom_class == "map_XZ" and "XZ" not in img_name:
+                        continue
+                    if geom_class == "map_XY" and "XY" not in img_name:
+                        continue
+                    cs = code_styles.get(code_short, {})
+                    code_name = html.escape(cs.get("name", code_short))
+                    alt = html.escape(f"{code_name} – {img_name}")
+                    imgs.append(
+                        f'<div class="preview-card">'
+                        f'<img loading="lazy" src="{html.escape(img_path)}" alt="{alt}">'
+                        f'<div class="preview-label">{code_name} – {html.escape(img_name)}</div>'
+                        f'</div>'
+                    )
+            if not imgs:
+                continue
+            inner = f'<div class="preview-grid">{"".join(imgs)}</div>'
+        else:
+            ots = by_geometry.get(geom_class, {})
+            if not ots:
+                continue
+            cards: list[str] = []
+            for ot, codes in sorted(ots.items()):
+                plot_file = plots_dir / plan / f"{ot}.html"
+                plot_rel = f"{plots_rel_from_plan}/{plan}/{ot}.html"
+                cards.append(
+                    render_plot_card(
+                        ot, codes, code_styles,
+                        plot_rel, plot_file.exists(),
+                        output_types.get(ot, {}),
+                        download_index.get((plan, ot), []),
+                    )
+                )
+            inner = f'<div class="plot-grid">{"".join(cards)}</div>'
+
+        sections_html.append(f"""
+<section class="panel">
+  <h2 class="section-title">{html.escape(title)}</h2>
+  <p class="section-desc">{html.escape(desc)}</p>
+  {inner}
+</section>""")
+
+    body = f"""
+<main>
+  <a class="back-link" href="../index.html">← Back to overview</a>
+  <section class="hero">
+    <p class="eyebrow">Plan browser</p>
+    <h1>{html.escape(plan)}</h1>
+    <div class="pill-row" style="margin-top:.8rem">{pills}</div>
+    <a class="btn-pdf" href="{html.escape(plan)}.pdf" download>⬇ Download PDF (all plots for this plan)</a>
+  </section>
+  {"".join(sections_html)}
+</main>"""
+    return html_page(plan, body, root_prefix="..")
+
+
+def render_index(
+    plans: list[str],
+    plan_codes: dict[str, set[str]],
+    plan_availability: dict[str, dict[str, set[str]]],
+    code_styles: dict[str, dict],
+    catalog: dict,
+    generated_at: str,
+) -> str:
+    total_plots = sum(len(ots) for ots in plan_availability.values())
+
+    plan_cards: list[str] = []
+    for plan in plans:
+        codes = plan_codes.get(plan, set())
+        pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
+        n_ots = len(plan_availability.get(plan, {}))
+        plan_cards.append(f"""
+<article class="plan-card">
+  <div class="pill-row" style="margin-bottom:.5rem">{pills}</div>
+  <h3><a href="plans/{html.escape(plan)}.html">{html.escape(plan)}</a></h3>
+  <p class="plan-meta">{n_ots} output type(s) catalogued</p>
+</article>""")
+
+    code_cards: list[str] = []
+    for short, info in sorted(code_styles.items(), key=lambda x: x[1].get("name", x[0])):
+        color = info.get("display_color", "#888")
+        name = html.escape(info.get("name", short))
+        url = info.get("url", "")
+        link = f'<a href="{html.escape(url)}" target="_blank">{name}</a>' if url else name
+        code_cards.append(f"""
+<article class="code-card" style="border-top-color:{color}">
+  <h3>{link}</h3>
+  <p class="muted">short: <code>{html.escape(short)}</code></p>
+</article>""")
 
     body = f"""
 <main>
   <section class="hero">
-    <p class="eyebrow">Static browser built from committed simulation data and CI-generated comparisons.</p>
-    <h1>OpenShieldHit and SH12A comparison gallery</h1>
+    <p class="eyebrow">Interactive MC code comparison gallery · built {generated_at}</p>
+    <h1>2022 DCPT LET benchmark</h1>
     <p>
-      This site publishes tracked OpenShieldHit result figures directly from the repository and
-      overlays them with CI-generated SH12A-vs-OpenShieldHit comparison figures built from the
-      corresponding ASCII <code>.dat</code> files.
+      Comparison of Monte Carlo codes for LET-weighted quantities in a silicon
+      detector benchmark at DCPT. Each plot overlays all available codes for a
+      given scorer, quantity, medium, and particle filter.
+      <strong>Click any plot to open an interactive view</strong> — hover for exact values,
+      click the legend to toggle codes.
     </p>
     <div class="hero-grid">
-      <div class="stat"><strong>{len(plan_pages)}</strong><span>plans covered</span></div>
-      <div class="stat"><strong>{total_result_figures}</strong><span>OpenShieldHit figures</span></div>
-      <div class="stat"><strong>{total_comparison_figures}</strong><span>comparison figures</span></div>
-      <div class="stat"><strong>{len(report_links)}</strong><span>downloadable PDF reports</span></div>
+      <div class="stat"><strong>{len(plans)}</strong><span>plans</span></div>
+      <div class="stat"><strong>{len(code_styles)}</strong><span>MC codes</span></div>
+      <div class="stat"><strong>{total_plots}</strong><span>comparison plots</span></div>
     </div>
-  </section>
-
-  <section class="panel" id="reports">
-    <h2 class="section-title">Reports</h2>
-    <p>
-      PDF reports are built in CI from the current repository state so casual visitors can inspect
-      the latest comparison bundle without running simulations locally.
-    </p>
-    {report_panel}
   </section>
 
   <section class="panel" id="plans">
     <h2 class="section-title">Plans</h2>
-    <p>Select a plan to browse tracked OpenShieldHit figures, generated comparison PNGs, and linked ASCII data.</p>
+    <p>Select a plan to browse all available comparison plots.</p>
     <div class="plan-grid">{"".join(plan_cards)}</div>
   </section>
 
-  <p class="footer-note">
-    The authoritative simulation data remains in the repository. This static site is a presentation
-    layer generated from those files.
-  </p>
-</main>
-"""
-    return html_page("2022 DCPT LET gallery", body, root_prefix=".")
-
-
-def render_plan_page(site_root: Path, page: PlanPage) -> str:
-    section_html = []
-    for section in page.sections:
-        section_html.append(
-            f"""
-<section class="panel">
-  <h2 class="section-title">{html.escape(section.title)}</h2>
-  <p>{html.escape(section.intro)}</p>
-  {render_gallery(section.items)}
-</section>
-"""
-        )
-
-    body = f"""
-<main>
-  <p><a class="back-link" href="../index.html">Back to overview</a></p>
-  <section class="hero">
-    <p class="eyebrow">Plan browser</p>
-    <h1>{html.escape(page.plan)}</h1>
-    <p>{html.escape(" | ".join(page.summary))}</p>
+  <section class="panel" id="codes">
+    <h2 class="section-title">Registered codes</h2>
+    <div class="code-grid">{"".join(code_cards)}</div>
   </section>
-  {"".join(section_html)}
-</main>
-"""
-    return html_page(page.plan, body, root_prefix="..")
+
+  <p class="footer-note">
+    Data lives in the repository under <code>data/</code>. This site is regenerated in CI
+    from <code>data/**/manifest.json</code> and <code>data/output_catalog.json</code>.
+  </p>
+</main>"""
+    return html_page("2022 DCPT LET – MC code comparison gallery", body, root_prefix=".")
 
 
-def build_plan_pages(
-    results_items: dict[str, list[GalleryItem]],
-    comparison_items: dict[str, list[GalleryItem]],
-    sh12a_input_root: Path,
-    osh_input_root: Path,
-) -> list[PlanPage]:
-    plans = sorted(set(results_items).union(comparison_items))
-    plan_pages: list[PlanPage] = []
-    for plan in plans:
-        hint = plan_input_hint(plan, sh12a_input_root, osh_input_root)
-        summary = [f"input hint: {hint}" if hint else "input hint unavailable"]
-        sections = [
-            PlanSection(
-                title="OpenShieldHit results",
-                intro=(
-                    "Tracked PNG figures from the repository. When available, the matching ASCII "
-                    "plot data is linked alongside each image."
-                ),
-                items=results_items.get(plan, []),
-            ),
-            PlanSection(
-                title="SH12A vs OpenShieldHit comparisons",
-                intro=(
-                    "Generated in CI from paired SH12A and OpenShieldHit .dat files. Differential "
-                    "comparisons keep the stair-step representation and log scaling introduced in "
-                    "the local plotting workflow."
-                ),
-                items=comparison_items.get(plan, []),
-            ),
-        ]
-        plan_pages.append(PlanPage(plan=plan, summary=tuple(summary), sections=sections))
-    return plan_pages
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 
-def write_manifest(site_root: Path, plan_pages: list[PlanPage], report_links: list[DownloadLink]) -> None:
-    payload = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "plans": [
-            {
-                "plan": page.plan,
-                "result_figures": len(page.sections[0].items),
-                "comparison_figures": len(page.sections[1].items),
-                "summary": list(page.summary),
-            }
-            for page in plan_pages
-        ],
-        "reports": [{"label": link.label, "href": link.href} for link in report_links],
-    }
-    write_text(site_root / "site-manifest.json", json.dumps(payload, indent=2) + "\n")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--data-root", type=Path, default=Path("data"),
+        help="Root directory containing code.yaml files and manifest.json files (default: data).",
+    )
+    parser.add_argument(
+        "--catalog", type=Path, default=Path("data/output_catalog.json"),
+        help="Path to output_catalog.json (default: data/output_catalog.json).",
+    )
+    parser.add_argument(
+        "--plots-dir", type=Path, default=Path("_pages/plots"),
+        help="Directory where generate_comparison_plots.py wrote HTML files (default: _pages/plots).",
+    )
+    parser.add_argument(
+        "--out-dir", type=Path, default=Path("_pages"),
+        help="Output directory for the generated site (default: _pages).",
+    )
+    return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-
     site_root = args.out_dir.resolve()
+    plots_dir = args.plots_dir.resolve()
+
+    catalog = load_catalog(args.catalog)
+    code_styles = load_code_styles(args.data_root)
+    manifests = load_manifests(args.data_root)
+    availability = build_availability(manifests)
+    plan_codes = codes_per_plan(manifests)
+    preview_images = collect_preview_images(manifests)
+    raw_download_index = build_download_index(manifests)
+
+    plans = sorted(availability)
+    print(
+        f"Codes: {len(code_styles)}  |  Plans: {len(plans)}  |  "
+        f"Output type groups: {sum(len(v) for v in availability.values())}"
+    )
+
+    # Re-create site root (except plots dir if it lives inside)
     if site_root.exists():
-        shutil.rmtree(site_root)
+        for child in site_root.iterdir():
+            if child.resolve() == plots_dir:
+                continue  # don't wipe plots we just generated
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
     site_root.mkdir(parents=True, exist_ok=True)
+
+    download_index = copy_data_files(raw_download_index, site_root)
 
     write_text(site_root / ".nojekyll", "")
     write_text(site_root / "assets/site.css", css_text())
 
-    results_items = collect_results_items(
-        site_root,
-        args.osh_results_root.resolve(),
-        args.osh_input_root.resolve(),
-    )
-    comparison_items = collect_comparison_items(
-        site_root,
-        args.comparison_root.resolve(),
-        args.sh12a_results_root.resolve(),
-        args.osh_results_root.resolve(),
-        args.sh12a_input_root.resolve(),
-        args.osh_input_root.resolve(),
-    )
-    plan_pages = build_plan_pages(
-        results_items,
-        comparison_items,
-        args.sh12a_input_root.resolve(),
-        args.osh_input_root.resolve(),
-    )
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    report_links = collect_report_links(
-        site_root,
+    # Index page
+    write_text(
         site_root / "index.html",
-        [path.resolve() for path in args.pdf_root],
+        render_index(plans, plan_codes, availability, code_styles, catalog, generated_at),
     )
 
-    write_text(site_root / "index.html", render_home_page(site_root, plan_pages, report_links))
-    for page in plan_pages:
-        write_text(site_root / f"plans/{page.plan}.html", render_plan_page(site_root, page))
+    # Relative path from a plan page (plans/{plan}.html) back to the plots dir
+    # If plots_dir is at site_root/plots, this is "../plots"
+    try:
+        plots_rel = plots_dir.relative_to(site_root)
+        plots_rel_from_plan = f"../{plots_rel.as_posix()}"
+    except ValueError:
+        # plots_dir is outside site_root — use absolute path (won't work on Pages)
+        plots_rel_from_plan = str(plots_dir)
 
-    write_manifest(site_root, plan_pages, report_links)
+    # Per-plan pages
+    for plan in plans:
+        write_text(
+            site_root / f"plans/{plan}.html",
+            render_plan_page(
+                plan=plan,
+                plan_codes=plan_codes.get(plan, set()),
+                availability=availability.get(plan, {}),
+                catalog=catalog,
+                code_styles=code_styles,
+                plots_rel_from_plan=plots_rel_from_plan,
+                plots_dir=plots_dir,
+                preview_images=preview_images.get(plan, {}),
+                download_index=download_index,
+            ),
+        )
+        print(f"  wrote plans/{plan}.html")
 
-    print(f"Wrote static site to: {site_root}")
-    print(f"Plans indexed: {len(plan_pages)}")
-    print(f"PDF reports indexed: {len(report_links)}")
+    print(f"\nSite written to: {site_root}")
+
+    # Generate per-plan PDF reports (parallel) so the download links work
+    print("\nGenerating per-plan PDF reports...")
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent))
+    from generate_pdf_report import generate as _gen_pdf
+    _gen_pdf(args.data_root, args.catalog, site_root / "plans")
+
     return 0
 
 

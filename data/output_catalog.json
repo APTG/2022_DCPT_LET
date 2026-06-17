@@ -1,0 +1,650 @@
+{
+  "schema_version": "1",
+  "description": "Canonical catalog of all physical output types in this benchmark. Key format: {geometry}.{QUANTITY}.{filter}.{medium}[.vs_{diff_axis}]. Medium suffix: 'mat' = no material override, scored to the actual transport medium (solid water + PMMA in this geometry); 'Si' = explicit in_Si stopping-power setting (spectrum_target only); 'H2O' = explicit in_Water stopping-power setting.",
+  "geometry_classes": {
+    "depth_Z": {
+      "description": "1D depth profile along the beam (Z) axis with narrow lateral acceptance (1×1 cm²)",
+      "dimensionality": 1,
+      "render_as": "line_plot",
+      "axis_x": {
+        "quantity": "depth",
+        "unit": "cm"
+      }
+    },
+    "target": {
+      "description": "Single-volume integrated scalar in the target detector (5×5×2 mm³ silicon)",
+      "dimensionality": 0,
+      "render_as": "scalar"
+    },
+    "spectrum_target": {
+      "description": "1D differential particle spectrum (fluence vs stopping quantity) scored in the target volume",
+      "dimensionality": 1,
+      "render_as": "spectrum_plot"
+    },
+    "map_XZ": {
+      "description": "2D longitudinal (X–Z) dose or fluence map",
+      "dimensionality": 2,
+      "render_as": "heatmap",
+      "axis_x": {
+        "quantity": "x",
+        "unit": "cm"
+      },
+      "axis_y": {
+        "quantity": "depth",
+        "unit": "cm"
+      }
+    },
+    "map_XY": {
+      "description": "2D transverse (X–Y) dose or fluence map",
+      "dimensionality": 2,
+      "render_as": "heatmap",
+      "axis_x": {
+        "quantity": "x",
+        "unit": "cm"
+      },
+      "axis_y": {
+        "quantity": "y",
+        "unit": "cm"
+      }
+    }
+  },
+  "output_types": {
+    "depth_Z.FLUENCE.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Fluence",
+      "axis_y": {
+        "quantity": "fluence",
+        "unit": "1/cm²/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.FLUENCE.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "FLUENCE",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "Fluence (primary protons)",
+      "axis_y": {
+        "quantity": "fluence",
+        "unit": "1/cm²/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.FLUENCE.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "FLUENCE",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "Fluence (all protons)",
+      "axis_y": {
+        "quantity": "fluence",
+        "unit": "1/cm²/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.FLUENCE.all.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "Fluence (water scorer)",
+      "axis_y": {
+        "quantity": "fluence",
+        "unit": "1/cm²/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dose",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "Dose (protons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.all.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "Dose-to-water",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.protons.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "protons",
+      "medium": "H2O",
+      "label": "Dose-to-water (protons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "all",
+      "medium": "mat",
+      "label": "D-LET",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "D-LET (primary protons)",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "D-LET (protons)",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.all.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "D-LET water",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.primary.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "primary",
+      "medium": "H2O",
+      "label": "D-LET water (primary protons)",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DLET.protons.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DLET",
+      "filter": "protons",
+      "medium": "H2O",
+      "label": "D-LET water (protons)",
+      "axis_y": {
+        "quantity": "DLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "all",
+      "medium": "mat",
+      "label": "T-LET",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "T-LET (primary protons)",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "T-LET (protons)",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.all.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "T-LET water",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.primary.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "primary",
+      "medium": "H2O",
+      "label": "T-LET water (primary protons)",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TLET.protons.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "TLET",
+      "filter": "protons",
+      "medium": "H2O",
+      "label": "T-LET water (protons)",
+      "axis_y": {
+        "quantity": "TLET",
+        "unit": "MeV/cm"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DQEFF.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DQEFF",
+      "filter": "all",
+      "medium": "mat",
+      "label": "D-Qeff",
+      "axis_y": {
+        "quantity": "DQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DQEFF.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DQEFF",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "D-Qeff (primary protons)",
+      "axis_y": {
+        "quantity": "DQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DQEFF.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DQEFF",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "D-Qeff (protons)",
+      "axis_y": {
+        "quantity": "DQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TQEFF.all.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TQEFF",
+      "filter": "all",
+      "medium": "mat",
+      "label": "T-Qeff",
+      "axis_y": {
+        "quantity": "TQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TQEFF.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TQEFF",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "T-Qeff (primary protons)",
+      "axis_y": {
+        "quantity": "TQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.TQEFF.protons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "TQEFF",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "T-Qeff (protons)",
+      "axis_y": {
+        "quantity": "TQEFF",
+        "unit": ""
+      },
+      "render_as": "line_plot"
+    },
+    "target.FLUENCE.all.mat": {
+      "geometry": "target",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Fluence",
+      "render_as": "scalar"
+    },
+    "target.FLUENCE.primary.mat": {
+      "geometry": "target",
+      "quantity": "FLUENCE",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "Fluence (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.FLUENCE.protons.mat": {
+      "geometry": "target",
+      "quantity": "FLUENCE",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "Fluence (all protons)",
+      "render_as": "scalar"
+    },
+    "target.DOSE.all.mat": {
+      "geometry": "target",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dose",
+      "render_as": "scalar"
+    },
+    "target.DOSE.all.H2O": {
+      "geometry": "target",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "Dose-to-water",
+      "render_as": "scalar"
+    },
+    "target.DLET.all.mat": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "all",
+      "medium": "mat",
+      "label": "D-LET",
+      "render_as": "scalar"
+    },
+    "target.DLET.primary.mat": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "D-LET (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.DLET.protons.mat": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "D-LET (protons)",
+      "render_as": "scalar"
+    },
+    "target.DLET.all.H2O": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "D-LET water",
+      "render_as": "scalar"
+    },
+    "target.DLET.primary.H2O": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "primary",
+      "medium": "H2O",
+      "label": "D-LET water (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.DLET.protons.H2O": {
+      "geometry": "target",
+      "quantity": "DLET",
+      "filter": "protons",
+      "medium": "H2O",
+      "label": "D-LET water (protons)",
+      "render_as": "scalar"
+    },
+    "target.TLET.all.mat": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "all",
+      "medium": "mat",
+      "label": "T-LET",
+      "render_as": "scalar"
+    },
+    "target.TLET.primary.mat": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "T-LET (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.TLET.protons.mat": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "T-LET (protons)",
+      "render_as": "scalar"
+    },
+    "target.TLET.all.H2O": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "T-LET water",
+      "render_as": "scalar"
+    },
+    "target.TLET.primary.H2O": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "primary",
+      "medium": "H2O",
+      "label": "T-LET water (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.TLET.protons.H2O": {
+      "geometry": "target",
+      "quantity": "TLET",
+      "filter": "protons",
+      "medium": "H2O",
+      "label": "T-LET water (protons)",
+      "render_as": "scalar"
+    },
+    "target.DQEFF.all.mat": {
+      "geometry": "target",
+      "quantity": "DQEFF",
+      "filter": "all",
+      "medium": "mat",
+      "label": "D-Qeff",
+      "render_as": "scalar"
+    },
+    "target.DQEFF.primary.mat": {
+      "geometry": "target",
+      "quantity": "DQEFF",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "D-Qeff (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.DQEFF.protons.mat": {
+      "geometry": "target",
+      "quantity": "DQEFF",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "D-Qeff (protons)",
+      "render_as": "scalar"
+    },
+    "target.TQEFF.all.mat": {
+      "geometry": "target",
+      "quantity": "TQEFF",
+      "filter": "all",
+      "medium": "mat",
+      "label": "T-Qeff",
+      "render_as": "scalar"
+    },
+    "target.TQEFF.primary.mat": {
+      "geometry": "target",
+      "quantity": "TQEFF",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "T-Qeff (primary protons)",
+      "render_as": "scalar"
+    },
+    "target.TQEFF.protons.mat": {
+      "geometry": "target",
+      "quantity": "TQEFF",
+      "filter": "protons",
+      "medium": "mat",
+      "label": "T-Qeff (protons)",
+      "render_as": "scalar"
+    },
+    "spectrum_target.FLUENCE.all.Si.vs_DEDX": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "Si",
+      "diff_axis": "DEDX",
+      "label": "Fluence spectrum vs dE/dx (Si stop. pow.)",
+      "axis_x": {
+        "quantity": "dE/dx",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
+    "spectrum_target.FLUENCE.primary.Si.vs_LET": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "primary",
+      "medium": "Si",
+      "diff_axis": "LET",
+      "label": "Fluence spectrum vs LET (primary, Si stop. pow.)",
+      "axis_x": {
+        "quantity": "LET",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
+    "spectrum_target.FLUENCE.primary.Si.vs_DEDX": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "primary",
+      "medium": "Si",
+      "diff_axis": "DEDX",
+      "label": "Fluence spectrum vs dE/dx (primary, Si stop. pow.)",
+      "axis_x": {
+        "quantity": "dE/dx",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
+    "spectrum_target.FLUENCE.all.H2O.vs_DEDX": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "H2O",
+      "diff_axis": "DEDX",
+      "label": "Fluence spectrum vs dE/dx (water stop. pow.)",
+      "axis_x": {
+        "quantity": "dE/dx",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
+    "spectrum_target.FLUENCE.primary.H2O.vs_LET": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "primary",
+      "medium": "H2O",
+      "diff_axis": "LET",
+      "label": "Fluence spectrum vs LET (primary, water stop. pow.)",
+      "axis_x": {
+        "quantity": "LET",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
+    "map_XZ.DOSE.all.mat": {
+      "geometry": "map_XZ",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dose (longitudinal map, XZ)",
+      "render_as": "heatmap"
+    },
+    "map_XY.DOSE.all.mat": {
+      "geometry": "map_XY",
+      "quantity": "DOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dose (transverse map, XY)",
+      "render_as": "heatmap"
+    }
+  }
+}

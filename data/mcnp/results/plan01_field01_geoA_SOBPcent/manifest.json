@@ -1,0 +1,55 @@
+{
+  "schema_version": "1",
+  "plan": "plan01_field01_geoA_SOBPcent",
+  "code": {
+    "name": "MCNP",
+    "short": "mcnp",
+    "version": "unknown",
+    "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
+  },
+  "provenance": {
+    "date": "2023-01-01",
+    "input_path": "data/mcnp/input/plan01_field01_geoA_SOBPcent"
+  },
+  "statistics": {
+    "normalization": "per_source_particle"
+  },
+  "capabilities": {
+    "notes": "Only proton contributions for LET (no secondary particle breakdown). No water-equivalent profiles. No differential spectra. No Qeff. Available: DLET and TLET for all protons along depth (Z_narrow), depth dose (F6), depth fluence of primary protons (F4), and dose/fluence in target volume."
+  },
+  "outputs": [
+    {
+      "description": "Depth LET profiles in silicon (Z_narrow) – DLET and TLET for all protons",
+      "role": "primary_data",
+      "notes": "Page numbering intentionally matches SHIELD-HIT12A convention (p3=DLET protons, p6=TLET protons).",
+      "files": [
+        {"path": "HB_Z_narrow_LET__p3.dat", "output_type": "depth_Z.DLET.protons.mat"},
+        {"path": "HB_Z_narrow_LET__p6.dat", "output_type": "depth_Z.TLET.protons.mat"}
+      ]
+    },
+    {
+      "description": "Depth dose profile in silicon (Z_narrow) – F6 tally (dose, MeV/g/SP)",
+      "role": "primary_data",
+      "files": [
+        {"path": "HB_narrow_dose_p02.dat", "output_type": "depth_Z.DOSE.all.mat"}
+      ]
+    },
+    {
+      "description": "Depth fluence profile in silicon (Z_narrow) – F4 tally, primary particles",
+      "role": "primary_data",
+      "notes": "File is named with a 'dose' prefix but contains F4 flux, not dose.",
+      "files": [
+        {"path": "HB_Z_narrow_dose_p01.dat", "output_type": "depth_Z.FLUENCE.primary.mat"}
+      ]
+    },
+    {
+      "description": "Target volume – dose (F6) and fluence (F4) scalars",
+      "role": "primary_data",
+      "notes": "HB_target_01.dat: F4 flux in target (all particles, no filter applied). HB_target_p02.dat: F6 dose in target (MeV/g/SP).",
+      "files": [
+        {"path": "HB_target_01.dat",  "output_type": "target.FLUENCE.all.mat"},
+        {"path": "HB_target_p02.dat", "output_type": "target.DOSE.all.mat"}
+      ]
+    }
+  ]
+}
