@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/APTG/2022_DCPT_LET/tools/manifest.schema.json",
+  "title": "DCPT LET result manifest",
+  "description": "Per-plan, per-code result manifest. One file per data/<code>/results/<plan>/ directory. Plan directory names are the primary cross-code alignment key; filenames inside may differ between codes.",
+  "type": "object",
+  "required": ["schema_version", "plan", "code", "provenance", "statistics", "capabilities", "outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1",
+      "description": "Schema version. Bump when the format changes incompatibly."
+    },
+    "plan": {
+      "type": "string",
+      "description": "Plan directory name. Must match the parent directory of this manifest. Identical across all MC codes."
+    },
+    "code": {
+      "type": "object",
+      "required": ["name", "short", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full display name of the MC code."
+        },
+        "short": {
+          "type": "string",
+          "description": "Short identifier matching the data/<short>/ directory name."
+        },
+        "version": {
+          "type": "string",
+          "description": "Code version string used for these results."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-text notes about the code configuration or known limitations."
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["date"],
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "ISO 8601 date (YYYY-MM-DD) when the simulation was run."
+        },
+        "input_path": {
+          "type": "string",
+          "description": "Relative path to the input directory used, from the repository root."
+        },
+        "runner": {
+          "type": "string",
+          "description": "User or system identifier that ran the simulation."
+        },
+        "git_ref": {
+          "type": "string",
+          "description": "Git ref or commit hash of the input state used."
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "n_primaries": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Number of primary particles simulated. Strongly recommended; omit only when genuinely unknown."
+        },
+        "normalization": {
+          "type": "string",
+          "description": "Normalization convention for output quantities, e.g. 'per_primary'."
+        },
+        "runtime_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Total wallclock runtime in seconds, if known."
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Maps semantic_id strings to availability. true = available, false = intentionally absent or unsupported. An object form allows adding notes. Omitting an id means availability is unknown.",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "object",
+            "required": ["available"],
+            "additionalProperties": false,
+            "properties": {
+              "available": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Output entries. Each entry maps one or more local files to a semantic description. Files with no cross-code equivalent (raw outputs, preview images) use semantic_id: null.",
+      "items": {
+        "type": "object",
+        "required": ["role", "files"],
+        "additionalProperties": false,
+        "properties": {
+          "semantic_id": {
+            "type": ["string", "null"],
+            "description": "Cross-code matching key. Null for raw code outputs and preview images that have no counterpart in other codes."
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of what this output represents."
+          },
+          "scorer": {
+            "type": "string",
+            "description": "Detector or scorer region label (e.g. 'target', 'z_narrow')."
+          },
+          "quantity": {
+            "type": "string",
+            "description": "Physical quantity scored (e.g. FLUENCE, DOSE, DLET, TLET, DQEFF, TQEFF)."
+          },
+          "medium": {
+            "type": ["string", "null"],
+            "description": "Scoring medium (e.g. 'silicon', 'water'). Null when not applicable."
+          },
+          "differential_axis": {
+            "type": "object",
+            "description": "For differential spectra: the quantity on the x-axis (the variable being differentiated).",
+            "required": ["quantity", "unit"],
+            "additionalProperties": false,
+            "properties": {
+              "quantity": { "type": "string" },
+              "unit": { "type": "string" }
+            }
+          },
+          "axis_x": {
+            "type": "object",
+            "description": "For profile data: x-axis quantity and unit.",
+            "required": ["quantity", "unit"],
+            "additionalProperties": false,
+            "properties": {
+              "quantity": { "type": "string" },
+              "unit": { "type": "string" }
+            }
+          },
+          "axis_y": {
+            "type": "object",
+            "description": "For profile data: y-axis quantity and unit.",
+            "required": ["quantity", "unit"],
+            "additionalProperties": false,
+            "properties": {
+              "quantity": { "type": "string" },
+              "unit": { "type": "string" }
+            }
+          },
+          "role": {
+            "type": "string",
+            "enum": ["primary_data", "derived", "raw_output", "preview_image"],
+            "description": "primary_data: direct simulation output. derived: post-processed from primary_data (e.g. spectra computed from raw fluence). raw_output: code-native format file. preview_image: rendered visualization."
+          },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "File paths relative to this manifest's directory."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-text notes about this output entry, e.g. how derived outputs were produced."
+          }
+        }
+      }
+    }
+  }
+}

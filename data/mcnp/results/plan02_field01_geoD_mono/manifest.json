@@ -1,0 +1,71 @@
+{
+  "schema_version": "1",
+  "plan": "plan02_field01_geoD_mono",
+  "code": {
+    "name": "MCNP",
+    "short": "mcnp",
+    "version": "unknown",
+    "notes": "Results contributed by H. Burigo. Output filenames use HB_ prefix. Note naming inconsistencies: HB_Z_narrow_LET__p6 has a double underscore while HB_Z_narrow_LET_p3 does not."
+  },
+  "provenance": {
+    "date": "2023-01-01",
+    "input_path": "data/mcnp/input/plan02_field01_geoD_mono"
+  },
+  "statistics": {
+    "normalization": "per_source_particle"
+  },
+  "capabilities": {
+    "target_LET_spectrum_silicon": false,
+    "target_LET_spectrum_water": false,
+    "z_LET_profile_silicon": true,
+    "z_LET_profile_water": false,
+    "z_dose_profile_silicon": true,
+    "z_dose_profile_water": false,
+    "z_Qeff_profile": false
+  },
+  "outputs": [
+    {
+      "semantic_id": "z_LET_profile_silicon",
+      "description": "Depth LET profiles along the Z axis in silicon. 2 files: DLET (p3) and TLET (p6) for primary protons only.",
+      "scorer": "z_narrow",
+      "quantity": "DLET",
+      "medium": "silicon",
+      "axis_x": {"quantity": "depth", "unit": "cm"},
+      "axis_y": {"quantity": "LET", "unit": "MeV/cm"},
+      "role": "primary_data",
+      "notes": "HB_Z_narrow_LET_p3 and HB_Z_narrow_LET__p6 differ in underscore count; inconsistency within the same plan. Format is 2-column (depth, LET) with no uncertainty column.",
+      "files": [
+        "HB_Z_narrow_LET_p3.dat",
+        "HB_Z_narrow_LET__p6.dat"
+      ]
+    },
+    {
+      "semantic_id": "z_dose_profile_silicon",
+      "description": "Depth dose profile along the Z axis in silicon. 2 files: flux of primary particles (p1) and dose via F6 tally (p02).",
+      "scorer": "z_narrow",
+      "quantity": "DOSE",
+      "medium": "silicon",
+      "axis_x": {"quantity": "depth", "unit": "cm"},
+      "axis_y": {"quantity": "dose", "unit": "MeV/g/primary"},
+      "role": "primary_data",
+      "notes": "p1 is named HB_Z_narrow_dose_p1 (no leading zero) while p02 uses HB_Z_narrow_dose_p02. The p1 file is a flux (F4) tally; p02 is a dose (F6) tally.",
+      "files": [
+        "HB_Z_narrow_dose_p1.dat",
+        "HB_Z_narrow_dose_p02.dat"
+      ]
+    },
+    {
+      "semantic_id": null,
+      "description": "Flux and dose in silicon target volume. 2 scalar outputs: p01 (F4 flux) and p02 (F6 dose, MeV/g/SP).",
+      "scorer": "target",
+      "quantity": "DOSE",
+      "medium": "silicon",
+      "role": "primary_data",
+      "notes": "Both files contain a single integrated value with uncertainty.",
+      "files": [
+        "HB_target_p01.dat",
+        "HB_target_p02.dat"
+      ]
+    }
+  ]
+}

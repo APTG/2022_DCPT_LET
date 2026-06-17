@@ -1,4 +1,4 @@
-# MCPN code
+# MCNP code
 
 ## Binary files with source particles
 
