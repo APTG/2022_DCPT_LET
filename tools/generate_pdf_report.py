@@ -333,12 +333,11 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def main() -> int:
-    args = parse_args()
-
-    catalog = load_catalog(args.catalog)
-    code_styles = load_code_styles(args.data_root)
-    manifests = load_manifests(args.data_root)
+def generate(data_root: Path, catalog_path: Path, out: Path) -> int:
+    """Entry point callable as a library function (used by build_pages_site.py)."""
+    catalog = load_catalog(catalog_path)
+    code_styles = load_code_styles(data_root)
+    manifests = load_manifests(data_root)
     index = build_index(manifests)
     preview_images = collect_preview_images(manifests)
 
@@ -351,7 +350,7 @@ def main() -> int:
             plan_codes[plan].add(t["code_short"])
 
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    args.out.parent.mkdir(parents=True, exist_ok=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
 
     sorted_plans = sorted(plans_ots)
 
@@ -367,7 +366,7 @@ def main() -> int:
     plan_start = build_page_map(sorted_plans, plans_by_geom, preview_images)
 
     total_pages = 0
-    with PdfPages(args.out) as pdf:
+    with PdfPages(out) as pdf:
         d = pdf.infodict()
         d["Title"] = "DCPT LET-measurements 2022 — MC Comparison Report"
         d["Author"] = "APTG"
@@ -444,8 +443,13 @@ def main() -> int:
                         total_pages += 1
                         print(f"  {plan}/{ot}")
 
-    print(f"\nPDF written to: {args.out}  ({total_pages} plot pages)")
+    print(f"\nPDF written to: {out}  ({total_pages} plot pages)")
     return 0
+
+
+def main() -> int:
+    args = parse_args()
+    return generate(args.data_root, args.catalog, args.out)
 
 
 if __name__ == "__main__":

@@ -713,6 +713,14 @@ def main() -> int:
         print(f"  wrote plans/{plan}.html")
 
     print(f"\nSite written to: {site_root}")
+
+    # Generate PDF report so the download link on index.html works immediately
+    print("\nGenerating PDF report...")
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent))
+    from generate_pdf_report import generate as _gen_pdf
+    _gen_pdf(args.data_root, args.catalog, site_root / "report.pdf")
+
     return 0
 
 

@@ -30,13 +30,10 @@ pip install -e .
 # 3. Generate comparison plots (written to pages-site/plots/)
 .venv/bin/python tools/generate_comparison_plots.py --out-dir pages-site/plots
 
-# 4. Build the static site (written to pages-site/)
+# 4. Build the static site and PDF report (both written to pages-site/)
 .venv/bin/python tools/build_pages_site.py --plots-dir pages-site/plots --out-dir pages-site
 
-# 5. Generate the PDF report (written to pages-site/report.pdf)
-.venv/bin/python tools/generate_pdf_report.py --out pages-site/report.pdf
-
-# 6. Open in browser
+# 5. Open in browser
 google-chrome pages-site/index.html   # or: xdg-open / open on macOS
 ```
 

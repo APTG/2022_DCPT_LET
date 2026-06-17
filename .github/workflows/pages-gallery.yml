@@ -41,15 +41,12 @@ jobs:
             --out-dir pages-site/plots \
             --min-codes 1
 
-      - name: Build static Pages site
+      - name: Build static Pages site (includes PDF report)
         run: |
           python tools/build_pages_site.py \
             --data-root data \
             --plots-dir pages-site/plots \
             --out-dir pages-site
-
-      - name: Generate PDF report
-        run: python tools/generate_pdf_report.py --out pages-site/report.pdf
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
