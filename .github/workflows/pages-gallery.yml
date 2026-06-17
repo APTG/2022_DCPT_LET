@@ -2,8 +2,7 @@ name: Pages Gallery
 
 on:
   push:
-    branches:
-      - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -48,7 +47,14 @@ jobs:
         with:
           path: .pages-site
 
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-site-preview-${{ github.ref_name }}
+          path: .pages-site
+
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
