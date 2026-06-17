@@ -40,18 +40,19 @@ jobs:
           python tools/build_pages_site.py \
             --comparison-root .pages-build/comparisons/sh12a_vs_osh \
             --pdf-root .pages-build/reports \
-            --out-dir .pages-site
+            --out-dir pages-site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .pages-site
+          path: pages-site
 
       - name: Upload preview artifact
         uses: actions/upload-artifact@v4
         with:
           name: pages-site-preview-${{ github.ref_name }}
-          path: .pages-site
+          path: pages-site
+          if-no-files-found: error
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
