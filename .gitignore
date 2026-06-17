@@ -255,6 +255,7 @@ data/topas/results/output
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,c
 
 # Project specific ignores:
+pages-site/
 for017
 
 #*.png
