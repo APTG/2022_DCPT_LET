@@ -3,6 +3,10 @@ set -euo pipefail
 
 exe="$(command -v convertmc 2>/dev/null || command -v convertmc.exe 2>/dev/null || echo "$HOME/convertmc")"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$root/../.." && pwd)"
+render_diff_script="$repo_root/tools/render_diff_results.py"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$root/.matplotlib}"
+mkdir -p "$MPLCONFIGDIR"
 
 shopt -s nullglob
 had_errors=0
@@ -25,6 +29,34 @@ run_checked() {
         echo "  Command failed; continuing with remaining files and plans." >&2
         had_errors=1
     fi
+}
+
+run_plotdata_checked() {
+    local bdo="$1"
+    local stem before_snapshot after_snapshot
+
+    stem="$(basename "$bdo" .bdo)"
+    before_snapshot="$(
+        find . -maxdepth 1 -type f -name "${stem}*.dat" -printf '%f %TY%Tm%Td%TH%TM%TS %s\n' 2>/dev/null | sort
+    )"
+
+    if run "$exe" plotdata --many "$bdo"; then
+        return 0
+    fi
+
+    after_snapshot="$(
+        find . -maxdepth 1 -type f -name "${stem}*.dat" -printf '%f %TY%Tm%Td%TH%TM%TS %s\n' 2>/dev/null | sort
+    )"
+
+    # Current pymchelper plotdata writes files successfully but still exits
+    # non-zero for multi-page outputs. Treat changed output files as success.
+    if [[ -n "$after_snapshot" && "$after_snapshot" != "$before_snapshot" ]]; then
+        echo "  plotdata returned non-zero but produced updated .dat files; continuing." >&2
+        return 0
+    fi
+
+    echo "  Command failed; continuing with remaining files and plans." >&2
+    had_errors=1
 }
 
 input_dirs=()
@@ -80,7 +112,7 @@ for input_dir in "${input_dirs[@]}"; do
             NB_XY*.bdo|NB_XZ_map*.bdo)
                 ;;
             *)
-                run_checked "$exe" plotdata --many "$bdo"
+                run_plotdata_checked "$bdo"
                 ;;
         esac
     done
@@ -96,6 +128,12 @@ for input_dir in "${input_dirs[@]}"; do
     if [[ ${#dat_files[@]} -gt 0 ]]; then
         ((moved_dat += ${#dat_files[@]}))
         run_checked mv -v "${dat_files[@]}" "$results_dir"/
+    fi
+
+    if [[ -f "$render_diff_script" ]]; then
+        run_checked python3 "$render_diff_script" \
+            --results-dir "$results_dir" \
+            --input-root "$root/input"
     fi
 done
 

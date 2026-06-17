@@ -132,21 +132,21 @@ Output
         Quantity FLUENCE Protons                # __p16
 
 
-# Output
-#         Filename NB_target_diff.bdo
-#         Geo TARGET
-#         Quantity FLUENCE	                    # __p1
-#         Diff1     0 2000 1000
-#         Diff1Type DEDX
-#         Quantity FLUENCE Primary                # __p2
-#         Diff1     0 2000 1000
-#         Diff1Type LET
-#         Quantity FLUENCE in_Si	                # __p3
-#         Diff1     0 2000 1000
-#         Diff1Type DEDX
-#         Quantity FLUENCE in_Si Primary          # __p4
-#         Diff1     0 2000 1000
-#         Diff1Type DEDX
+Output
+        Filename NB_target_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE                        # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary                # __p2
+        Diff1     0 2000 1000
+        Diff1Type LET
+        Quantity FLUENCE                        # __p3
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Si
+        Quantity FLUENCE Primary                # __p4
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Si
 
 Output
         Filename NB_target_water.bdo
@@ -159,12 +159,12 @@ Output
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
 
-# Output
-#         Filename NB_target_water_diff.bdo
-#         Geo TARGET
-#         Quantity FLUENCE in_Water               # __p1
-#         Diff1     0 2000 1000
-#         Diff1Type DEDX
-#         Quantity FLUENCE Primary in_Water       # __p2
-#         Diff1     0 2000 1000
-#         Diff1Type LET
+Output
+        Filename NB_target_water_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE                        # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Water
+        Quantity FLUENCE Primary                # __p2
+        Diff1     0 2000 1000
+        Diff1Type LET in_Water
