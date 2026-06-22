@@ -3,9 +3,19 @@
 The file `DCPT_beam_model__v2.csv` contains a beam model for DCPT.
 The beam model was reverse-engineered using actual experimental data and TOPAS simulations.
 
-The beam model is defined on a plane 50.0 cm *upstream* from the iso-center.
+There are two beam model available:
+- Version 2: valid until July 2024
+- Version 5: valid from August 2024
+
+Both beam model is an averaged version of the beam properties of TR1, TR2 and TR3 (the gantry treatment rooms).
+The fixed beam room TR4 deviates significantly from TR1,2,3.
+
+**Version 2**: The beam model is defined on a plane 50.0 cm *upstream* from the iso-center.
 Throughout this README we use a beam-coordinate system in which the z-axis increases *upstream* (towards the source), so this reference plane is at z = +50.0 cm and particles are transported in the *negative* z direction (towards the iso-center).
 In the CSV metadata, the same physical plane is described as "valid at -50 cm from ISO", which uses the opposite sign convention (z increasing *downstream* from the iso-center); both descriptions refer to the same reference plane, only the sign convention differs.
+
+**Version 5**: Same as Version 2, except that the beam model has been defined at 60.0 cm upstream from the isocenter.
+
 Columns are:
 1) Energy: Nominal (i.e. requested energy) [MeV]
 2) E_real: actual energy derived from range measurements [MeV]
@@ -18,8 +28,8 @@ Columns are:
 9) xx': correlation coefficient [-]
 10) yy': correlation coefficient [-]
 
-"# sigma x [mm]","# sigma y [mm]","# sigma x' [rad]","# sigma y' [rad]","# cor(x x')","# cor(y y')"
 
 
 ### Acknowledgements
-The beam model was kindly provided by Anne Vestergaard and Peter Lægdsmand from DCPT.
+The beam model V2 was kindly provided by Anne Vestergaard and Peter Lægdsmand from DCPT, Aarhus University and Aarhus University Hospital.
+The beam model V5 was calculated by Simon Norrig, MSc student at Dept. of Physics and Astornomy, Aarhus University, with new data sets provided by Christian Søndergaard, DCPT, Aarhus University Hospital.

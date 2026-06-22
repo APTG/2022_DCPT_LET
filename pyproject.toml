@@ -19,3 +19,12 @@ dependencies = [
 
 [tool.setuptools]
 packages = []
+
+[tool.ruff]
+line-length = 127
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[tool.ruff.format]
+preview = true
