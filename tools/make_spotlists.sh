@@ -14,9 +14,9 @@ while IFS= read -r rel || [[ -n "$rel" ]]; do
   outdir="$(dirname "$fin")"
 
   set -o xtrace
-  "$exe" -b "$path_bm_v2" -p=500.0 --export-fmt spotlist -nc 7  "$fin" "${outdir}/spotlist_BMv2_c7.dat"
-  "$exe" -b "$path_bm_v2" -p=500.0 --export-fmt spotlist -nc 11 "$fin" "${outdir}/spotlist_BMv2_c11.dat"
-  "$exe" -b "$path_bm_v5" -p=600.0 --export-fmt spotlist -nc 7  "$fin" "${outdir}/spotlist_BMv5_c7.dat"
-  "$exe" -b "$path_bm_v5" -p=600.0 --export-fmt spotlist -nc 11 "$fin" "${outdir}/spotlist_BMv5_c11.dat"
+  "$exe" -b "$path_bm_v2" -p=500.0 --spot-pos-iso --export-fmt spotlist -nc 7  "$fin" "${outdir}/spotlist_BMv2_c7.dat"
+  "$exe" -b "$path_bm_v2" -p=500.0 --spot-pos-iso --export-fmt spotlist -nc 11 "$fin" "${outdir}/spotlist_BMv2_c11.dat"
+  "$exe" -b "$path_bm_v5" -p=600.0 --spot-pos-iso --export-fmt spotlist -nc 7  "$fin" "${outdir}/spotlist_BMv5_c7.dat"
+  "$exe" -b "$path_bm_v5" -p=600.0 --spot-pos-iso --export-fmt spotlist -nc 11 "$fin" "${outdir}/spotlist_BMv5_c11.dat"
   { set +o xtrace; } 2>/dev/null
 done < "$manifest"

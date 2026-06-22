@@ -1,6 +1,10 @@
-# DICOM-RT Ion plan spot list exported by dicomexport 0.1.3.post0+g7397eb642.d20260202
+# DICOM-RT Ion plan spot list exported by dicomexport 1.3.0
+# Created: 2026-06-23 00:26:55 CEST
 # FieldNumber: 1
-# FieldName: 
+# FieldName: b1
+# BeamModel: DCPT_beam_model__v2.csv
+# BeamModelPosition: 500.0 mm upstream of isocenter
+# SpotPositionPlane: isocenter (z=0)
 # Spots: 9218
 #
 # Columns (7):

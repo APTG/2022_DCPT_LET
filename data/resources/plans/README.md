@@ -39,7 +39,8 @@ The complete DICOM study, including CT data is available at - [Plan04_Eclipse.zi
 
 ## Spotlists
 Corresponding easy-to-read spotlist files are added for each plan.
-Spotlist files are transport-direction agnostic — they specify spot positions upstream of the iso-center, independent of the coordinate system used by the simulation code.
+
+**Coordinate convention:** X/Y spot positions are at the **iso-center plane**. All beam model parameters (spot size FWHM, divergence, correlation) are defined at the **beam model plane** (upstream of iso-center).
 
 The filename encodes the beam model version and the number of beam model components:
 - `spotlist_BMv2_c7*.dat`: **reduced beam model** (7 components), beam model plane at **50 cm upstream** from iso-center. Plans 01–04 only.
