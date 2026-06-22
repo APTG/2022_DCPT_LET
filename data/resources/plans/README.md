@@ -39,11 +39,13 @@ The complete DICOM study, including CT data is available at - [Plan04_Eclipse.zi
 
 ## Spotlists
 Corresponding easy-to-read spotlist files are added for each plan.
-These are made with spotpositions at isocenter, with reduced beam model.
+Spotlist files are transport-direction agnostic — they specify spot positions upstream of the iso-center, independent of the coordinate system used by the simulation code.
 
-- `spotlist_*.dat` : spotlist with positions at **isocenter** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-- `spotlist_c7*.dat`: spotlist with positions at **beam model plane** and **reduced beam model**, set at **beam model plane** (50.0 cm upstream)
-- `spotlist_c11*.dat`: spotlist with positions at **beam model plane** and **full beam model**, set at **beam model plane** (50.0 cm upstream)
+The filename encodes the beam model version and the number of beam model components:
+- `spotlist_BMv2_c7*.dat`: **reduced beam model** (7 components), beam model plane at **50 cm upstream** from iso-center. Plans 01–04 only.
+- `spotlist_BMv2_c11*.dat`: **full beam model** (11 components), beam model plane at **50 cm upstream** from iso-center. Plans 01–04 only.
+- `spotlist_BMv5_c7*.dat`: **reduced beam model** (7 components), beam model plane at **60 cm upstream** from iso-center. All plans.
+- `spotlist_BMv5_c11*.dat`: **full beam model** (11 components), beam model plane at **60 cm upstream** from iso-center. All plans.
 
 # 2026 Measurement Campaign Plans
 
