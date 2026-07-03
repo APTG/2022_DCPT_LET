@@ -11,7 +11,7 @@ dependencies = [
     "matplotlib",
     "pymchelper>=2.9.2",
     "mcpl",
-    "jsonschema>=4.0",
+    "jsonschema>=4.26.0",
     "plotly>=5.0",
     "pyyaml",
     "pypdf>=6.14.2",
