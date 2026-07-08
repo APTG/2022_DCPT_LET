@@ -1,0 +1,148 @@
+TITLE
+TEST OF TEMPLATE
+DEFAULTS         0.0       0.0       0.0       0.0       0.0       0.0PRECISION
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
+BEAM       -0.160360    0.0000    0.0000    0.0000    0.0000    0.0000PROTON    
+BEAMPOS     0.0000     0.0000   -50.0000
+SOURCE           1.0       0.0     200.0     256.0       0.0       0.0sobp.dat
+*SETUP GEOMETRY*
+GEOBEGIN                                                              COMBNAME
+    0    0
+RPP BLKHOLE  -500.0  500.0  -500.0  500.0  -500.0  500.0
+RPP WORLD    -100.0  100.0  -100.0  100.0  -100.0  100.0
+RPP INNER     -50.0   50.0   -50.0   50.0   -50.0   50.0
+RPP PHANTOM   -15.0   15.0   -15.0   15.0     -2.25  18.25
+RPP SLAB      -15.0   15.0   -15.0   15.0     -0.25   0.25
+RPP WATEDUM   200.0  201.0   200.0  201.0   200.0  201.0
+END
+
+BLCKHOLE   5 +BLKHOLE -WORLD -WATEDUM
+VAC        5 +WORLD   -INNER
+AIR        5 +INNER   -PHANTOM
+SWF        5 +PHANTOM -SLAB
+PMMA       5 +SLAB
+WATEDUM    5 +WATEDUM
+END
+
+GEOEND
+* --- Materials / Assignments ---
+MATERIAL         1.0       0.0       1.0       0.0       0.0     1.008HYDROGEN
+MATERIAL         6.0       0.0       1.0       0.0       0.0    12.011CARBON
+MATERIAL         7.0       0.0       1.0       0.0       0.0    14.007NITROGEN
+MATERIAL         8.0       0.0       1.0       0.0       0.0    15.999OXYGEN
+MATERIAL        17.0       0.0       1.0       0.0       0.0    35.453CLMAT
+MATERIAL        20.0       0.0       1.0       0.0       0.0    40.078CALCIUM
+
+MATERIAL         0.0       0.0     1.032       0.0       0.0      0.0 SOLWATR
+COMPOUND   -0.079994  HYDROGEN -0.672956    CARBON -0.023894  NITROGEN SOLWATR
+COMPOUND   -0.198689    OXYGEN -0.001383     CLMAT -0.023084   CALCIUM SOLWATR
+
+
+ASSIGNMA   BLCKHOLE   BLCKHOLE
+ASSIGNMA   VACUUM     VAC
+ASSIGNMA   AIR        AIR
+ASSIGNMA   SOLWATR    SWF
+ASSIGNMA   PMMA       PMMA
+ASSIGNMA   WATER      WATEDUM
+
+*Biasing, closer to zero WHAT(2) => higher chance of collision
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
+*LAM-BIAS         0.0   -0.0002    OXYGEN   APROTON   APROTON       0.0INEPRI
+*SCORING CARDS, look at usrbin scoring maybe, for LET and energy deposition scoring, see 7.22.89 in fluka user manual*
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
+SCORE                                                                 STAR
+USRBIN          10.0     228.0     -21.0      1.00      1.00     18.25      DOSE_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -22.0      1.00      1.00     18.25      PHI_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -23.0      1.00      1.00     18.25      PAL1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -24.0      1.00      1.00     18.25      PAL2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -25.0      1.00      1.00     18.25      PAW1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -26.0      1.00      1.00     18.25      PAW2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     228.0     -27.0      1.00      1.00     18.25      PDOSE_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN    PROTON              PDOS
+USRBIN          10.0     228.0     -34.0      1.00      1.00     18.25      P1DO_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -28.0      1.00      1.00     18.25      AFLU_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -29.0      1.00      1.00     18.25      P1FL_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -30.0      1.00      1.00     18.25      P1L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -31.0      1.00      1.00     18.25      P1L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -32.0      1.00      1.00     18.25      P1W1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0       1.0     -33.0      1.00      1.00     18.25      P1W2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -41.0      1.00      1.00     18.25      DFLU_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  DEUTERON              DFLU
+USRBIN          10.0     201.0     -42.0      1.00      1.00     18.25      TFLU_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN    TRITON              TFLU
+USRBIN          10.0     201.0     -43.0      1.00      1.00     18.25      H3FL_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  3-HELIUM              H3FL
+USRBIN          10.0     201.0     -46.0      1.00      1.00     18.25      H4FL_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  4-HELIUM              H4FL
+USRBIN          10.0     201.0     -47.0      1.00      1.00     18.25      HION_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  HEAVYION              HION
+USRBIN          10.0     201.0     -48.0      1.00      1.00     18.25      L6FL_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -49.0      1.00      1.00     18.25      L7FL_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+* Fragment LET1 scorers for TLET numerator: sum(dl * LET)
+USRBIN          10.0     201.0     -50.0      1.00      1.00     18.25      L6L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -51.0      1.00      1.00     18.25      L7L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -52.0      1.00      1.00     18.25      D2L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -53.0      1.00      1.00     18.25      T3L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -54.0      1.00      1.00     18.25      H3L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -55.0      1.00      1.00     18.25      H4L1_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+* Fragment LET2 scorers for DLET numerator: sum(dl * LET^2)
+USRBIN          10.0     201.0     -56.0      1.00      1.00     18.25      D2L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -57.0      1.00      1.00     18.25      T3L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -58.0      1.00      1.00     18.25      H3L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -59.0      1.00      1.00     18.25      H4L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -60.0      1.00      1.00     18.25      L6L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     201.0     -61.0      1.00      1.00     18.25      L7L2_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+* Fragment dose scorers: DOSE, species-filtered
+USRBIN          10.0     228.0     -62.0      1.00      1.00     18.25      DODS_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  DEUTERON              DODS
+USRBIN          10.0     228.0     -63.0      1.00      1.00     18.25      TDOS_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN    TRITON              TDOS
+USRBIN          10.0     228.0     -64.0      1.00      1.00     18.25      H3DS_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  3-HELIUM              H3DS
+USRBIN          10.0     228.0     -65.0      1.00      1.00     18.25      H4DS_ZN
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+AUXSCORE      USRBIN  4-HELIUM              H4DS
+USRBIN          10.0     228.0     -66.0      1.00      1.00     18.25      L6DO_DZ
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USRBIN          10.0     228.0     -67.0      1.00      1.00     18.25      L7DO_DZ
+USRBIN         -1.00     -1.00    -2.25       1.0       1.0     205.0       &
+USERWEIG         0.0       0.0       1.0       0.0       0.0       1.0
+RANDOMIZ         1.0       0.0
+START       100000.0
+STOP
