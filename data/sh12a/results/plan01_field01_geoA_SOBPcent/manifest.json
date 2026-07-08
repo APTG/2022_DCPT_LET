@@ -43,19 +43,19 @@
           "output_type": "depth_Z.FLUENCE.protons.mat"
         },
         {
-          "path": "NB_Z_narrow_dose_p6.dat",
+          "path": "NB_Z_narrow_dose_p06.dat",
           "output_type": "depth_Z.FLUENCE.deuterons.mat"
         },
         {
-          "path": "NB_Z_narrow_dose_p7.dat",
+          "path": "NB_Z_narrow_dose_p07.dat",
           "output_type": "depth_Z.FLUENCE.tritons.mat"
         },
         {
-          "path": "NB_Z_narrow_dose_p8.dat",
+          "path": "NB_Z_narrow_dose_p08.dat",
           "output_type": "depth_Z.FLUENCE.he3.mat"
         },
         {
-          "path": "NB_Z_narrow_dose_p9.dat",
+          "path": "NB_Z_narrow_dose_p09.dat",
           "output_type": "depth_Z.FLUENCE.alphas.mat"
         },
         {
@@ -277,17 +277,17 @@
       ]
     },
     {
-      "description": "Differential fluence spectra in silicon target (11 pages, direct simulation output)",
+      "description": "Differential fluence spectra in target (11 pages, direct simulation output)",
       "role": "primary_data",
       "notes": "p1: all vs dE/dx; p2: primary vs LET; p3: all vs dE/dx (explicit Si); p4: primary vs dE/dx (explicit Si); p5-p11: kinetic-energy spectra for all, protons, deuterons, tritons, helium-3, alphas, and heavy recoils/fragments.",
       "files": [
         {
           "path": "NB_target_diff_p1.dat",
-          "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_DEDX"
         },
         {
           "path": "NB_target_diff_p2.dat",
-          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_LET"
+          "output_type": "spectrum_target.FLUENCE.primary.mat.vs_LET"
         },
         {
           "path": "NB_target_diff_p3.dat",
@@ -298,32 +298,32 @@
           "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"
         },
         {
-          "path": "NB_target_diff_p5.dat",
-          "output_type": "spectrum_target.FLUENCE.all.Si.vs_EKIN"
+          "path": "NB_target_diff_p05.dat",
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_EKIN"
         },
         {
-          "path": "NB_target_diff_p6.dat",
-          "output_type": "spectrum_target.FLUENCE.protons.Si.vs_EKIN"
+          "path": "NB_target_diff_p06.dat",
+          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_EKIN"
         },
         {
-          "path": "NB_target_diff_p7.dat",
-          "output_type": "spectrum_target.FLUENCE.deuterons.Si.vs_EKIN"
+          "path": "NB_target_diff_p07.dat",
+          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN"
         },
         {
-          "path": "NB_target_diff_p8.dat",
-          "output_type": "spectrum_target.FLUENCE.tritons.Si.vs_EKIN"
+          "path": "NB_target_diff_p08.dat",
+          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_EKIN"
         },
         {
-          "path": "NB_target_diff_p9.dat",
-          "output_type": "spectrum_target.FLUENCE.he3.Si.vs_EKIN"
+          "path": "NB_target_diff_p09.dat",
+          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_EKIN"
         },
         {
           "path": "NB_target_diff_p10.dat",
-          "output_type": "spectrum_target.FLUENCE.alphas.Si.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_EKIN"
         },
         {
           "path": "NB_target_diff_p11.dat",
-          "output_type": "spectrum_target.FLUENCE.heavy_recoils.Si.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN"
         }
       ]
     },

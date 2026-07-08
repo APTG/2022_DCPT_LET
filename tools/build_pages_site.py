@@ -391,8 +391,9 @@ GEOMETRY_SECTIONS = [
     ),
     (
         "spectrum_target",
-        "LET / dE/dx spectra",
-        "Differential fluence spectra in the target volume. Log–log scale.",
+        "Target spectra",
+        "Differential LET, dE/dx, and kinetic-energy spectra in the target volume. "
+        "Log-log scale with stair-step bins.",
     ),
     (
         "target",

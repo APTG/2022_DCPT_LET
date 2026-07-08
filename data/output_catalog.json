@@ -545,6 +545,23 @@
       "label": "T-Qeff (protons)",
       "render_as": "scalar"
     },
+    "spectrum_target.FLUENCE.all.mat.vs_DEDX": {
+      "geometry": "spectrum_target",
+      "quantity": "FLUENCE",
+      "filter": "all",
+      "medium": "mat",
+      "diff_axis": "DEDX",
+      "label": "Fluence spectrum vs dE/dx",
+      "axis_x": {
+        "quantity": "dE/dx",
+        "unit": "keV/µm"
+      },
+      "axis_y": {
+        "quantity": "fluence differential",
+        "unit": "1/(cm² primary keV/µm)"
+      },
+      "render_as": "spectrum_plot"
+    },
     "spectrum_target.FLUENCE.all.Si.vs_DEDX": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
@@ -562,13 +579,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.primary.Si.vs_LET": {
+    "spectrum_target.FLUENCE.primary.mat.vs_LET": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "primary",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "LET",
-      "label": "Fluence spectrum vs LET (primary, Si stop. pow.)",
+      "label": "Fluence spectrum vs LET (primary)",
       "axis_x": {
         "quantity": "LET",
         "unit": "keV/µm"
@@ -706,13 +723,13 @@
       },
       "render_as": "line_plot"
     },
-    "spectrum_target.FLUENCE.all.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.all.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "all",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (all particles, Si target)",
+      "label": "Kinetic-energy fluence spectrum (all particles)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -723,13 +740,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.protons.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.protons.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "protons",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (all protons, Si target)",
+      "label": "Kinetic-energy fluence spectrum (all protons)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -740,13 +757,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.deuterons.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "deuterons",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (deuterons, Si target)",
+      "label": "Kinetic-energy fluence spectrum (deuterons)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -757,13 +774,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.tritons.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.tritons.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "tritons",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (tritons, Si target)",
+      "label": "Kinetic-energy fluence spectrum (tritons)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -774,13 +791,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.he3.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.he3.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "he3",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (helium-3, Si target)",
+      "label": "Kinetic-energy fluence spectrum (helium-3)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -791,13 +808,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.alphas.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.alphas.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "alphas",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (alpha particles, Si target)",
+      "label": "Kinetic-energy fluence spectrum (alpha particles)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"
@@ -808,13 +825,13 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.heavy_recoils.Si.vs_EKIN": {
+    "spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "heavy_recoils",
-      "medium": "Si",
+      "medium": "mat",
       "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (heavy recoils/fragments, Si target)",
+      "label": "Kinetic-energy fluence spectrum (heavy recoils/fragments)",
       "axis_x": {
         "quantity": "kinetic energy",
         "unit": "MeV/u"

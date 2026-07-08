@@ -200,6 +200,11 @@ def make_profile_figure(
             seen.add(p)
 
     is_spectrum = meta.get("geometry") == "spectrum_target"
+    is_depth_fluence = (
+        meta.get("geometry") == "depth_Z"
+        and meta.get("quantity") == "FLUENCE"
+    )
+    log_y = is_spectrum or is_depth_fluence
     fig = go.Figure()
 
     for code_short, paths in by_code.items():
@@ -223,9 +228,11 @@ def make_profile_figure(
                 if x.size == 0:
                     print(f"  WARNING: cannot plot {path}: no positive bins for log-log spectrum")
                     continue
+
+            if log_y:
                 positive_y = y > 0
                 if not np.any(positive_y):
-                    print(f"  WARNING: cannot plot {path}: no positive y values for log-log spectrum")
+                    print(f"  WARNING: cannot plot {path}: no positive y values for log-y plot")
                     continue
                 y = np.where(positive_y, y, np.nan)
                 if yerr is not None:
@@ -291,7 +298,9 @@ def make_profile_figure(
     fig.update_xaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
                      type="log" if is_spectrum else "linear")
     fig.update_yaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
-                     type="log" if is_spectrum else "linear")
+                     type="log" if log_y else "linear",
+                     exponentformat="power" if log_y else "e",
+                     showexponent="all" if log_y else "first")
     return fig
 
 
