@@ -16,6 +16,14 @@ From this directory you can simply run:
 Windows:
 `shieldhit.exe plan01_geoB_SOBP95`
 
+For local testing from this directory, use:
+
+`./run_local.sh plan01_field01_geoA_SOBPcent`
+
+With no arguments, `run_local.sh` runs all `input/plan*` directories. Set
+`SHIELDHIT_EXE=/path/to/shieldhit` to use a non-default executable, and pass
+additional SHIELD-HIT arguments after `--`.
+
 ### On ARES computing cluster
 
 using `ares.cyfronet.pl`:
@@ -51,4 +59,7 @@ Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep
 Run local script `./postprocess.sh` from same directory as this README file. This will loop through all input files. 
 To just postprocess one directory, run `./postprocess.sh input/plan5* input/plan6* input/plan7*` or similar.
 
+For local test runs, `./postprocess_local.sh` processes the latest
+`input/<plan>/run_*/output` directory and moves converted `.dat`, `.txt`, and
+inspection `.png` files into `results/<plan>/`.
 
