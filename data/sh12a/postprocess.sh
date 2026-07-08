@@ -5,8 +5,8 @@ exe="$HOME/convertmc"
 
 # basenames for 1-d plots
 bplot="NB_Z_narrow_dose_ NB_Z_narrow_dose_water_ NB_Z_narrow_LET_ NB_Z_narrow_LET_water_ NB_Z_narrow_QEFF_ NB_target_diff_ NB_target_water_diff_"
-# basenames for images (2-d and 1-d)
-bimg="NB_XY_ NB_XZ_map_ ${bplot}"
+# basenames for images (2-d maps only; 1-d plots are handled online)
+bimg="NB_XY_ NB_XZ_map_"
 # basenames for text
 btxt="NB_target_ NB_target_water_"
 
@@ -50,13 +50,13 @@ for dir in "${dirs[@]}"; do
 
     cd "$od"
 
-    # generate PNG images
+    # generate PNG images for 2D maps only
     for b in $bimg; do
         echo "  convert \"${b}????.bdo\" to image files"
         "$exe" image --many "${b}????.bdo"
     done
     cd "$td"
-    cp -v "$od"/NB*.png "$rd"/
+    cp -v "$od"/NB_XY*.png "$od"/NB_XZ_map*.png "$rd"/
 
     cd "$od"
     # generate plotdata (.dat)
@@ -76,4 +76,3 @@ for dir in "${dirs[@]}"; do
     cd "$td"
     cp -v "$od"/NB*.txt "$rd"/
 done
-
