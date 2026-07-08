@@ -61,5 +61,5 @@ To just postprocess one directory, run `./postprocess.sh input/plan5* input/plan
 
 For local test runs, `./postprocess_local.sh` processes the latest
 `input/<plan>/run_*/output` directory and moves converted `.dat`, `.txt`, and
-inspection `.png` files into `results/<plan>/`.
-
+inspection `.png` files into `results/<plan>/`. With no arguments it processes
+plans in parallel; set `THREADS=1` for serial postprocessing.

@@ -3,13 +3,11 @@ set -euo pipefail
 
 exe="$(command -v convertmc 2>/dev/null || command -v convertmc.exe 2>/dev/null || echo "$HOME/convertmc")"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+THREADS="${THREADS:-11}"
 
 shopt -s nullglob
-had_errors=0
-processed_plans=0
-skipped_plans=0
-moved_png=0
-moved_dat=0
+summary_file="$(mktemp)"
+trap 'rm -f "$summary_file"' EXIT
 
 run() {
     printf '  +'
@@ -21,8 +19,9 @@ run() {
 run_checked() {
     if ! run "$@"; then
         echo "  Command failed; continuing with remaining files and plans." >&2
-        had_errors=1
+        return 1
     fi
+    return 0
 }
 
 run_plotdata_checked() {
@@ -48,29 +47,30 @@ run_plotdata_checked() {
     fi
 
     echo "  Command failed; continuing with remaining files and plans." >&2
-    had_errors=1
+    return 1
 }
 
-input_dirs=()
-if [[ $# -eq 0 ]]; then
-    input_dirs=( "$root"/input/plan* )
-else
-    for arg in "$@"; do
-        if [[ -d "$arg" ]]; then
-            input_dirs+=( "$(cd "$arg" && pwd)" )
-        elif [[ -d "$root/$arg" ]]; then
-            input_dirs+=( "$(cd "$root/$arg" && pwd)" )
-        elif [[ -d "$root/input/$arg" ]]; then
-            input_dirs+=( "$(cd "$root/input/$arg" && pwd)" )
-        else
-            echo "No such input directory: $arg" >&2
-            exit 1
-        fi
-    done
-fi
+resolve_input_dir() {
+    local arg="$1"
+    if [[ -d "$arg" ]]; then
+        cd "$arg" && pwd
+    elif [[ -d "$root/$arg" ]]; then
+        cd "$root/$arg" && pwd
+    elif [[ -d "$root/input/$arg" ]]; then
+        cd "$root/input/$arg" && pwd
+    else
+        echo "No such input directory: $arg" >&2
+        return 1
+    fi
+}
 
-for input_dir in "${input_dirs[@]}"; do
-    [[ -d "$input_dir" ]] || continue
+process_one() {
+    local input_dir="$1"
+    local plan results_dir run_dir output_dir
+    local local_errors=0 processed=0 skipped=0 moved_png=0 moved_dat=0
+    shopt -s nullglob
+
+    [[ -d "$input_dir" ]] || return 0
 
     plan="$(basename "$input_dir")"
     results_dir="$root/results/$plan"
@@ -79,32 +79,26 @@ for input_dir in "${input_dirs[@]}"; do
     echo "== Processing: input/$plan =="
 
     run_dir="$(find "$input_dir" -maxdepth 1 -type d -name 'run_*' | sort | tail -1)"
-    if [[ -z "$run_dir" ]]; then
-        echo "  No run_* directories found, skipping."
-        ((skipped_plans += 1))
-        continue
+    if [[ -n "$run_dir" && -d "$run_dir/output" ]]; then
+        output_dir="$run_dir/output"
+    else
+        output_dir="$input_dir"
     fi
 
-    output_dir="$run_dir/output"
-    if [[ ! -d "$output_dir" ]]; then
-        echo "  Output directory missing: $output_dir"
-        ((skipped_plans += 1))
-        continue
-    fi
-
-    bdo_files=( "$output_dir"/*.bdo )
+    local bdo_files=( "$output_dir"/*.bdo )
     if [[ ${#bdo_files[@]} -eq 0 ]]; then
         echo "  No .bdo files found in $output_dir, skipping."
-        ((skipped_plans += 1))
-        continue
+        skipped=1
+        printf '%s %s %s %s %s\n' "$local_errors" "$processed" "$skipped" "$moved_png" "$moved_dat" >> "$summary_file"
+        return 0
     fi
-    ((processed_plans += 1))
+    processed=1
 
     mkdir -p "$results_dir"
     cd "$output_dir"
 
     echo "  Generating images for local inspection..."
-    run_checked "$exe" image --many "*.bdo"
+    run_checked "$exe" image --many "*.bdo" || local_errors=1
 
     echo "  Generating plotdata..."
     for bdo in ./*.bdo; do
@@ -112,7 +106,7 @@ for input_dir in "${input_dirs[@]}"; do
             NB_XY*.bdo|NB_XZ_map*.bdo|NB_target.bdo|NB_target_water.bdo)
                 ;;
             *)
-                run_plotdata_checked "$bdo"
+                run_plotdata_checked "$bdo" || local_errors=1
                 ;;
         esac
     done
@@ -120,27 +114,58 @@ for input_dir in "${input_dirs[@]}"; do
     echo "  Generating text output for target scorers..."
     for bdo in NB_target.bdo NB_target_water.bdo; do
         [[ -f "$bdo" ]] || continue
-        run_checked "$exe" txt "$bdo"
+        run_checked "$exe" txt "$bdo" || local_errors=1
     done
 
-    png_files=( NB*.png )
-    dat_files=( NB*.dat )
-    txt_files=( NB_target_p*.txt NB_target_water_p*.txt )
+    local png_files=( NB*.png )
+    local dat_files=( NB*.dat )
+    local txt_files=( NB_target_p*.txt NB_target_water_p*.txt )
 
     if [[ ${#png_files[@]} -gt 0 ]]; then
-        ((moved_png += ${#png_files[@]}))
-        run_checked mv -v "${png_files[@]}" "$results_dir"/
+        moved_png=${#png_files[@]}
+        run_checked mv -v "${png_files[@]}" "$results_dir"/ || local_errors=1
     fi
 
     if [[ ${#dat_files[@]} -gt 0 ]]; then
-        ((moved_dat += ${#dat_files[@]}))
-        run_checked mv -v "${dat_files[@]}" "$results_dir"/
+        moved_dat=${#dat_files[@]}
+        run_checked mv -v "${dat_files[@]}" "$results_dir"/ || local_errors=1
     fi
 
     if [[ ${#txt_files[@]} -gt 0 ]]; then
-        run_checked mv -v "${txt_files[@]}" "$results_dir"/
+        run_checked mv -v "${txt_files[@]}" "$results_dir"/ || local_errors=1
     fi
-done
+
+    printf '%s %s %s %s %s\n' "$local_errors" "$processed" "$skipped" "$moved_png" "$moved_dat" >> "$summary_file"
+}
+
+input_dirs=()
+if [[ $# -eq 0 ]]; then
+    input_dirs=( "$root"/input/plan* )
+else
+    for arg in "$@"; do
+        input_dirs+=( "$(resolve_input_dir "$arg")" )
+    done
+fi
+
+has_parallel=0
+if command -v parallel >/dev/null 2>&1; then
+    has_parallel=1
+fi
+
+export exe root summary_file
+export -f run run_checked run_plotdata_checked process_one
+
+if [[ ${#input_dirs[@]} -gt 1 && "$THREADS" -gt 1 && "$has_parallel" -eq 1 ]]; then
+    printf "%s\n" "${input_dirs[@]}" | parallel -j"$THREADS" process_one {}
+else
+    for input_dir in "${input_dirs[@]}"; do
+        process_one "$input_dir"
+    done
+fi
+
+read -r had_errors processed_plans skipped_plans moved_png moved_dat < <(
+    awk '{e+=($1>0); p+=$2; s+=$3; png+=$4; dat+=$5} END {print e+0, p+0, s+0, png+0, dat+0}' "$summary_file"
+)
 
 echo
 echo "== Summary =="

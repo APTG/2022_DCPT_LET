@@ -71,7 +71,7 @@ Run the postprocessing script from this directory:
 ```
 
 With no arguments, the script works through all directories matching
-`input/plan*`.
+`input/plan*` in parallel. Set `THREADS=1` for serial postprocessing.
 
 To postprocess selected plans only, pass one or more plan names or input paths:
 
