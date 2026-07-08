@@ -114,6 +114,7 @@ Output
         Quantity Fluence                        # __p1  this is redunant
         Quantity Dose in_Water                  # __p2
         Quantity Dose Protons in_Water          # __p3
+        Quantity DOSE in_Water Dirty            # __p4
 
 Output
         Filename NB_Z_narrow_LET.bdo
