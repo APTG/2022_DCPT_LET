@@ -32,6 +32,9 @@ Geometry Mesh
         Z  4.9   5.1  1
 
 # ------- Define a few useful filters ----------
+Filter Name Dirty
+        MDEDX > 30.0   # 30.0 MeV g / cm
+
 Filter
         Name Primary    # Only primary protons
         GEN = 0
@@ -42,6 +45,30 @@ Filter
         Name Protons    # Primary and secondary protons
         Z = 1
         A = 1
+
+Filter
+        Name Deuterons  # H-2
+        Z = 1
+        A = 2
+
+Filter
+        Name Tritons    # H-3
+        Z = 1
+        A = 3
+
+Filter
+        Name He3
+        Z = 2
+        A = 3
+
+Filter
+        Name Alphas     # He-4
+        Z = 2
+        A = 4
+
+Filter
+        Name HeavyRec   # heavy recoils / fragments, Z >= 3 (C, O, ...)
+        Z > 2
 
 # ------- Select for scoring using water stopping power ----------
 Settings
@@ -70,8 +97,16 @@ Output
         Quantity Fluence                        # __p1
         Quantity Dose                           # __p2
         Quantity Dose Protons                   # __p3
+        # ---------------------------------------------
+        # Depth-fluence curves per particle
+        # ---------------------------------------------
         Quantity Fluence Primary                # __p4
         Quantity Fluence Protons                # __p5
+        Quantity Fluence Deuterons              # __p6
+        Quantity Fluence Tritons                # __p7
+        Quantity Fluence He3                    # __p8
+        Quantity Fluence Alphas                 # __p9
+        Quantity Fluence HeavyRec               # __p10
 
 Output
         Filename NB_Z_narrow_dose_water.bdo
@@ -79,6 +114,7 @@ Output
         Quantity Fluence                        # __p1
         Quantity Dose in_Water                  # __p2
         Quantity Dose Protons in_Water          # __p3
+        Quantity DOSE in_Water Dirty            # __p4
 
 Output
         Filename NB_Z_narrow_LET.bdo
@@ -147,6 +183,30 @@ Output
         Quantity FLUENCE Primary                # __p4
         Diff1     0 2000 1000
         Diff1Type DEDX in_Si
+        # ---------------------------------------------
+        # Fluence energy spectra per particle
+        # ---------------------------------------------
+        Quantity Fluence                        # __p5
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence Protons                # __p6
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence Deuterons              # __p7
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence Tritons                # __p8
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence He3                    # __p9
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence Alphas                 # __p10
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
+        Quantity Fluence HeavyRec               # __p11
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type EKIN
 
 Output
         Filename NB_target_water.bdo
@@ -158,6 +218,7 @@ Output
         Quantity TLET in_Water                  # __p5
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
+        Quantity DOSE in_Water Dirty            # __p8
 
 Output
         Filename NB_target_water_diff.bdo
