@@ -19,121 +19,338 @@
   },
   "outputs": [
     {
-      "description": "Depth profiles – fluence and dose in silicon (Z_narrow, 5 pages)",
+      "description": "Depth profiles - fluence and dose in silicon (Z_narrow, 10 pages including secondary-particle fluence)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.all.mat"},
-        {"path": "NB_Z_narrow_dose_p2.dat", "output_type": "depth_Z.DOSE.all.mat"},
-        {"path": "NB_Z_narrow_dose_p3.dat", "output_type": "depth_Z.DOSE.protons.mat"},
-        {"path": "NB_Z_narrow_dose_p4.dat", "output_type": "depth_Z.FLUENCE.primary.mat"},
-        {"path": "NB_Z_narrow_dose_p5.dat", "output_type": "depth_Z.FLUENCE.protons.mat"}
+        {
+          "path": "NB_Z_narrow_dose_p1.dat",
+          "output_type": "depth_Z.FLUENCE.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p2.dat",
+          "output_type": "depth_Z.DOSE.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p4.dat",
+          "output_type": "depth_Z.FLUENCE.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p5.dat",
+          "output_type": "depth_Z.FLUENCE.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p6.dat",
+          "output_type": "depth_Z.FLUENCE.deuterons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p7.dat",
+          "output_type": "depth_Z.FLUENCE.tritons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p8.dat",
+          "output_type": "depth_Z.FLUENCE.he3.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p9.dat",
+          "output_type": "depth_Z.FLUENCE.alphas.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p10.dat",
+          "output_type": "depth_Z.FLUENCE.heavy_recoils.mat"
+        }
       ]
     },
     {
-      "description": "Depth profiles – dose in water (Z_narrow, 3 pages)",
+      "description": "Depth profiles - dose in water (Z_narrow, 3 pages)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_dose_water_p1.dat", "output_type": "depth_Z.FLUENCE.all.H2O"},
-        {"path": "NB_Z_narrow_dose_water_p2.dat", "output_type": "depth_Z.DOSE.all.H2O"},
-        {"path": "NB_Z_narrow_dose_water_p3.dat", "output_type": "depth_Z.DOSE.protons.H2O"}
+        {
+          "path": "NB_Z_narrow_dose_water_p1.dat",
+          "output_type": "depth_Z.FLUENCE.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p2.dat",
+          "output_type": "depth_Z.DOSE.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.H2O"
+        }
       ]
     },
     {
       "description": "Depth profiles – LET in silicon (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_LET_p1.dat", "output_type": "depth_Z.DLET.all.mat"},
-        {"path": "NB_Z_narrow_LET_p2.dat", "output_type": "depth_Z.DLET.primary.mat"},
-        {"path": "NB_Z_narrow_LET_p3.dat", "output_type": "depth_Z.DLET.protons.mat"},
-        {"path": "NB_Z_narrow_LET_p4.dat", "output_type": "depth_Z.TLET.all.mat"},
-        {"path": "NB_Z_narrow_LET_p5.dat", "output_type": "depth_Z.TLET.primary.mat"},
-        {"path": "NB_Z_narrow_LET_p6.dat", "output_type": "depth_Z.TLET.protons.mat"}
+        {
+          "path": "NB_Z_narrow_LET_p1.dat",
+          "output_type": "depth_Z.DLET.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p2.dat",
+          "output_type": "depth_Z.DLET.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p3.dat",
+          "output_type": "depth_Z.DLET.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p4.dat",
+          "output_type": "depth_Z.TLET.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p5.dat",
+          "output_type": "depth_Z.TLET.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p6.dat",
+          "output_type": "depth_Z.TLET.protons.mat"
+        }
       ]
     },
     {
       "description": "Depth profiles – LET in water (Z_narrow, 6 pages: DLET and TLET × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_LET_water_p1.dat", "output_type": "depth_Z.DLET.all.H2O"},
-        {"path": "NB_Z_narrow_LET_water_p2.dat", "output_type": "depth_Z.DLET.primary.H2O"},
-        {"path": "NB_Z_narrow_LET_water_p3.dat", "output_type": "depth_Z.DLET.protons.H2O"},
-        {"path": "NB_Z_narrow_LET_water_p4.dat", "output_type": "depth_Z.TLET.all.H2O"},
-        {"path": "NB_Z_narrow_LET_water_p5.dat", "output_type": "depth_Z.TLET.primary.H2O"},
-        {"path": "NB_Z_narrow_LET_water_p6.dat", "output_type": "depth_Z.TLET.protons.H2O"}
+        {
+          "path": "NB_Z_narrow_LET_water_p1.dat",
+          "output_type": "depth_Z.DLET.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p2.dat",
+          "output_type": "depth_Z.DLET.primary.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p3.dat",
+          "output_type": "depth_Z.DLET.protons.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p4.dat",
+          "output_type": "depth_Z.TLET.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p5.dat",
+          "output_type": "depth_Z.TLET.primary.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_LET_water_p6.dat",
+          "output_type": "depth_Z.TLET.protons.H2O"
+        }
       ]
     },
     {
       "description": "Depth profiles – effective quality factor in silicon (Z_narrow, 6 pages: DQEFF and TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_Z_narrow_QEFF_p1.dat", "output_type": "depth_Z.DQEFF.all.mat"},
-        {"path": "NB_Z_narrow_QEFF_p2.dat", "output_type": "depth_Z.DQEFF.primary.mat"},
-        {"path": "NB_Z_narrow_QEFF_p3.dat", "output_type": "depth_Z.DQEFF.protons.mat"},
-        {"path": "NB_Z_narrow_QEFF_p4.dat", "output_type": "depth_Z.TQEFF.all.mat"},
-        {"path": "NB_Z_narrow_QEFF_p5.dat", "output_type": "depth_Z.TQEFF.primary.mat"},
-        {"path": "NB_Z_narrow_QEFF_p6.dat", "output_type": "depth_Z.TQEFF.protons.mat"}
+        {
+          "path": "NB_Z_narrow_QEFF_p1.dat",
+          "output_type": "depth_Z.DQEFF.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p2.dat",
+          "output_type": "depth_Z.DQEFF.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p3.dat",
+          "output_type": "depth_Z.DQEFF.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p4.dat",
+          "output_type": "depth_Z.TQEFF.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p5.dat",
+          "output_type": "depth_Z.TQEFF.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_QEFF_p6.dat",
+          "output_type": "depth_Z.TQEFF.protons.mat"
+        }
       ]
     },
     {
       "description": "Target scalars in silicon (16 pages: fluence, dose, DLET, TLET, DQEFF, TQEFF × all / primary / protons)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_target_p01.txt", "output_type": "target.FLUENCE.all.mat"},
-        {"path": "NB_target_p02.txt", "output_type": "target.DOSE.all.mat"},
-        {"path": "NB_target_p03.txt", "output_type": "target.DLET.all.mat"},
-        {"path": "NB_target_p04.txt", "output_type": "target.DLET.primary.mat"},
-        {"path": "NB_target_p05.txt", "output_type": "target.DLET.protons.mat"},
-        {"path": "NB_target_p06.txt", "output_type": "target.TLET.all.mat"},
-        {"path": "NB_target_p07.txt", "output_type": "target.TLET.primary.mat"},
-        {"path": "NB_target_p08.txt", "output_type": "target.TLET.protons.mat"},
-        {"path": "NB_target_p09.txt", "output_type": "target.DQEFF.all.mat"},
-        {"path": "NB_target_p10.txt", "output_type": "target.DQEFF.primary.mat"},
-        {"path": "NB_target_p11.txt", "output_type": "target.DQEFF.protons.mat"},
-        {"path": "NB_target_p12.txt", "output_type": "target.TQEFF.all.mat"},
-        {"path": "NB_target_p13.txt", "output_type": "target.TQEFF.primary.mat"},
-        {"path": "NB_target_p14.txt", "output_type": "target.TQEFF.protons.mat"},
-        {"path": "NB_target_p15.txt", "output_type": "target.FLUENCE.primary.mat"},
-        {"path": "NB_target_p16.txt", "output_type": "target.FLUENCE.protons.mat"}
+        {
+          "path": "NB_target_p01.txt",
+          "output_type": "target.FLUENCE.all.mat"
+        },
+        {
+          "path": "NB_target_p02.txt",
+          "output_type": "target.DOSE.all.mat"
+        },
+        {
+          "path": "NB_target_p03.txt",
+          "output_type": "target.DLET.all.mat"
+        },
+        {
+          "path": "NB_target_p04.txt",
+          "output_type": "target.DLET.primary.mat"
+        },
+        {
+          "path": "NB_target_p05.txt",
+          "output_type": "target.DLET.protons.mat"
+        },
+        {
+          "path": "NB_target_p06.txt",
+          "output_type": "target.TLET.all.mat"
+        },
+        {
+          "path": "NB_target_p07.txt",
+          "output_type": "target.TLET.primary.mat"
+        },
+        {
+          "path": "NB_target_p08.txt",
+          "output_type": "target.TLET.protons.mat"
+        },
+        {
+          "path": "NB_target_p09.txt",
+          "output_type": "target.DQEFF.all.mat"
+        },
+        {
+          "path": "NB_target_p10.txt",
+          "output_type": "target.DQEFF.primary.mat"
+        },
+        {
+          "path": "NB_target_p11.txt",
+          "output_type": "target.DQEFF.protons.mat"
+        },
+        {
+          "path": "NB_target_p12.txt",
+          "output_type": "target.TQEFF.all.mat"
+        },
+        {
+          "path": "NB_target_p13.txt",
+          "output_type": "target.TQEFF.primary.mat"
+        },
+        {
+          "path": "NB_target_p14.txt",
+          "output_type": "target.TQEFF.protons.mat"
+        },
+        {
+          "path": "NB_target_p15.txt",
+          "output_type": "target.FLUENCE.primary.mat"
+        },
+        {
+          "path": "NB_target_p16.txt",
+          "output_type": "target.FLUENCE.protons.mat"
+        }
       ]
     },
     {
-      "description": "Target scalars in water (7 pages: dose, DLET and TLET × all / primary / protons)",
+      "description": "Target scalars in water (7 pages: dose, DLET and TLET)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_target_water_p1.txt", "output_type": "target.DOSE.all.H2O"},
-        {"path": "NB_target_water_p2.txt", "output_type": "target.DLET.all.H2O"},
-        {"path": "NB_target_water_p3.txt", "output_type": "target.DLET.primary.H2O"},
-        {"path": "NB_target_water_p4.txt", "output_type": "target.DLET.protons.H2O"},
-        {"path": "NB_target_water_p5.txt", "output_type": "target.TLET.all.H2O"},
-        {"path": "NB_target_water_p6.txt", "output_type": "target.TLET.primary.H2O"},
-        {"path": "NB_target_water_p7.txt", "output_type": "target.TLET.protons.H2O"}
+        {
+          "path": "NB_target_water_p1.txt",
+          "output_type": "target.DOSE.all.H2O"
+        },
+        {
+          "path": "NB_target_water_p2.txt",
+          "output_type": "target.DLET.all.H2O"
+        },
+        {
+          "path": "NB_target_water_p3.txt",
+          "output_type": "target.DLET.primary.H2O"
+        },
+        {
+          "path": "NB_target_water_p4.txt",
+          "output_type": "target.DLET.protons.H2O"
+        },
+        {
+          "path": "NB_target_water_p5.txt",
+          "output_type": "target.TLET.all.H2O"
+        },
+        {
+          "path": "NB_target_water_p6.txt",
+          "output_type": "target.TLET.primary.H2O"
+        },
+        {
+          "path": "NB_target_water_p7.txt",
+          "output_type": "target.TLET.protons.H2O"
+        }
       ]
     },
     {
-      "description": "Differential fluence spectra in silicon target (4 pages)",
+      "description": "Differential fluence spectra in silicon target (11 pages, direct simulation output)",
       "role": "primary_data",
-      "notes": "p1: fluence vs dE/dx (all particles, default Si stopping power); p2: fluence vs LET (primary protons); p3: fluence vs dE/dx (all particles, explicit Si – physically equivalent to p1 in this geometry); p4: fluence vs dE/dx (primary protons, explicit Si).",
+      "notes": "p1: all vs dE/dx; p2: primary vs LET; p3: all vs dE/dx (explicit Si); p4: primary vs dE/dx (explicit Si); p5-p11: kinetic-energy spectra for all, protons, deuterons, tritons, helium-3, alphas, and heavy recoils/fragments.",
       "files": [
-        {"path": "NB_target_diff_p1.dat", "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"},
-        {"path": "NB_target_diff_p2.dat", "output_type": "spectrum_target.FLUENCE.primary.Si.vs_LET"},
-        {"path": "NB_target_diff_p3.dat", "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"},
-        {"path": "NB_target_diff_p4.dat", "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"}
+        {
+          "path": "NB_target_diff_p1.dat",
+          "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"
+        },
+        {
+          "path": "NB_target_diff_p2.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_LET"
+        },
+        {
+          "path": "NB_target_diff_p3.dat",
+          "output_type": "spectrum_target.FLUENCE.all.Si.vs_DEDX"
+        },
+        {
+          "path": "NB_target_diff_p4.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"
+        },
+        {
+          "path": "NB_target_diff_p5.dat",
+          "output_type": "spectrum_target.FLUENCE.all.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p6.dat",
+          "output_type": "spectrum_target.FLUENCE.protons.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p7.dat",
+          "output_type": "spectrum_target.FLUENCE.deuterons.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p8.dat",
+          "output_type": "spectrum_target.FLUENCE.tritons.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p9.dat",
+          "output_type": "spectrum_target.FLUENCE.he3.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p10.dat",
+          "output_type": "spectrum_target.FLUENCE.alphas.Si.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p11.dat",
+          "output_type": "spectrum_target.FLUENCE.heavy_recoils.Si.vs_EKIN"
+        }
       ]
     },
     {
       "description": "Differential fluence spectra in water target (2 pages)",
       "role": "primary_data",
       "files": [
-        {"path": "NB_target_water_diff_p1.dat", "output_type": "spectrum_target.FLUENCE.all.H2O.vs_DEDX"},
-        {"path": "NB_target_water_diff_p2.dat", "output_type": "spectrum_target.FLUENCE.primary.H2O.vs_LET"}
+        {
+          "path": "NB_target_water_diff_p1.dat",
+          "output_type": "spectrum_target.FLUENCE.all.H2O.vs_DEDX"
+        },
+        {
+          "path": "NB_target_water_diff_p2.dat",
+          "output_type": "spectrum_target.FLUENCE.primary.H2O.vs_LET"
+        }
       ]
     },
     {
       "description": "2D maps – dose (longitudinal XZ and transverse XY). PNG only; binary BDO not exported to DAT.",
       "role": "preview_image",
       "files": [
-        {"path": "NB_XZ_map.png"},
-        {"path": "NB_XY.png"}
+        {
+          "path": "NB_XZ_map.png"
+        },
+        {
+          "path": "NB_XY.png"
+        }
       ]
     }
   ]

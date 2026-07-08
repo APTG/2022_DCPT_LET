@@ -153,6 +153,32 @@ def _axis_label(meta: dict, axis: str) -> str:
     return f"{quant} [{unit}]" if unit else quant
 
 
+def centers_to_edges(x: np.ndarray, *, log_spacing: bool) -> np.ndarray:
+    """Infer bin edges from bin centers for stair rendering."""
+    if x.size == 1:
+        half_width = x[0] * 0.5 if log_spacing and x[0] > 0 else 0.5
+        return np.array([x[0] - half_width, x[0] + half_width])
+
+    if log_spacing and np.all(x > 0):
+        edges = np.empty(x.size + 1, dtype=float)
+        edges[1:-1] = np.sqrt(x[:-1] * x[1:])
+        edges[0] = x[0] ** 2 / edges[1]
+        edges[-1] = x[-1] ** 2 / edges[-2]
+        return edges
+
+    midpoints = (x[:-1] + x[1:]) / 2.0
+    edges = np.empty(x.size + 1, dtype=float)
+    edges[1:-1] = midpoints
+    edges[0] = x[0] - (midpoints[0] - x[0])
+    edges[-1] = x[-1] + (x[-1] - midpoints[-1])
+    return edges
+
+
+def stairs_xy(x: np.ndarray, y: np.ndarray, *, log_spacing: bool) -> tuple[np.ndarray, np.ndarray]:
+    edges = centers_to_edges(x, log_spacing=log_spacing)
+    return np.repeat(edges, 2)[1:-1], np.repeat(y, 2)
+
+
 def make_profile_figure(
     meta: dict,
     traces: list[dict],
@@ -188,6 +214,26 @@ def make_profile_figure(
                 print(f"  WARNING: cannot read {path}: {exc}")
                 continue
 
+            if is_spectrum:
+                positive_x = x > 0
+                x = x[positive_x]
+                y = y[positive_x]
+                if yerr is not None:
+                    yerr = yerr[positive_x]
+                if x.size == 0:
+                    print(f"  WARNING: cannot plot {path}: no positive bins for log-log spectrum")
+                    continue
+                positive_y = y > 0
+                if not np.any(positive_y):
+                    print(f"  WARNING: cannot plot {path}: no positive y values for log-log spectrum")
+                    continue
+                y = np.where(positive_y, y, np.nan)
+                if yerr is not None:
+                    yerr = np.where(positive_y, yerr, np.nan)
+
+            x_plot, y_plot = stairs_xy(x, y, log_spacing=is_spectrum)
+            yerr_plot = np.repeat(yerr, 2) if yerr is not None else None
+
             if len(paths) == 1:
                 name = code_name
                 show_legend = True
@@ -197,8 +243,8 @@ def make_profile_figure(
                 show_legend = True
 
             kw: dict[str, Any] = {
-                "x": x,
-                "y": y,
+                "x": x_plot,
+                "y": y_plot,
                 "mode": "lines",
                 "name": name,
                 "legendgroup": code_short,
@@ -207,17 +253,16 @@ def make_profile_figure(
                     "color": color,
                     "dash": _DASH_STYLES[file_idx % len(_DASH_STYLES)],
                     "width": 1.5,
-                    **({"shape": "hv"} if is_spectrum else {}),
                 },
                 "hovertemplate": (
                     f"<b>{name}</b><br>"
                     "x=%{x:.4g}<br>y=%{y:.4g}<extra></extra>"
                 ),
             }
-            if yerr is not None:
+            if yerr_plot is not None:
                 kw["error_y"] = {
                     "type": "data",
-                    "array": yerr,
+                    "array": yerr_plot,
                     "visible": True,
                     "color": color,
                     "thickness": 0.8,
