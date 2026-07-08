@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXE="openshieldhit"
+EXE="openshieldhit -v"
 STAT="1000000"
 INPUT_DIR="input"
 THREADS=20

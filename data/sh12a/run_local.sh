@@ -2,7 +2,7 @@
 set -euo pipefail
 
 EXE="${SHIELDHIT_EXE:-${EXE:-shieldhit}}"
-THREADS="${THREADS:-4}"
+THREADS="${THREADS:-11}"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 run_one() {
