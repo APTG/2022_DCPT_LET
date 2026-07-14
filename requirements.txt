@@ -1,4 +1,0 @@
-numpy
-matplotlib
-pymchelper>=2.9.2
-mcpl

@@ -48,4 +48,7 @@ Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep
 
 ## Postprocess
 
-Run local script `./generate_results.sh` from same directory as this README file.
+Run local script `./postprocess.sh` from same directory as this README file. This will loop through all input files. 
+To just postprocess one directory, run `./postprocess.sh input/plan5* input/plan6* input/plan7*` or similar.
+
+

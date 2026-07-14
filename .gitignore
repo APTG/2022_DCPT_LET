@@ -106,7 +106,11 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.matplotlib/
 cover/
+
+# Generated comparison outputs and reports
+data/comparisons/
 
 # Translations
 *.mo
@@ -194,6 +198,10 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/_pages
+/.pages-build
+/.pages-site
+/.pages-site-preview
 
 # mypy
 .mypy_cache/
@@ -247,6 +255,7 @@ data/topas/results/output
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,c
 
 # Project specific ignores:
+pages-site/
 for017
 
 #*.png
