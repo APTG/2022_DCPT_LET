@@ -9,7 +9,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "matplotlib",
-    "pymchelper>=2.9.2",
+    "pymchelper>=2.9.4",
     "mcpl",
     "jsonschema>=4.26.0",
     "plotly>=5.0",
