@@ -100,7 +100,8 @@ process_one() {
     run_checked "$exe" image --many "*.bdo" || local_errors=1
 
     # OpenShieldHIT currently does not support the large 2D ASCII plotdata
-    # outputs well, so keep them as images only.
+    # outputs well (and they are too large to track), so keep them as images
+    # only. The DirtyDose map page is still captured as a PNG by the image step.
     echo "  Generating plotdata..."
     for bdo in ./*.bdo; do
         case "$(basename "$bdo")" in

@@ -4,7 +4,7 @@ set -u -o pipefail
 exe="$HOME/convertmc"
 
 # basenames for 1-d plots
-bplot="NB_Z_narrow_dose_ NB_Z_narrow_dose_water_ NB_Z_narrow_LET_ NB_Z_narrow_LET_water_ NB_Z_narrow_QEFF_ NB_target_diff_ NB_target_water_diff_"
+bplot="NB_Z_narrow_dose_ NB_Z_narrow_fluence_ NB_Z_narrow_dose_water_ NB_Z_narrow_LET_ NB_Z_narrow_LET_water_ NB_Z_narrow_QEFF_ NB_target_diff_ NB_target_water_diff_"
 # basenames for images (2-d maps only; 1-d plots are handled online)
 bimg="NB_XY_ NB_XZ_map_"
 # basenames for text

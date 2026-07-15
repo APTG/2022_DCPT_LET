@@ -841,6 +841,126 @@
         "unit": "1/(cm² primary MeV/u)"
       },
       "render_as": "spectrum_plot"
+    },
+    "depth_Z.DOSE.primary.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "primary",
+      "medium": "mat",
+      "label": "Dose (primary protons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.deuterons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "deuterons",
+      "medium": "mat",
+      "label": "Dose (deuterons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.tritons.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "tritons",
+      "medium": "mat",
+      "label": "Dose (tritons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.he3.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "he3",
+      "medium": "mat",
+      "label": "Dose (helium-3)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.alphas.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "alphas",
+      "medium": "mat",
+      "label": "Dose (alpha particles)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.heavy_recoils.mat": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "heavy_recoils",
+      "medium": "mat",
+      "label": "Dose (heavy recoils/fragments)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "depth_Z.DOSE.primary.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DOSE",
+      "filter": "primary",
+      "medium": "H2O",
+      "label": "Dose-to-water (primary protons)",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "map_XZ.DIRTYDOSE.all.mat": {
+      "geometry": "map_XZ",
+      "quantity": "DIRTYDOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dirty dose (longitudinal map, XZ)",
+      "render_as": "heatmap"
+    },
+    "map_XY.DIRTYDOSE.all.mat": {
+      "geometry": "map_XY",
+      "quantity": "DIRTYDOSE",
+      "filter": "all",
+      "medium": "mat",
+      "label": "Dirty dose (transverse map, XY)",
+      "render_as": "heatmap"
+    },
+    "depth_Z.DIRTYDOSE.all.H2O": {
+      "geometry": "depth_Z",
+      "quantity": "DIRTYDOSE",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "Dirty dose-to-water",
+      "axis_y": {
+        "quantity": "dose",
+        "unit": "MeV/g/primary"
+      },
+      "render_as": "line_plot"
+    },
+    "target.DIRTYDOSE.all.H2O": {
+      "geometry": "target",
+      "quantity": "DIRTYDOSE",
+      "filter": "all",
+      "medium": "H2O",
+      "label": "Dirty dose-to-water",
+      "render_as": "scalar"
     }
   }
 }
