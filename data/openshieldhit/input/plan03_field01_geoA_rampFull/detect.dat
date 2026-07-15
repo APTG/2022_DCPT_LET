@@ -32,9 +32,6 @@ Geometry Mesh
         Z -0.1   0.1  1
 
 # ------- Define a few useful filters ----------
-# Filter Name Dirty
-        # MDEDX > 30.0   # 30.0 MeV g / cm
-
 Filter
         Name Primary    # Only primary protons
         GEN = 0
@@ -70,7 +67,6 @@ Filter
         Name HeavyRec   # heavy recoils / fragments, Z >= 3 (C, O, ...)
         Z > 2
 
-
 # ------- Select for scoring using water stopping power ----------
 Settings
         Name in_Water
@@ -85,37 +81,49 @@ Output
         Filename NB_XZ_map.bdo
         Geo XZ_map
         Quantity Dose
+        Quantity DirtyDose
 
 Output
         Filename NB_XY.bdo
         Geo XY_map
         Quantity Dose
+        Quantity DirtyDose
 
 Output
         Filename NB_Z_narrow_dose.bdo           # each quantity will be written to its own files
                                                 # with a page index in the file name, as indicated below...
         Geo Z_narrow
-        Quantity Fluence                        # __p1
-        Quantity Dose                           # __p2
+        Quantity Dose                           # __p1 All particles
+        Quantity Dose Primary                   # __p2
         Quantity Dose Protons                   # __p3
-        # ---------------------------------------------
-        # Depth-fluence curves per particle
-        # ---------------------------------------------
-        Quantity Fluence Primary                # __p4
-        Quantity Fluence Protons                # __p5
-        Quantity Fluence Deuterons              # __p6
-        Quantity Fluence Tritons                # __p7
-        Quantity Fluence He3                    # __p8
-        Quantity Fluence Alphas                 # __p9
-        Quantity Fluence HeavyRec               # __p10
+        Quantity Dose Deuterons                 # __p4
+        Quantity Dose Tritons                   # __p5
+        Quantity Dose He3                       # __p6
+        Quantity Dose Alphas                    # __p7
+        Quantity Dose HeavyRec                  # __p8
+
+# ---------------------------------------------
+# Depth-fluence curves per particle
+# ---------------------------------------------
+Output
+        Filename NB_Z_narrow_fluence.bdo
+        Geo Z_narrow
+        Quantity Fluence                        # __p1  All particles
+        Quantity Fluence Primary                # __p2
+        Quantity Fluence Protons                # __p3
+        Quantity Fluence Deuterons              # __p4
+        Quantity Fluence Tritons                # __p5
+        Quantity Fluence He3                    # __p6
+        Quantity Fluence Alphas                 # __p7
+        Quantity Fluence HeavyRec               # __p8
 
 Output
         Filename NB_Z_narrow_dose_water.bdo
         Geo Z_narrow
-        Quantity Fluence                        # __p1  this is redunant
-        Quantity Dose in_Water                  # __p2
+        Quantity Dose in_Water                  # __p1
+        Quantity Dose Primary in_Water          # __p2
         Quantity Dose Protons in_Water          # __p3
-        # Quantity DOSE in_Water Dirty            # __p4
+        Quantity DirtyDose in_Water             # __p4
 
 Output
         Filename NB_Z_narrow_LET.bdo
@@ -147,25 +155,24 @@ Output
         Quantity TQEFF Primary
         Quantity TQEFF Protons
 
+
 Output
         Filename NB_target.bdo
         Geo TARGET
-        Quantity FLUENCE                        # __p1
-        Quantity DOSE                           # __p2
-        Quantity DLET                           # __p3
+        Quantity DOSE                           # __p1
+        Quantity DLET                           # __p2
         Quantity DLET Primary
         Quantity DLET Protons
-        Quantity TLET                           # __p6
+        Quantity TLET                           # __p5
         Quantity TLET Primary
         Quantity TLET Protons
-        Quantity DQEFF                          # __p9
+        Quantity DQEFF                          # __p8
         Quantity DQEFF Primary
         Quantity DQEFF Protons
-        Quantity TQEFF                          # __p12
+        Quantity TQEFF                          # __p11
         Quantity TQEFF Primary
         Quantity TQEFF Protons
-        Quantity FLUENCE Primary                # __p15
-        Quantity FLUENCE Protons                # __p16
+
 
 
 Output
@@ -212,13 +219,14 @@ Output
         Filename NB_target_water.bdo
         Geo TARGET
         Quantity DOSE in_Water                  # __p1
-        Quantity DLET in_Water                  # __p2
+        Quantity DirtyDose in_Water             # __p2
+        Quantity DLET in_Water                  # __p3
         Quantity DLET Primary in_Water
         Quantity DLET Protons in_Water
-        Quantity TLET in_Water                  # __p5
+        Quantity TLET in_Water                  # __p6
         Quantity TLET Primary in_Water
         Quantity TLET Protons in_Water
-        # Quantity DOSE in_Water Dirty            # __p8
+
 
 Output
         Filename NB_target_water_diff.bdo
