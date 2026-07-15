@@ -1,6 +1,7 @@
 # Detector reference (`detect.dat`)
 
-The tables below define the **canonical scoring layout** for this project. It is
+This page lists the **canonical scoring layout** for this project, unrolled one
+row per scoring page — in the same order as it appears in `detect.dat`. It is
 implemented natively in the SHIELD-HIT12A / openSHIELDHIT `detect.dat` files
 under `data/sh12a/input/` and `data/openshieldhit/input/`, and is intended to
 serve as the common reference for **other Monte Carlo codes** as well.
@@ -26,6 +27,8 @@ regenerating the detectors.
 | `Alphas`   | `Z=2, A=4`        | ⁴He |
 | `HeavyRec` | `Z>2`             | heavy recoils / fragments (C, O, …) |
 
+A blank filter (`—` below) means the quantity is scored for **all particles**.
+
 ## Media selectors (`Settings`)
 
 Used to score in a substitute medium (water stopping power, silicon). The
@@ -37,77 +40,171 @@ keyword differs between the two codes:
 | `in_Si`       | `Material Si`   | `Medium 5` |
 
 > The `Medium` indices refer to the `MEDIUM` numbering in the corresponding
-> `mat.dat` (4 = Water, 5 = Si).
+> `mat.dat` (4 = Water, 5 = Si). A blank `Settings` (`—` below) scores in the
+> geometry's own medium.
 
-## Output files
+## Manifest `output_type` codes
 
-Each `Quantity` line becomes one page (`__pNN`) inside its `.bdo` file. Where a
-filter is not given the quantity covers **all particles**.
+The last column of every table below is the `output_type` string used in the
+per-plan `manifest.json` files (`data/<code>/results/<plan>/manifest.json`). It
+is a dotted code:
 
-| File | Geometry | Medium | Pages | Content |
-|-------------------------------|-----------|--------|:-----:|-------------------------------------------------|
-| `NB_XZ_map.bdo`               | XZ_map    | —      | 2     | Dose, DirtyDose |
-| `NB_XY.bdo`                   | XY_map    | —      | 2     | Dose, DirtyDose |
-| `NB_Z_narrow_dose.bdo`        | Z_narrow  | —      | 8     | Dose per particle group |
-| `NB_Z_narrow_fluence.bdo`     | Z_narrow  | —      | 8     | Fluence per particle group |
-| `NB_Z_narrow_dose_water.bdo`  | Z_narrow  | water  | 4     | Dose (all/primary/protons) + DirtyDose |
-| `NB_Z_narrow_LET.bdo`         | Z_narrow  | —      | 6     | DLET & TLET (all/primary/protons) |
-| `NB_Z_narrow_LET_water.bdo`   | Z_narrow  | water  | 6     | DLET & TLET (all/primary/protons) |
-| `NB_Z_narrow_QEFF.bdo`        | Z_narrow  | —      | 6     | DQEFF & TQEFF (all/primary/protons) |
-| `NB_target.bdo`               | TARGET    | —      | 13    | Dose, DLET, TLET, DQEFF, TQEFF |
-| `NB_target_diff.bdo`          | TARGET    | —/Si   | 11    | Differential fluence spectra (DEDX, LET, EKIN) |
-| `NB_target_water.bdo`         | TARGET    | water  | 8     | Dose, DirtyDose, DLET, TLET |
-| `NB_target_water_diff.bdo`    | TARGET    | water  | 2     | Differential fluence spectra (DEDX, LET) |
+```text
+<geometry>.<QUANTITY>.<particle>.<medium>[.vs_<differential>]
+```
 
-**Total: 76 scoring pages.**
+| Field | Values |
+|-------------|--------------------------------------------------------------|
+| geometry    | `map_XZ`, `map_XY`, `depth_Z`, `target`, `spectrum_target` |
+| QUANTITY    | `DOSE`, `DIRTYDOSE`, `FLUENCE`, `DLET`, `TLET`, `DQEFF`, `TQEFF` |
+| particle    | `all`, `primary`, `protons`, `deuterons`, `tritons`, `he3`, `alphas`, `heavy_recoils` |
+| medium      | `mat` (geometry medium), `H2O` (water), `Si` (explicit silicon) |
+| differential| `vs_DEDX`, `vs_LET`, `vs_EKIN` (spectra only) |
 
-## Page index per file
+> ⚠️ `DIRTYDOSE` is a **proposed** new code token for the dirty-dose scorer, to be
+> confirmed before the manifests are updated.
 
-Particle-resolved files (`NB_Z_narrow_dose`, `NB_Z_narrow_fluence`) share the
-same page order:
+---
 
-| Page | Particle group |
-|:----:|----------------|
-| p1   | all particles |
-| p2   | Primary |
-| p3   | Protons |
-| p4   | Deuterons |
-| p5   | Tritons |
-| p6   | He3 |
-| p7   | Alphas |
-| p8   | HeavyRec |
+## Detectors (unrolled)
 
-`NB_Z_narrow_dose_water`:
+### `NB_XZ_map.bdo` — longitudinal XZ map (`Geo XZ_map`)
 
-| Page | Quantity |
-|:----:|----------|
-| p1   | Dose (all), in water |
-| p2   | Dose Primary, in water |
-| p3   | Dose Protons, in water |
-| p4   | DirtyDose, in water |
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|--------|----------|----------------|
+| p1 | Dose      | — | — | `map_XZ.DOSE.all.mat` |
+| p2 | DirtyDose | — | — | `map_XZ.DIRTYDOSE.all.mat` |
 
-LET / Qeff files (`NB_Z_narrow_LET[_water]`, `NB_Z_narrow_QEFF`) — each metric
-scored for all / Primary / Protons:
+### `NB_XY.bdo` — lateral XY map (`Geo XY_map`)
 
-| Page | Quantity | | Page | Quantity |
-|:----:|----------|-|:----:|----------|
-| p1   | DLET / DQEFF (all)     | | p4 | TLET / TQEFF (all) |
-| p2   | … Primary             | | p5 | … Primary |
-| p3   | … Protons             | | p6 | … Protons |
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|--------|----------|----------------|
+| p1 | Dose      | — | — | `map_XY.DOSE.all.mat` |
+| p2 | DirtyDose | — | — | `map_XY.DIRTYDOSE.all.mat` |
 
-`NB_target` (medium) / `NB_target_water` (water):
+### `NB_Z_narrow_dose.bdo` — depth dose per particle (`Geo Z_narrow`)
 
-| File | p1 | p2 | p3–5 | p6–8 | p8–10 | p11–13 |
-|------|----|----|------|------|-------|--------|
-| `NB_target`       | Dose | DLET (all) | DLET/TLET blocks | … | DQEFF block | TQEFF block |
-| `NB_target_water` | Dose | DirtyDose  | DLET (all/prim/prot) | TLET (all/prim/prot) | — | — |
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|-----------|----------|----------------|
+| p1 | Dose | —         | — | `depth_Z.DOSE.all.mat` |
+| p2 | Dose | Primary   | — | `depth_Z.DOSE.primary.mat` |
+| p3 | Dose | Protons   | — | `depth_Z.DOSE.protons.mat` |
+| p4 | Dose | Deuterons | — | `depth_Z.DOSE.deuterons.mat` |
+| p5 | Dose | Tritons   | — | `depth_Z.DOSE.tritons.mat` |
+| p6 | Dose | He3       | — | `depth_Z.DOSE.he3.mat` |
+| p7 | Dose | Alphas    | — | `depth_Z.DOSE.alphas.mat` |
+| p8 | Dose | HeavyRec  | — | `depth_Z.DOSE.heavy_recoils.mat` |
 
-> `NB_target` scores DOSE (p1), then DLET (p2–4), TLET (p5–7), DQEFF (p8–10),
-> TQEFF (p11–13), each as all / Primary / Protons.
+### `NB_Z_narrow_fluence.bdo` — depth fluence per particle (`Geo Z_narrow`)
 
-Differential-spectra files (`NB_target_diff`, `NB_target_water_diff`) use `Diff1`
-binning; consult the `detect.dat` directly for exact bin definitions
-(DEDX/LET over 0–2000, EKIN over 0.1–300 MeV LOG).
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|-----------|----------|----------------|
+| p1 | Fluence | —         | — | `depth_Z.FLUENCE.all.mat` |
+| p2 | Fluence | Primary   | — | `depth_Z.FLUENCE.primary.mat` |
+| p3 | Fluence | Protons   | — | `depth_Z.FLUENCE.protons.mat` |
+| p4 | Fluence | Deuterons | — | `depth_Z.FLUENCE.deuterons.mat` |
+| p5 | Fluence | Tritons   | — | `depth_Z.FLUENCE.tritons.mat` |
+| p6 | Fluence | He3       | — | `depth_Z.FLUENCE.he3.mat` |
+| p7 | Fluence | Alphas    | — | `depth_Z.FLUENCE.alphas.mat` |
+| p8 | Fluence | HeavyRec  | — | `depth_Z.FLUENCE.heavy_recoils.mat` |
+
+### `NB_Z_narrow_dose_water.bdo` — depth dose in water (`Geo Z_narrow`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1 | Dose      | —       | in_Water | `depth_Z.DOSE.all.H2O` |
+| p2 | Dose      | Primary | in_Water | `depth_Z.DOSE.primary.H2O` |
+| p3 | Dose      | Protons | in_Water | `depth_Z.DOSE.protons.H2O` |
+| p4 | DirtyDose | —       | in_Water | `depth_Z.DIRTYDOSE.all.H2O` |
+
+### `NB_Z_narrow_LET.bdo` — depth LET in medium (`Geo Z_narrow`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1 | DLET | —       | — | `depth_Z.DLET.all.mat` |
+| p2 | DLET | Primary | — | `depth_Z.DLET.primary.mat` |
+| p3 | DLET | Protons | — | `depth_Z.DLET.protons.mat` |
+| p4 | TLET | —       | — | `depth_Z.TLET.all.mat` |
+| p5 | TLET | Primary | — | `depth_Z.TLET.primary.mat` |
+| p6 | TLET | Protons | — | `depth_Z.TLET.protons.mat` |
+
+### `NB_Z_narrow_LET_water.bdo` — depth LET in water (`Geo Z_narrow`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1 | DLET | —       | in_Water | `depth_Z.DLET.all.H2O` |
+| p2 | DLET | Primary | in_Water | `depth_Z.DLET.primary.H2O` |
+| p3 | DLET | Protons | in_Water | `depth_Z.DLET.protons.H2O` |
+| p4 | TLET | —       | in_Water | `depth_Z.TLET.all.H2O` |
+| p5 | TLET | Primary | in_Water | `depth_Z.TLET.primary.H2O` |
+| p6 | TLET | Protons | in_Water | `depth_Z.TLET.protons.H2O` |
+
+### `NB_Z_narrow_QEFF.bdo` — depth effective quality factor (`Geo Z_narrow`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1 | DQEFF | —       | — | `depth_Z.DQEFF.all.mat` |
+| p2 | DQEFF | Primary | — | `depth_Z.DQEFF.primary.mat` |
+| p3 | DQEFF | Protons | — | `depth_Z.DQEFF.protons.mat` |
+| p4 | TQEFF | —       | — | `depth_Z.TQEFF.all.mat` |
+| p5 | TQEFF | Primary | — | `depth_Z.TQEFF.primary.mat` |
+| p6 | TQEFF | Protons | — | `depth_Z.TQEFF.protons.mat` |
+
+### `NB_target.bdo` — target scalars in medium (`Geo TARGET`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1  | DOSE  | —       | — | `target.DOSE.all.mat` |
+| p2  | DLET  | —       | — | `target.DLET.all.mat` |
+| p3  | DLET  | Primary | — | `target.DLET.primary.mat` |
+| p4  | DLET  | Protons | — | `target.DLET.protons.mat` |
+| p5  | TLET  | —       | — | `target.TLET.all.mat` |
+| p6  | TLET  | Primary | — | `target.TLET.primary.mat` |
+| p7  | TLET  | Protons | — | `target.TLET.protons.mat` |
+| p8  | DQEFF | —       | — | `target.DQEFF.all.mat` |
+| p9  | DQEFF | Primary | — | `target.DQEFF.primary.mat` |
+| p10 | DQEFF | Protons | — | `target.DQEFF.protons.mat` |
+| p11 | TQEFF | —       | — | `target.TQEFF.all.mat` |
+| p12 | TQEFF | Primary | — | `target.TQEFF.primary.mat` |
+| p13 | TQEFF | Protons | — | `target.TQEFF.protons.mat` |
+
+### `NB_target_diff.bdo` — target differential spectra (`Geo TARGET`)
+
+| Page | Quantity | Filter | Differential | Settings | `output_type` |
+|:----:|-----------|---------|--------------|----------|----------------|
+| p1  | Fluence | —         | DEDX (0–2000)          | —      | `spectrum_target.FLUENCE.all.mat.vs_DEDX` |
+| p2  | Fluence | Primary   | LET (0–2000)           | —      | `spectrum_target.FLUENCE.primary.mat.vs_LET` |
+| p3  | Fluence | —         | DEDX (0–2000)          | in_Si  | `spectrum_target.FLUENCE.all.Si.vs_DEDX` |
+| p4  | Fluence | Primary   | DEDX (0–2000)          | in_Si  | `spectrum_target.FLUENCE.primary.Si.vs_DEDX` |
+| p5  | Fluence | —         | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.all.mat.vs_EKIN` |
+| p6  | Fluence | Protons   | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.protons.mat.vs_EKIN` |
+| p7  | Fluence | Deuterons | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.deuterons.mat.vs_EKIN` |
+| p8  | Fluence | Tritons   | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.tritons.mat.vs_EKIN` |
+| p9  | Fluence | He3       | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.he3.mat.vs_EKIN` |
+| p10 | Fluence | Alphas    | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.alphas.mat.vs_EKIN` |
+| p11 | Fluence | HeavyRec  | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN` |
+
+### `NB_target_water.bdo` — target scalars in water (`Geo TARGET`)
+
+| Page | Quantity | Filter | Settings | `output_type` |
+|:----:|-----------|---------|----------|----------------|
+| p1 | DOSE      | —       | in_Water | `target.DOSE.all.H2O` |
+| p2 | DirtyDose | —       | in_Water | `target.DIRTYDOSE.all.H2O` |
+| p3 | DLET      | —       | in_Water | `target.DLET.all.H2O` |
+| p4 | DLET      | Primary | in_Water | `target.DLET.primary.H2O` |
+| p5 | DLET      | Protons | in_Water | `target.DLET.protons.H2O` |
+| p6 | TLET      | —       | in_Water | `target.TLET.all.H2O` |
+| p7 | TLET      | Primary | in_Water | `target.TLET.primary.H2O` |
+| p8 | TLET      | Protons | in_Water | `target.TLET.protons.H2O` |
+
+### `NB_target_water_diff.bdo` — target differential spectra in water (`Geo TARGET`)
+
+| Page | Quantity | Filter | Differential | Settings | `output_type` |
+|:----:|-----------|---------|--------------|----------|----------------|
+| p1 | Fluence | —       | DEDX (0–2000) | in_Water | `spectrum_target.FLUENCE.all.H2O.vs_DEDX` |
+| p2 | Fluence | Primary | LET (0–2000)  | in_Water | `spectrum_target.FLUENCE.primary.H2O.vs_LET` |
+
+**Total: 76 scoring pages across 12 output files.**
 
 ## Code-specific notes
 
