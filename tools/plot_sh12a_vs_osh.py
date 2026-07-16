@@ -14,9 +14,10 @@ _MATPLOTLIB_CACHE = Path(__file__).resolve().parent.parent / ".matplotlib"
 _MATPLOTLIB_CACHE.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("MPLCONFIGDIR", str(_MATPLOTLIB_CACHE))
 
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
+from matplotlib.figure import Figure  # noqa: E402
 
 
 PAGE_RE = re.compile(r"^(?P<stem>.+?)_p(?P<page>\d+)$")
@@ -255,9 +256,7 @@ def lookup_output_metadata(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description=(
-            "Plot SH12A vs OpenShieldHit for all matching .dat files in their results trees."
-        )
+        description=("Plot SH12A vs OpenShieldHit for all matching .dat files in their results trees.")
     )
     parser.add_argument(
         "--sh12a-root",
@@ -311,11 +310,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def collect_dat_files(root: Path) -> dict[Path, Path]:
-    return {
-        path.relative_to(root): path
-        for path in sorted(root.rglob("*.dat"))
-        if path.is_file()
-    }
+    return {path.relative_to(root): path for path in sorted(root.rglob("*.dat")) if path.is_file()}
 
 
 def load_xy(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -395,7 +390,7 @@ def make_plot(
     sh12a_input_root: Path,
     osh_input_root: Path,
     dpi: int,
-) -> plt.Figure:
+) -> Figure:
     x_sh, y_sh = load_xy(sh12a_file)
     x_osh, y_osh = load_xy(osh_file)
     output_meta, page_index = lookup_output_metadata(rel_path, sh12a_input_root, osh_input_root)
