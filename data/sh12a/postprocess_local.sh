@@ -135,6 +135,22 @@ process_one() {
         run_checked mv -v "${txt_files[@]}" "$results_dir"/ || local_errors=1
     fi
 
+    # Record provenance straight from the .bdo header (MC code version, primary
+    # count, simulation date) plus the convertmc version used for extraction.
+    # This keeps the recorded version tied to the actual data. Consumed by the
+    # manifest generation and plot annotations.
+    local ref_bdo
+    ref_bdo="$(ls -1 ./*.bdo 2>/dev/null | head -1)"
+    if [[ -n "$ref_bdo" ]]; then
+        {
+            "$exe" inspect "$ref_bdo" 2>/dev/null \
+                | grep -E '^(mc_code_version|number_of_primaries|filedate)' \
+                | sed 's/[[:space:]]*:[[:space:]]*/: /'
+            printf 'convertmc_version: %s\n' "$("$exe" --version 2>/dev/null | head -1)"
+        } > "$results_dir/VERSION.txt"
+        echo "  Wrote $results_dir/VERSION.txt"
+    fi
+
     printf '%s %s %s %s %s\n' "$local_errors" "$processed" "$skipped" "$moved_png" "$moved_dat" >> "$summary_file"
 }
 

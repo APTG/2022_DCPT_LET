@@ -1,0 +1,4 @@
+filedate: Wed, 15 Jul 2026 22:16:43 +0200
+mc_code_version: v1.1.1-5-g802e6cb7
+number_of_primaries: 100000
+convertmc_version: 2.9.4
