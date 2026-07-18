@@ -75,4 +75,19 @@ for dir in "${dirs[@]}"; do
     done
     cd "$td"
     cp -v "$od"/NB*.txt "$rd"/
+
+    # Record provenance straight from the .bdo header (MC code version, primary
+    # count, simulation date) plus the convertmc version used for extraction.
+    # Mirrors the VERSION.txt writer in postprocess_local.sh so cluster runs
+    # carry the same provenance consumed by manifest generation and plots.
+    ref_bdo="$(ls -1 "$od"/*.bdo 2>/dev/null | head -1)"
+    if [[ -n "$ref_bdo" ]]; then
+        {
+            "$exe" inspect "$ref_bdo" 2>/dev/null \
+                | grep -E '^(mc_code_version|number_of_primaries|filedate)' \
+                | sed 's/[[:space:]]*:[[:space:]]*/: /'
+            printf 'convertmc_version: %s\n' "$("$exe" --version 2>/dev/null | head -1)"
+        } > "$rd/VERSION.txt"
+        echo "  Wrote $rd/VERSION.txt"
+    fi
 done
