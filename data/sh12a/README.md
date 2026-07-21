@@ -6,7 +6,7 @@
 
 ## How to Run
 
-Requires SHIELD-HIT12A version `v1.0.0` or newer.
+Requires SHIELD-HIT12A version `v1.1.2` or newer.
 
 ### Standalone
 
@@ -29,15 +29,15 @@ additional SHIELD-HIT arguments after `--`.
 using `ares.cyfronet.pl`:
 
 Start a interactive node, for compilation (if needed)
-`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc14-cpu --time=0:59:00 --pty /bin/bash -l`
+`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc15-cpu --time=0:59:00 --pty /bin/bash -l`
 `$ module load mcpartools shieldhit`
 
 From the directory of this README file, you can then
 
-`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc14-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
+`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc15-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
 
 Or use own compiled version:
-`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc14-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]" -m /net/people/plgrid/plgbassler/run_shieldhit.sh input/plan01_field01_geoA_SOBPcent/`
+`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc15-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]" -m /net/people/plgrid/plgbassler/run_shieldhit.sh input/plan01_field01_geoA_SOBPcent/`
 
 
 
@@ -56,7 +56,7 @@ Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep
 
 ## Postprocess
 
-Run local script `./postprocess.sh` from same directory as this README file. This will loop through all input files. 
+Run local script `./postprocess.sh` from same directory as this README file. This will loop through all input files.
 To just postprocess one directory, run `./postprocess.sh input/plan5* input/plan6* input/plan7*` or similar.
 
 For local test runs, `./postprocess_local.sh` processes the latest
