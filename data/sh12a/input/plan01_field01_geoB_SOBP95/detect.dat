@@ -195,25 +195,25 @@ Output
         # ---------------------------------------------
         Quantity Fluence                        # __p5
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence Protons                # __p6
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence Deuterons              # __p7
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence Tritons                # __p8
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence He3                    # __p9
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence Alphas                 # __p10
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
         Quantity Fluence HeavyRec               # __p11
         Diff1     0.1  300.0  150  LOG
-        Diff1Type EKIN
+        Diff1Type ENUC
 
 Output
         Filename NB_target_water.bdo
