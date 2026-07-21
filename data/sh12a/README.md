@@ -50,7 +50,9 @@ and go into the plan01_geoB_SOBP95/ directory where there will be a new run* dir
 `$ ./submit.sh`
 
 and do this for every plan.
-Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep 1 inserted between the lines)
+Useful command to build a single submit-all script (the `awk` inserts a `sleep 1` after every submission so the scheduler is not hammered):
+`$ find . -name submit.sh | sort | awk '{print; print "sleep 1"}' > submit_all.sh`
+then run `$ bash submit_all.sh`
 
 100 hours is plenty for good statistics.
 
