@@ -62,6 +62,43 @@ def load_manifests(data_root: Path) -> list[dict]:
     return manifests
 
 
+def load_code_versions(data_root: Path) -> dict[str, dict]:
+    """Summarise VERSION.txt provenance files by registered code."""
+    versions: dict[str, dict] = {}
+    for code_dir in sorted(data_root.iterdir()):
+        if not code_dir.is_dir():
+            continue
+        code_file = code_dir / "code.yaml"
+        results_dir = code_dir / "results"
+        if not code_file.exists() or not results_dir.exists():
+            continue
+        info = yaml.safe_load(code_file.read_text(encoding="utf-8"))
+        code_short = info["short"]
+        summary = {
+            "plans": 0,
+            "mc_code_version": set(),
+            "convertmc_version": set(),
+            "number_of_primaries": set(),
+            "filedate": set(),
+        }
+        for version_file in sorted(results_dir.glob("*/VERSION.txt")):
+            parsed: dict[str, str] = {}
+            for line in version_file.read_text(encoding="utf-8").splitlines():
+                if ":" not in line:
+                    continue
+                key, value = line.split(":", 1)
+                parsed[key.strip()] = value.strip()
+            if not parsed:
+                continue
+            summary["plans"] += 1
+            for key in ("mc_code_version", "convertmc_version", "number_of_primaries", "filedate"):
+                value = parsed.get(key)
+                if value:
+                    summary[key].add(value)
+        versions[code_short] = summary
+    return versions
+
+
 def build_availability(
     manifests: list[dict],
 ) -> dict[str, dict[str, set[str]]]:
@@ -201,6 +238,16 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def version_values(values: set[str], *, max_items: int = 2) -> str:
+    if not values:
+        return "not recorded"
+    ordered = sorted(values)
+    shown = ", ".join(html.escape(v) for v in ordered[:max_items])
+    if len(ordered) > max_items:
+        shown += f" +{len(ordered) - max_items} more"
+    return shown
+
+
 def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
     escaped = html.escape(title)
     return f"""<!DOCTYPE html>
@@ -309,6 +356,10 @@ a { color: var(--accent); }
 }
 .code-card h3 { margin: 0 0 .3rem; font-size: 1rem; }
 .code-card .muted { color: var(--muted); font-size: .85rem; }
+.version-list { margin: .7rem 0 0; display: grid; gap: .25rem; }
+.version-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: .5rem; font-size: .8rem; }
+.version-row dt { color: var(--muted); }
+.version-row dd { margin: 0; overflow-wrap: anywhere; }
 
 /* plot card grid */
 .plot-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -550,6 +601,7 @@ def render_index(
     plan_codes: dict[str, set[str]],
     plan_availability: dict[str, dict[str, set[str]]],
     code_styles: dict[str, dict],
+    code_versions: dict[str, dict],
     catalog: dict,
     generated_at: str,
 ) -> str:
@@ -573,10 +625,22 @@ def render_index(
         name = html.escape(info.get("name", short))
         url = info.get("url", "")
         link = f'<a href="{html.escape(url)}" target="_blank">{name}</a>' if url else name
+        version = code_versions.get(short, {})
+        if version.get("plans", 0):
+            version_html = f"""
+  <dl class="version-list">
+    <div class="version-row"><dt>MC version</dt><dd>{version_values(version["mc_code_version"])}</dd></div>
+    <div class="version-row"><dt>convertmc</dt><dd>{version_values(version["convertmc_version"])}</dd></div>
+    <div class="version-row"><dt>primaries</dt><dd>{version_values(version["number_of_primaries"])}</dd></div>
+    <div class="version-row"><dt>VERSION files</dt><dd>{version["plans"]} plan(s)</dd></div>
+  </dl>"""
+        else:
+            version_html = '<p class="muted">No <code>VERSION.txt</code> files found.</p>'
         code_cards.append(f"""
 <article class="code-card" style="border-top-color:{color}">
   <h3>{link}</h3>
   <p class="muted">short: <code>{html.escape(short)}</code></p>
+  {version_html}
 </article>""")
 
     body = f"""
@@ -651,6 +715,7 @@ def main() -> int:
     catalog = load_catalog(args.catalog)
     code_styles = load_code_styles(args.data_root)
     manifests = load_manifests(args.data_root)
+    code_versions = load_code_versions(args.data_root)
     availability = build_availability(manifests)
     plan_codes = codes_per_plan(manifests)
     preview_images = collect_preview_images(manifests)
@@ -683,7 +748,7 @@ def main() -> int:
     # Index page
     write_text(
         site_root / "index.html",
-        render_index(plans, plan_codes, availability, code_styles, catalog, generated_at),
+        render_index(plans, plan_codes, availability, code_styles, code_versions, catalog, generated_at),
     )
 
     # Relative path from a plan page (plans/{plan}.html) back to the plots dir
