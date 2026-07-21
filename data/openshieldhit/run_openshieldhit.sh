@@ -4,7 +4,7 @@
 # with `-m /path/to/run_openshieldhit.sh`. OpenShieldHIT reads the same
 # SHIELD-HIT12A input format, so generatemc can drive it exactly like SH12A
 # (same workspace/collect machinery); only the binary and CLI flag names differ
-# from run_shieldhit.sh (--beamfile= -> --beam=, etc.). The {placeholders} are
+# from run_shieldhit.sh (--beamfile= -> --beam=, etc.). Template fields are
 # filled in per job by mcpartools when it writes each workspace/main_run.sh.
 
 # Exit immediately if a simple command exits with a non-zero status.

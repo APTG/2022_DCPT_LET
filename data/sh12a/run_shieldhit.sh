@@ -2,7 +2,7 @@
 
 # generatemc (mcpartools) job template for SHIELD-HIT12A. Pass it to generatemc
 # with `-m /path/to/run_shieldhit.sh` to use a locally compiled binary instead
-# of the module-provided one. The {placeholders} are filled in per job by
+# of the module-provided one. Template fields are filled in per job by
 # mcpartools when it writes each workspace/main_run.sh.
 
 # Exit immediately if a simple command exits with a non-zero status.
