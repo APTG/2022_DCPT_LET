@@ -120,12 +120,12 @@ def topas_version(csv_path: Path) -> str:
 
 def process_plan(input_dir: Path) -> bool:
     plan = input_dir.name
-    # TOPAS writes to the outdir declared in main.txt (e.g. results/output/plan_1a/).
-    # Search anywhere under results/ for this plan's CSVs.
+    # main.txt writes its scorer CSVs to results/output/<plan>/ (untracked scratch);
+    # the tracked .dat go to results/<plan>/.
     results_dir = TOPAS_ROOT / "results" / plan
-    csv_dirs = {p.parent for name in CSV_OUTPUTS for p in (TOPAS_ROOT / "results").rglob(name)}
-    if not csv_dirs:
-        print(f"  skip {plan}: no TOPAS CSV output found under data/topas/results/")
+    out_dir = TOPAS_ROOT / "results" / "output" / plan
+    if not out_dir.is_dir() or not any((out_dir / n).is_file() for n in CSV_OUTPUTS):
+        print(f"  skip {plan}: no TOPAS CSV output in {out_dir.relative_to(REPO_ROOT)}")
         return False
 
     print(f"\n== Processing: {plan} ==")
@@ -134,20 +134,19 @@ def process_plan(input_dir: Path) -> bool:
 
     wrote = 0
     ref_csv = None
-    for out_dir in sorted(csv_dirs):
-        for csv_name, (output_type, stem) in CSV_OUTPUTS.items():
-            csv_path = out_dir / csv_name
-            if not csv_path.is_file():
-                continue
-            ref_csv = ref_csv or csv_path
-            prof = topas_depth_profile(csv_path, target)
-            if prof is None:
-                continue
-            dat = results_dir / f"NB_topas_Z_narrow_{stem}.dat"
-            header = f"# TOPAS depth profile, output_type={output_type}\n# depth[cm]  value  rel_err"
-            np.savetxt(dat, prof, fmt="%.6g", header=header, comments="")
-            print(f"  wrote {dat.relative_to(REPO_ROOT)}")
-            wrote += 1
+    for csv_name, (output_type, stem) in CSV_OUTPUTS.items():
+        csv_path = out_dir / csv_name
+        if not csv_path.is_file():
+            continue
+        ref_csv = ref_csv or csv_path
+        prof = topas_depth_profile(csv_path, target)
+        if prof is None:
+            continue
+        dat = results_dir / f"NB_topas_Z_narrow_{stem}.dat"
+        header = f"# TOPAS depth profile, output_type={output_type}\n# depth[cm]  value  rel_err"
+        np.savetxt(dat, prof, fmt="%.6g", header=header, comments="")
+        print(f"  wrote {dat.relative_to(REPO_ROOT)}")
+        wrote += 1
 
     if ref_csv is not None:
         version = topas_version(ref_csv)

@@ -34,7 +34,7 @@ d:Ge/SolidWater_slab3/TransY		= Ge/pmma_slab/TransY + 10.25 cm
 s:Ge/SolidWater_slab3/Color      = "blue"
 
 
-s:outdir = "data/topas/results/output/plan_1b/"
+s:outdir = "data/topas/results/output/plan01_field01_geoB_SOBP95/"
 ########################################
 # Physics
 ########################################

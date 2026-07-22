@@ -39,7 +39,7 @@ s:Ge/SolidWater_slab3/Color      = "blue"
 
 # d:So/MySource/BeamPositionZ= Ge/WaterPhantom/HLZ + 1.5 cm
 
-s:outdir = "data/topas/results/output/plan_2/"
+s:outdir = "data/topas/results/output/plan02_field01_geoD_mono/"
 ########################################
 # Physics
 ########################################

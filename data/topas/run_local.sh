@@ -32,6 +32,10 @@ resolve_input_dir() {
 
 run_one() {
     local main="$1"
+    local plan; plan="$(basename "$(dirname "$main")")"
+    # TOPAS does not create output directories; the main.txt writes its scorer CSVs
+    # to data/topas/results/output/<plan>/ (untracked scratch, see .gitignore).
+    mkdir -p "$repo_root/data/topas/results/output/$plan"
     echo
     echo "== Running: ${main#$repo_root/} =="
     ( cd "$repo_root" && "$EXE" "${main#$repo_root/}" )

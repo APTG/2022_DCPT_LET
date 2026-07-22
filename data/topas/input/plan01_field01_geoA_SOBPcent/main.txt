@@ -53,7 +53,7 @@ d:Ge/SolidWater_slab3/MaxStepSize 	= 0.5 mm
 s:Ge/SolidWater_slab3/Color      = "red"
 
 
-s:outdir = "data/topas/results/output/plan_1a/"
+s:outdir = "data/topas/results/output/plan01_field01_geoA_SOBPcent/"
 ########################################
 # Physics
 ########################################
