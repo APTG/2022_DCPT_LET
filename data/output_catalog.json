@@ -25,7 +25,7 @@
       "dimensionality": 1,
       "render_as": "spectrum_plot",
       "frame": "beam",
-      "orientation": "Differential spectrum in the detector volume; axis is a physical quantity (dE/dx, LET, ENUC), not a spatial coordinate; frame-invariant. See docs/coordinates.md."
+            "orientation": "Differential spectrum in the detector volume; axis is a physical quantity (LET or ENUC), not a spatial coordinate; frame-invariant. See docs/coordinates.md."
     },
     "map_XZ": {
       "description": "2D longitudinal (X–Z) dose or fluence map",
@@ -561,9 +561,9 @@
       "filter": "all",
       "medium": "mat",
       "diff_axis": "DEDX",
-      "label": "Fluence spectrum vs dE/dx",
+      "label": "Fluence spectrum vs LET",
       "axis_x": {
-        "quantity": "dE/dx",
+        "quantity": "LET",
         "unit": "keV/µm"
       },
       "axis_y": {
@@ -578,9 +578,9 @@
       "filter": "all",
       "medium": "Si",
       "diff_axis": "DEDX",
-      "label": "Fluence spectrum vs dE/dx (Si stop. pow.)",
+      "label": "Fluence spectrum vs LET (Si stop. pow.)",
       "axis_x": {
-        "quantity": "dE/dx",
+        "quantity": "LET",
         "unit": "keV/µm"
       },
       "axis_y": {
@@ -612,9 +612,9 @@
       "filter": "primary",
       "medium": "Si",
       "diff_axis": "DEDX",
-      "label": "Fluence spectrum vs dE/dx (primary, Si stop. pow.)",
+      "label": "Fluence spectrum vs LET (primary, Si stop. pow.)",
       "axis_x": {
-        "quantity": "dE/dx",
+        "quantity": "LET",
         "unit": "keV/µm"
       },
       "axis_y": {
@@ -629,9 +629,9 @@
       "filter": "all",
       "medium": "H2O",
       "diff_axis": "DEDX",
-      "label": "Fluence spectrum vs dE/dx (water stop. pow.)",
+      "label": "Fluence spectrum vs LET (water stop. pow.)",
       "axis_x": {
-        "quantity": "dE/dx",
+        "quantity": "LET",
         "unit": "keV/µm"
       },
       "axis_y": {
