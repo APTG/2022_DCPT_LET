@@ -1,0 +1,33 @@
+{
+  "schema_version": "1",
+  "plan": "plan01_field01_geoB_SOBP95",
+  "code": {
+    "name": "FLUKA",
+    "short": "fluka.cern",
+    "version": null
+  },
+  "provenance": {
+    "date": null,
+    "input_path": "data/fluka.cern/input/plan01_field01_geoB_SOBP95"
+  },
+  "statistics": {
+    "normalization": "per_primary"
+  },
+  "capabilities": {
+    "notes": "FLUKA.cern benchmark input deck for the proton therapy LET/dose/fluence comparison. The input uses USRBIN scoring for central depth profiles and is intended to be run with the project FLUKA source sampler and LET scoring user routines where applicable. This manifest describes input files only; simulation outputs are stored separately."
+  },
+  "inputs": [
+    {
+      "path": "plan01_field01_geoB_SOBP95.inp",
+      "file_type": "fluka_input",
+      "role": "primary_input",
+      "description": "FLUKA input deck for this benchmark case"
+    },
+    {
+      "path": "sobp.dat",
+      "file_type": "source_table",
+      "role": "beam_source_input",
+      "description": "SOBP/source sampling table read by the FLUKA SOURCE routine"
+    }
+  ]
+}
