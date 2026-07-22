@@ -286,31 +286,31 @@
         },
         {
           "path": "NB_target_diff_p05.dat",
-          "output_type": "spectrum_target.FLUENCE.all.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p06.dat",
-          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p07.dat",
-          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p08.dat",
-          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p09.dat",
-          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p10.dat",
-          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p11.dat",
-          "output_type": "spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.heavy_recoils.mat.vs_ENUC"
         }
       ]
     },

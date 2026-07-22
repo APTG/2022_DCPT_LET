@@ -84,6 +84,30 @@
         }
       }
     },
+    "frame": {
+      "type": "object",
+      "description": "Coordinate frame declaration for this code's results. Optional. Declares the code's native convention and the explicit transform to the canonical DICOM/IEC patient frame, replacing ad-hoc flips. See docs/coordinates.md.",
+      "additionalProperties": false,
+      "properties": {
+        "native": {
+          "type": "string",
+          "description": "The code's internal convention, e.g. 'mc+z' (source z=-50, travel +Z), 'mcpl-z' (source z=+50/+60, travel -Z), or 'topas-iec-y' (DICOM->IEC RotX=90, beam along world Y with RotZ 180 scoring)."
+        },
+        "to_patient": {
+          "type": "string",
+          "description": "Human-readable description (or reference) of the explicit rigid transform mapping this code's stored results into the canonical DICOM/IEC patient frame, and the derived-depth mapping for 1D profiles. Replaces undocumented np.flip / RotZ 180 hand-reversals."
+        },
+        "beam_model": {
+          "type": "string",
+          "description": "Beam model used for the source, e.g. 'v2' or 'v5'. Determines the upstream source-plane distance."
+        },
+        "source_plane_cm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Upstream source-plane distance from isocenter in cm (50 for v2, 60 for v5)."
+        }
+      }
+    },
     "capabilities": {
       "type": "object",
       "description": "Free-form summary of what this code can or cannot produce. Use 'notes' for a human-readable summary of limitations. Actual per-file availability is declared via output_type in outputs[*].files."

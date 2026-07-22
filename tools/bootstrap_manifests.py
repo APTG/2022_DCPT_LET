@@ -48,6 +48,13 @@ def make_manifest(template: dict, plan: str, result_dir: Path) -> dict:
     }
     m["statistics"] = {"normalization": "per_primary"}
     m["outputs"] = filter_outputs(template["outputs"], result_dir)
+    # The code-level frame convention (native / to_patient) propagates from the
+    # template, but the beam model is plan-specific (plans 01-04 exist in v2 and v5;
+    # plans 05-07 are v5-only), so clear those fields for per-plan completion rather
+    # than stamping the template's beam model onto every plan. See docs/coordinates.md.
+    if isinstance(m.get("frame"), dict):
+        m["frame"].pop("beam_model", None)
+        m["frame"].pop("source_plane_cm", None)
     return m
 
 

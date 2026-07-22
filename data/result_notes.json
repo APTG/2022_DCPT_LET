@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "notes": [
+    {
+      "id": "topas-all-fluence-electrons",
+      "title": "OpenTOPAS fluence",
+      "codes": ["topas"],
+      "match": {
+        "quantity": "FLUENCE",
+        "filter": "all"
+      },
+      "text": "includes electrons"
+    },
+    {
+      "id": "pymchelper-log-scoring",
+      "title": "SH12A/OSH",
+      "codes": ["sh12a", "openshieldhit"],
+      "match": {
+        "geometry": "spectrum_target",
+        "diff_axis": "ENUC"
+      },
+      "text": "affected by a known log-binning postprocessing bug in pymchelper"
+    }
+  ]
+}

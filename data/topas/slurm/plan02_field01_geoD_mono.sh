@@ -28,7 +28,7 @@ cp -a $HOME/LETWorkshop/. /scratch/$SLURM_JOB_ID
 # change directory to the local scratch-directory, and run:
 cd /scratch/$SLURM_JOB_ID
 
-$TopasDir/bin/topas data/topas/input/plan01_field01_geoC_SOBP74/main_160MeV.txt
+$TopasDir/bin/topas data/topas/input/plan02_field01_geoD_mono/main.txt
 
 # copy home the outputdata:
 mkdir -p $SLURM_SUBMIT_DIR/Results
