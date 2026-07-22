@@ -150,6 +150,41 @@ def read_target_enuc_grid(plan: str) -> np.ndarray:
     return 0.5 * (edges[:-1] + edges[1:])
 
 
+def topas_parameter_file(csv_path: Path) -> Path | None:
+    for line in csv_path.read_text(errors="ignore").splitlines()[:20]:
+        m = re.match(r"#\s*Parameter File:\s*(.+?)\s*$", line)
+        if m:
+            path = Path(m[1])
+            return path if path.is_absolute() else REPO_ROOT / path
+    return None
+
+
+def topas_length_cm(param_file: Path | None, key: str, seen: set[str] | None = None) -> float:
+    if param_file is None or not param_file.is_file():
+        return 0.0
+    seen = seen or set()
+    if key in seen:
+        return 0.0
+    seen.add(key)
+
+    pattern = re.compile(rf"^\s*d:{re.escape(key)}\s*=\s*([^\s#]+)(?:\s+([a-zA-Z]+))?")
+    for line in param_file.read_text(errors="ignore").splitlines():
+        m = pattern.match(line)
+        if not m:
+            continue
+        value, unit = m[1], m[2] or "cm"
+        try:
+            length = float(value)
+        except ValueError:
+            length = topas_length_cm(param_file, value, seen)
+        if unit == "mm":
+            return length / 10.0
+        if unit == "m":
+            return length * 100.0
+        return length
+    return 0.0
+
+
 def topas_output_scale(output_type: str, histories: int | None) -> float:
     """Convert native TOPAS CSV Sum values into the benchmark convention.
 
@@ -208,12 +243,16 @@ def topas_depth_profile(
         if 0 <= z_idx < z_bins:
             values_by_z[z_idx] = value
 
+    param_file = topas_parameter_file(csv_path)
+    z_offset_cm = topas_length_cm(param_file, "Ge/ScoringZBox/TransZ")
     z_centres = (np.arange(z_bins, dtype=float) + 0.5) * z_width_cm
     z_centres -= 0.5 * z_bins * z_width_cm
+    z_centres += z_offset_cm
     values = values_by_z * scale
 
     # Beam coordinates: depth = +Z directly, no negation/flip. The box is centered
-    # at isocenter (TransZ=0), so z_centres already run entrance(-) -> exit(+).
+    # in the Gantry frame. Include the scorer TransZ so shifted depth scorers
+    # land on the same isocenter-referenced axis as SH12A.
     depth = z_centres
 
     # Native CSV output currently contains only Sum, so statistical errors are
@@ -319,13 +358,15 @@ def topas_2d_map_png(csv_path: Path, png_path: Path, scale: float) -> bool:
         print("  warning: matplotlib is required to write TOPAS map PNGs", file=sys.stderr)
         return False
 
+    param_file = topas_parameter_file(csv_path)
     x_width = widths_cm.get("X", 1.0)
     y_width = widths_cm.get(y_axis, 1.0)
+    y_offset = topas_length_cm(param_file, "Ge/ScoringXZBox/TransZ") if y_axis == "Z" else 0.0
     extent = [
         -0.5 * x_bins * x_width,
         0.5 * x_bins * x_width,
-        -0.5 * y_bins * y_width,
-        0.5 * y_bins * y_width,
+        -0.5 * y_bins * y_width + y_offset,
+        0.5 * y_bins * y_width + y_offset,
     ]
 
     fig, ax = plt.subplots(figsize=(6.4, 4.8), constrained_layout=True)

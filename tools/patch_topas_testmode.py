@@ -18,6 +18,10 @@ WORLD_START = "###         W O R L D    S E T U P"
 ISO_START = "###   I S O C E N T E R   S C O R E R"
 NEXT_BLOCK = "###    GEOM.  B E A M   P O S I T I O N"
 GENERATED_PREFIX = "# Generated "
+RTDOSE_RANGE_SHIFTER_WORLD = (
+    'sv:Ph/Default/LayeredMassGeometryWorlds = 2 "Patient/RTDoseGrid" "RangeShifter"'
+)
+RANGE_SHIFTER_WORLD = 'sv:Ph/Default/LayeredMassGeometryWorlds = 1 "RangeShifter"'
 
 
 def normalize_header(text: str) -> str:
@@ -70,6 +74,10 @@ def remove_topas_setup_block(text: str) -> str:
     return text[:block_start] + text[block_end:]
 
 
+def remove_missing_rtdose_world(text: str) -> str:
+    return text.replace(RTDOSE_RANGE_SHIFTER_WORLD, RANGE_SHIFTER_WORLD)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Patch dicomexportplan --test-mode TOPAS into a DCPT main.txt."
@@ -90,7 +98,7 @@ def main() -> None:
     for path in args.insert:
         snippets.append(path.read_text().strip())
 
-    patched = normalize_header(remove_topas_setup_block(source))
+    patched = normalize_header(remove_missing_rtdose_world(remove_topas_setup_block(source)))
     patched = replace_isocenter_block(patched, "\n\n".join(snippets))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(patched)
