@@ -1114,7 +1114,8 @@ def render_index(
     <h1>DCPT Monte Carlo LET Benchmark</h1>
     <p>
       Comparison of Monte Carlo codes for LET-weighted quantities in an ongoing
-      DCPT-anchored measurement campaign, with related activity in
+      <a href="https://www.en.auh.dk/departments/the-danish-centre-for-particle-therapy/" target="_blank">DCPT</a>-anchored
+      measurement campaign, with related activity in
       <a href="https://eurados.sckcen.be/en/working-groups/wg9-radiation-dosimetry-radiotherapy" target="_blank">EURADOS WG9</a>.
       Each plot overlays all available codes for a given scorer, quantity,
       medium, and particle filter.
