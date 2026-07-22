@@ -8,7 +8,7 @@ d:Ge/World/HLY = 1. m
 d:Ge/World/HLZ = 1. m
 s:Ge/World/Material = "Air"
 
-includeFile = data/topas/input/topas_beam/SOBPcent100Gy/field_1.txt
+includeFile = data/topas/input/plan01_field01_geoA_SOBPcent/beam_v2_field01.txt
 
 # d:So/MySource/BeamPositionZ= Ge/WaterPhantom/HLZ + 1.5 cm
 

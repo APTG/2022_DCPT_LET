@@ -6,6 +6,12 @@
     "short": "sh12a",
     "version": "v1.0.0"
   },
+  "frame": {
+    "native": "mc+z",
+    "to_patient": "Native MC frame (source z=-50 cm, beam travels +Z). depth_Z profiles use the derived depth scalar directly (already increasing along travel). 2D maps relate to the DICOM/IEC patient frame by a 180 deg rotation about a lateral axis for a 0/0 field. See docs/coordinates.md.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
   "provenance": {
     "date": "2026-02-13",
     "input_path": "data/sh12a/input/plan01_field01_geoA_SOBPcent"

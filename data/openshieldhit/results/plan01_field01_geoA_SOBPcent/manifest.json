@@ -7,6 +7,12 @@
     "version": "unknown",
     "notes": "Primary-particle-only transport; Gaussian energy straggling. Development run with 1e6 primaries."
   },
+  "frame": {
+    "native": "mc+z",
+    "to_patient": "Native MC frame (source z=-50 cm, beam travels +Z). depth_Z profiles use the derived depth scalar directly (already increasing along travel). 2D maps relate to the DICOM/IEC patient frame by a 180 deg rotation about a lateral axis for a 0/0 field. See docs/coordinates.md.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
   "provenance": {
     "date": "2026-06-17",
     "input_path": "data/openshieldhit/input/plan01_field01_geoA_SOBPcent"

@@ -21,12 +21,13 @@ Certain detectors will necessitate specialized calculations. For such cases:
 
 Multiple MC codes will be used.
 
-We here always assume beam transport along the positive Z-axis, as is convention for most MC codes, also to minimize confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position.
+Most MC codes here use a **native convention** of beam transport along the positive Z-axis, as is convention for most MC codes, also to minimize confusion during setup in the experimental room. z_iso = 0.0 cm marks the isocenter position. Note that this +Z direction is the *native MC* convention, **not** the canonical storage/comparison frame: results are compared in the DICOM/IEC patient frame, and "depth" is a derived scalar. See [docs/coordinates.md](docs/coordinates.md) for the authoritative contract.
 
-[The DCPT beam model is supplied](data/resources/dcpt_beam_model), describing the proton beam starting at z_iso = -50 cm.
+[The DCPT beam model is supplied](data/resources/dcpt_beam_model). It is defined on a plane **upstream** of the isocenter (50 cm for v2, 60 cm for v5) and is **independent of transport direction** — it is not anchored to a signed world-z coordinate. See [docs/coordinates.md](docs/coordinates.md).
 
 
 ## Details
+- **Coordinate conventions** (patient frame, derived depth, per-code transforms): [docs/coordinates.md](docs/coordinates.md)
 - Simulation geometry: [docs/geometry.md](docs/geometry.md)
 - Irradiation Plans: [data/resources/plans/](data/resources/plans/)
 - Scoring geometry: [docs/scoring.md](docs/scoring.md)

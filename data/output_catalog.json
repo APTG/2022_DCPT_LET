@@ -6,6 +6,8 @@
       "description": "1D depth profile along the beam (Z) axis with narrow lateral acceptance (1×1 cm²)",
       "dimensionality": 1,
       "render_as": "line_plot",
+      "frame": "beam",
+      "orientation": "axis_x is the derived 'depth' scalar: signed distance along the beam central axis from isocenter, increasing along travel. Convention-independent across codes' internal +Z/-Z/Y storage. See docs/coordinates.md.",
       "axis_x": {
         "quantity": "depth",
         "unit": "cm"
@@ -14,17 +16,23 @@
     "target": {
       "description": "Single-volume integrated scalar in the target detector (5×5×2 mm³ silicon)",
       "dimensionality": 0,
-      "render_as": "scalar"
+      "render_as": "scalar",
+      "frame": "beam",
+      "orientation": "Scalar in the detector volume on the beam axis; frame-invariant. See docs/coordinates.md."
     },
     "spectrum_target": {
       "description": "1D differential particle spectrum scored in the target volume",
       "dimensionality": 1,
-      "render_as": "spectrum_plot"
+      "render_as": "spectrum_plot",
+      "frame": "beam",
+      "orientation": "Differential spectrum in the detector volume; axis is a physical quantity (dE/dx, LET, EKIN), not a spatial coordinate; frame-invariant. See docs/coordinates.md."
     },
     "map_XZ": {
       "description": "2D longitudinal (X–Z) dose or fluence map",
       "dimensionality": 2,
       "render_as": "heatmap",
+      "frame": "patient",
+      "orientation": "axis_x = patient-frame lateral x; axis_y = derived depth. Each code's declared BEV->patient transform (manifest 'frame' block) must be applied before comparison; do not rely on visual symmetry. See docs/coordinates.md.",
       "axis_x": {
         "quantity": "x",
         "unit": "cm"
@@ -38,6 +46,8 @@
       "description": "2D transverse (X–Y) dose or fluence map",
       "dimensionality": 2,
       "render_as": "heatmap",
+      "frame": "patient",
+      "orientation": "axis_x = patient-frame lateral x; axis_y = patient-frame lateral y. Each code's declared BEV->patient transform (manifest 'frame' block) must be applied before comparison; a lateral mirror is invisible for symmetric fields. See docs/coordinates.md.",
       "axis_x": {
         "quantity": "x",
         "unit": "cm"

@@ -4,7 +4,7 @@
 # Beam & Geometry
 ########################################
 
-includeFile = data/topas/input/topas_beam/SOBP_cent_2Gy/field_1.txt
+includeFile = data/topas/input/plan01_field01_geoB_SOBP95/beam_v2_field01.txt
 
 # Solid Water SolidWater_slabs 
 s:Ge/SolidWater_slab1/Parent 		= "World"

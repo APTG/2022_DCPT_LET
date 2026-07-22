@@ -7,6 +7,12 @@
     "version": "unknown",
     "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
   },
+  "frame": {
+    "native": "mcpl-z",
+    "to_patient": "MCPL phase-space source frame (source on the +z side, particles travel -Z toward isocenter), converted to RSSA/SSW for MCNP. depth_Z profiles use the derived depth scalar (measured along -z from the source side). See docs/coordinates.md; verify whether the RSSA/SSW conversion sign-flips travel.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
   "provenance": {
     "date": "2023-01-01",
     "input_path": "data/mcnp/input/plan01_field01_geoA_SOBPcent"

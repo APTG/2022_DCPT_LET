@@ -8,7 +8,7 @@ d:Ge/World/HLY = 1. m
 d:Ge/World/HLZ = 1. m
 s:Ge/World/Material = "Air"
 
-includeFile = data/topas/input/topas_beam/Mono_E_160MeV/160MeV.txt
+includeFile = data/topas/input/plan02_field01_geoD_mono/beam_v2_field01.txt
 
 # Solid Water SolidWater_slabs 
 s:Ge/SolidWater_slab1/Parent 		= "World"
