@@ -498,6 +498,13 @@ a { color: var(--accent); }
 }
 .plan-thumb svg { display: block; width: 100%; height: auto; }
 .plan-thumb svg line { stroke: var(--border); stroke-width: 1; }
+.plot-thumb {
+  width: 100%; max-width: 220px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: .3rem; margin: .1rem 0;
+}
+.plot-thumb svg { display: block; width: 100%; height: auto; }
+.plot-thumb svg line { stroke: var(--border); stroke-width: 1; }
 
 /* code pill */
 .code-pill {
@@ -655,6 +662,14 @@ def render_plot_card(
     download_files: list[dict],
 ) -> str:
     label = html.escape(catalog_meta.get("label", output_type))
+    thumb = ""
+    if catalog_meta.get("render_as") in ("line_plot", "spectrum_plot"):
+        thumb = render_profile_thumbnail(
+            download_files,
+            code_styles,
+            title=catalog_meta.get("label", output_type),
+            class_name="plot-thumb",
+        )
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
     if plot_exists:
         link_html = (
@@ -685,6 +700,7 @@ def render_plot_card(
     return f"""
 <article class="plot-card">
   <h3>{label}</h3>
+  {thumb}
   <div class="pill-row">{pills}</div>
   {link_html}
   {dl_html}
