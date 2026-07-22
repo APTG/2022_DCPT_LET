@@ -62,6 +62,61 @@ def load_manifests(data_root: Path) -> list[dict]:
     return manifests
 
 
+def load_code_versions(data_root: Path) -> dict[str, dict]:
+    """Summarise VERSION.txt provenance files by registered code."""
+    versions: dict[str, dict] = {}
+    for code_dir in sorted(data_root.iterdir()):
+        if not code_dir.is_dir():
+            continue
+        code_file = code_dir / "code.yaml"
+        results_dir = code_dir / "results"
+        if not code_file.exists() or not results_dir.exists():
+            continue
+        info = yaml.safe_load(code_file.read_text(encoding="utf-8"))
+        code_short = info["short"]
+        summary = {
+            "plans": 0,
+            "mc_code_version": set(),
+            "convertmc_version": set(),
+            "number_of_primaries": set(),
+            "filedate": set(),
+        }
+        for version_file in sorted(results_dir.glob("*/VERSION.txt")):
+            parsed: dict[str, str] = {}
+            for line in version_file.read_text(encoding="utf-8").splitlines():
+                if ":" not in line:
+                    continue
+                key, value = line.split(":", 1)
+                parsed[key.strip()] = value.strip()
+            if not parsed:
+                continue
+            summary["plans"] += 1
+            for key in ("mc_code_version", "convertmc_version", "number_of_primaries", "filedate"):
+                value = parsed.get(key)
+                if value:
+                    summary[key].add(value)
+        versions[code_short] = summary
+    return versions
+
+
+def load_detector_plates(data_root: Path) -> dict[str, tuple[float, float]]:
+    """Read PMMA detector plate z-bounds from SH12A reference geo.dat files."""
+    plates: dict[str, tuple[float, float]] = {}
+    for geo_path in sorted((data_root / "sh12a" / "input").glob("*/geo.dat")):
+        plan = geo_path.parent.name
+        for line in geo_path.read_text(encoding="utf-8").splitlines():
+            fields = line.split()
+            if len(fields) >= 8 and fields[0].upper() == "RPP" and fields[1] == "4":
+                try:
+                    z_min = float(fields[6])
+                    z_max = float(fields[7])
+                except ValueError:
+                    continue
+                plates[plan] = (min(z_min, z_max), max(z_min, z_max))
+                break
+    return plates
+
+
 def build_availability(
     manifests: list[dict],
 ) -> dict[str, dict[str, set[str]]]:
@@ -93,12 +148,12 @@ def codes_per_plan(manifests: list[dict]) -> dict[str, set[str]]:
 
 def collect_preview_images(
     manifests: list[dict],
-) -> dict[str, dict[str, list[str]]]:
+) -> dict[str, dict[str, list[Path]]]:
     """
-    {plan: {code_short: [rel_paths_to_preview_pngs, ...]}}.
+    {plan: {code_short: [paths_to_preview_pngs, ...]}}.
     Used to show 2D map previews on plan pages.
     """
-    previews: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+    previews: dict[str, dict[str, list[Path]]] = defaultdict(lambda: defaultdict(list))
     for m in manifests:
         plan = m["plan"]
         code_short = m["code"]["short"]
@@ -109,7 +164,7 @@ def collect_preview_images(
             for f in entry.get("files", []):
                 path = result_dir / f["path"]
                 if path.exists():
-                    previews[plan][code_short].append(str(path))
+                    previews[plan][code_short].append(path)
     return dict(previews)
 
 
@@ -142,6 +197,51 @@ def build_download_index(
     return dict(index)
 
 
+def build_reference_order(
+    manifests: list[dict],
+    catalog: dict,
+    *,
+    reference_code: str = "sh12a",
+) -> dict[str, dict[str, list[dict]]]:
+    """
+    Return plan-page card ordering from the reference code's manifest.
+
+    The SH12A manifests are written in detector/output-page order, which is more
+    meaningful than alphabetical output_type sorting.  Each manifest output block
+    becomes a visual subgroup inside the matching geometry section.
+    """
+    output_types = catalog["output_types"]
+    order: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    seen: dict[tuple[str, str], set[str]] = defaultdict(set)
+
+    for m in manifests:
+        if m.get("code", {}).get("short") != reference_code:
+            continue
+        plan = m["plan"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            by_geometry: dict[str, list[str]] = defaultdict(list)
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if not ot:
+                    continue
+                geom = output_types.get(ot, {}).get("geometry", ot.split(".")[0])
+                key = (plan, geom)
+                if ot in seen[key]:
+                    continue
+                seen[key].add(ot)
+                by_geometry[geom].append(ot)
+            for geom, ots in by_geometry.items():
+                if ots:
+                    order[plan][geom].append({
+                        "title": entry.get("description", ""),
+                        "output_types": ots,
+                    })
+
+    return {plan: dict(by_geom) for plan, by_geom in order.items()}
+
+
 def copy_data_files(
     download_index: dict[tuple[str, str], list[dict]],
     site_root: Path,
@@ -167,6 +267,26 @@ def copy_data_files(
                 "dest_rel": f"data/{plan}/{item['code_short']}/{item['filename']}",
             })
     return enriched
+
+
+def copy_preview_images(
+    preview_images: dict[str, dict[str, list[Path]]],
+    site_root: Path,
+) -> dict[str, dict[str, list[str]]]:
+    """Copy preview PNGs into the site and return paths relative to plan pages."""
+    copied: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+    for plan, by_code in preview_images.items():
+        for code_short, paths in by_code.items():
+            seen: set[Path] = set()
+            for src in paths:
+                if src in seen:
+                    continue
+                seen.add(src)
+                dest = site_root / "previews" / plan / code_short / src.name
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dest)
+                copied[plan][code_short].append(f"../previews/{plan}/{code_short}/{src.name}")
+    return {plan: dict(by_code) for plan, by_code in copied.items()}
 
 
 
@@ -199,6 +319,127 @@ def code_pill(code_short: str, code_styles: dict[str, dict], *, size: str = "nor
 def write_text(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def version_values(values: set[str], *, max_items: int = 2) -> str:
+    if not values:
+        return "not recorded"
+    ordered = sorted(values)
+    shown = ", ".join(html.escape(v) for v in ordered[:max_items])
+    if len(ordered) > max_items:
+        shown += f" +{len(ordered) - max_items} more"
+    return shown
+
+
+def load_xy_profile(path: Path) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        fields = line.split()
+        if len(fields) < 2:
+            continue
+        try:
+            points.append((float(fields[0]), float(fields[1])))
+        except ValueError:
+            continue
+    return points
+
+
+def profile_polyline(points: list[tuple[float, float]], x_min: float, x_max: float, y_max: float) -> str:
+    width = 170.0
+    height = 110.0
+    pad_x = 12.0
+    pad_y = 12.0
+    plot_w = width - 2.0 * pad_x
+    plot_h = height - 2.0 * pad_y
+    if x_max <= x_min or y_max <= 0.0:
+        return ""
+    coords: list[str] = []
+    for x, y in points:
+        sx = pad_x + ((x - x_min) / (x_max - x_min)) * plot_w
+        sy = height - pad_y - (max(y, 0.0) / y_max) * plot_h
+        coords.append(f"{sx:.1f},{sy:.1f}")
+    return " ".join(coords)
+
+
+def profile_plate_rect(detector_plate: tuple[float, float], x_min: float, x_max: float) -> str:
+    width = 170.0
+    height = 110.0
+    pad_x = 12.0
+    pad_y = 12.0
+    plot_w = width - 2.0 * pad_x
+    plot_h = height - 2.0 * pad_y
+    if x_max <= x_min:
+        return ""
+    z_min, z_max = detector_plate
+    left = max(min(z_min, z_max), x_min)
+    right = min(max(z_min, z_max), x_max)
+    if right <= left:
+        return ""
+    x0 = pad_x + ((left - x_min) / (x_max - x_min)) * plot_w
+    x1 = pad_x + ((right - x_min) / (x_max - x_min)) * plot_w
+    return (
+        f'<rect x="{x0:.1f}" y="{pad_y:.1f}" width="{x1 - x0:.1f}" '
+        f'height="{plot_h:.1f}" fill="#ee9b00" opacity="0.18" />'
+    )
+
+
+def render_profile_thumbnail(
+    files: list[dict],
+    code_styles: dict[str, dict],
+    *,
+    title: str = "Dose-to-water",
+    class_name: str = "hero-thumb",
+    detector_plate: tuple[float, float] | None = None,
+) -> str:
+    series: list[dict] = []
+    for item in sorted(files, key=lambda x: x["code_short"]):
+        points = load_xy_profile(item["src_path"])
+        if not points:
+            continue
+        series.append({
+            "code_short": item["code_short"],
+            "points": points,
+        })
+    if not series:
+        return ""
+
+    all_x = [x for s in series for x, _ in s["points"]]
+    all_y = [y for s in series for _, y in s["points"] if y >= 0.0]
+    if not all_x or not all_y:
+        return ""
+
+    x_min = min(all_x)
+    x_max = max(all_x)
+    y_max = max(all_y)
+    plate_rect = profile_plate_rect(detector_plate, x_min, x_max) if detector_plate else ""
+    lines: list[str] = []
+    for s in series:
+        code_short = s["code_short"]
+        style = code_styles.get(code_short, {})
+        color = html.escape(style.get("display_color", "#888888"))
+        points = profile_polyline(s["points"], x_min, x_max, y_max)
+        if not points:
+            continue
+        lines.append(
+            f'<polyline points="{points}" fill="none" stroke="{color}" '
+            f'stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />'
+        )
+
+    if not lines:
+        return ""
+
+    return f"""
+<aside class="{html.escape(class_name)}" aria-label="{html.escape(title)} profile thumbnail">
+  <svg viewBox="0 0 170 110" role="img" aria-label="{html.escape(title)} depth profile">
+    {plate_rect}
+    <line x1="12" y1="98" x2="158" y2="98" />
+    <line x1="12" y1="12" x2="12" y2="98" />
+    {"".join(lines)}
+  </svg>
+</aside>"""
 
 
 def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
@@ -270,6 +511,10 @@ a { color: var(--accent); }
   border-radius: 20px; box-shadow: var(--shadow);
 }
 .hero { padding: 2rem; margin-bottom: 2rem; }
+.hero-plan {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 190px);
+  gap: 1rem; align-items: center;
+}
 .hero h1 { margin: 0 0 .75rem; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.05; }
 .panel { padding: 1.4rem; margin-bottom: 1.6rem; }
 .section-title { margin: 0 0 .3rem; font-size: 1.4rem; }
@@ -282,6 +527,27 @@ a { color: var(--accent); }
 .stat { background: var(--panel-strong); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; }
 .stat strong { display: block; font-size: 1.5rem; color: var(--text); }
 .stat span { font-size: .85rem; color: var(--muted); }
+.hero-thumb {
+  justify-self: end; width: 100%; max-width: 190px;
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 10px; padding: .45rem;
+}
+.hero-thumb svg { display: block; width: 100%; height: auto; }
+.hero-thumb svg line { stroke: var(--border); stroke-width: 1; }
+.plan-thumb {
+  width: 100%; max-width: 190px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: .35rem; margin-top: .75rem;
+}
+.plan-thumb svg { display: block; width: 100%; height: auto; }
+.plan-thumb svg line { stroke: var(--border); stroke-width: 1; }
+.plot-thumb {
+  width: 100%; max-width: 220px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: .3rem; margin: .1rem 0;
+}
+.plot-thumb svg { display: block; width: 100%; height: auto; }
+.plot-thumb svg line { stroke: var(--border); stroke-width: 1; }
 
 /* code pill */
 .code-pill {
@@ -298,6 +564,7 @@ a { color: var(--accent); }
   border-radius: 18px; padding: 1rem;
 }
 .plan-card h3 { margin: 0 0 .5rem; }
+.plan-card h3 a { overflow-wrap: anywhere; }
 .plan-card .plan-meta { font-size: .85rem; }
 
 /* code registry cards */
@@ -309,6 +576,10 @@ a { color: var(--accent); }
 }
 .code-card h3 { margin: 0 0 .3rem; font-size: 1rem; }
 .code-card .muted { color: var(--muted); font-size: .85rem; }
+.version-list { margin: .7rem 0 0; display: grid; gap: .25rem; }
+.version-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: .5rem; font-size: .8rem; }
+.version-row dt { color: var(--muted); }
+.version-row dd { margin: 0; overflow-wrap: anywhere; }
 
 /* plot card grid */
 .plot-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -327,6 +598,14 @@ a { color: var(--accent); }
 }
 .plot-card .plot-link:hover { background: var(--accent-soft); }
 .plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
+.plot-subsection { margin-top: 1rem; }
+.plot-subsection:first-child { margin-top: 0; }
+.plot-subsection-title {
+  margin: 0 0 .7rem; padding-left: .65rem;
+  border-left: 4px solid var(--accent);
+  font-size: 1rem; font-weight: 700;
+  color: var(--text);
+}
 
 /* PDF download button */
 .btn-pdf {
@@ -373,6 +652,8 @@ a { color: var(--accent); }
   .shell { width: min(100vw - 1rem, 100%); }
   .topbar { flex-direction: column; align-items: flex-start; }
   .hero, .panel { padding: 1rem; }
+  .hero-plan { grid-template-columns: 1fr; }
+  .hero-thumb { justify-self: stretch; max-width: none; }
 }
 """
 
@@ -391,8 +672,9 @@ GEOMETRY_SECTIONS = [
     ),
     (
         "spectrum_target",
-        "LET / dE/dx spectra",
-        "Differential fluence spectra in the target volume. Log–log scale.",
+        "Target spectra",
+        "Differential LET, dE/dx, and kinetic-energy spectra in the target volume. "
+        "Log-log scale with stair-step bins.",
     ),
     (
         "target",
@@ -421,8 +703,18 @@ def render_plot_card(
     plot_exists: bool,
     catalog_meta: dict,
     download_files: list[dict],
+    detector_plate: tuple[float, float] | None = None,
 ) -> str:
     label = html.escape(catalog_meta.get("label", output_type))
+    thumb = ""
+    if catalog_meta.get("render_as") in ("line_plot", "spectrum_plot"):
+        thumb = render_profile_thumbnail(
+            download_files,
+            code_styles,
+            title=catalog_meta.get("label", output_type),
+            class_name="plot-thumb",
+            detector_plate=detector_plate if catalog_meta.get("geometry") == "depth_Z" else None,
+        )
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
     if plot_exists:
         link_html = (
@@ -453,6 +745,7 @@ def render_plot_card(
     return f"""
 <article class="plot-card">
   <h3>{label}</h3>
+  {thumb}
   <div class="pill-row">{pills}</div>
   {link_html}
   {dl_html}
@@ -465,13 +758,20 @@ def render_plan_page(
     availability: dict[str, set[str]],
     catalog: dict,
     code_styles: dict[str, dict],
+    reference_order: dict[str, list[dict]],
     plots_rel_from_plan: str,
     plots_dir: Path,
     preview_images: dict[str, list[str]],
     download_index: dict[tuple[str, str], list[dict]],
+    detector_plate: tuple[float, float] | None,
 ) -> str:
     output_types = catalog["output_types"]
     pills = " ".join(code_pill(c, code_styles) for c in sorted(plan_codes))
+    hero_thumb = render_profile_thumbnail(
+        download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
+        code_styles,
+        detector_plate=detector_plate,
+    )
 
     # Group available output types by geometry class
     by_geometry: dict[str, dict[str, set[str]]] = defaultdict(dict)
@@ -509,19 +809,44 @@ def render_plan_page(
             ots = by_geometry.get(geom_class, {})
             if not ots:
                 continue
-            cards: list[str] = []
-            for ot, codes in sorted(ots.items()):
-                plot_file = plots_dir / plan / f"{ot}.html"
-                plot_rel = f"{plots_rel_from_plan}/{plan}/{ot}.html"
-                cards.append(
-                    render_plot_card(
-                        ot, codes, code_styles,
-                        plot_rel, plot_file.exists(),
-                        output_types.get(ot, {}),
-                        download_index.get((plan, ot), []),
+            groups: list[dict] = []
+            used: set[str] = set()
+            for group in reference_order.get(geom_class, []):
+                group_ots = [ot for ot in group["output_types"] if ot in ots]
+                if not group_ots:
+                    continue
+                used.update(group_ots)
+                groups.append({
+                    "title": group.get("title", ""),
+                    "output_types": group_ots,
+                })
+            remaining = [ot for ot in sorted(ots) if ot not in used]
+            if remaining:
+                groups.append({"title": "Other outputs", "output_types": remaining})
+
+            subsections: list[str] = []
+            for group in groups:
+                cards: list[str] = []
+                for ot in group["output_types"]:
+                    codes = ots[ot]
+                    plot_file = plots_dir / plan / f"{ot}.html"
+                    plot_rel = f"{plots_rel_from_plan}/{plan}/{ot}.html"
+                    cards.append(
+                        render_plot_card(
+                            ot, codes, code_styles,
+                            plot_rel, plot_file.exists(),
+                            output_types.get(ot, {}),
+                            download_index.get((plan, ot), []),
+                            detector_plate=detector_plate,
+                        )
                     )
+                title_html = ""
+                if group.get("title"):
+                    title_html = f'<h3 class="plot-subsection-title">{html.escape(group["title"])}</h3>'
+                subsections.append(
+                    f'<div class="plot-subsection">{title_html}<div class="plot-grid">{"".join(cards)}</div></div>'
                 )
-            inner = f'<div class="plot-grid">{"".join(cards)}</div>'
+            inner = "".join(subsections)
 
         sections_html.append(f"""
 <section class="panel">
@@ -533,11 +858,14 @@ def render_plan_page(
     body = f"""
 <main>
   <a class="back-link" href="../index.html">← Back to overview</a>
-  <section class="hero">
-    <p class="eyebrow">Plan browser</p>
-    <h1>{html.escape(plan)}</h1>
-    <div class="pill-row" style="margin-top:.8rem">{pills}</div>
-    <a class="btn-pdf" href="{html.escape(plan)}.pdf" download>⬇ Download PDF (all plots for this plan)</a>
+  <section class="hero hero-plan">
+    <div>
+      <p class="eyebrow">Plan browser</p>
+      <h1>{html.escape(plan)}</h1>
+      <div class="pill-row" style="margin-top:.8rem">{pills}</div>
+      <a class="btn-pdf" href="{html.escape(plan)}.pdf" download>⬇ Download PDF (all plots for this plan)</a>
+    </div>
+    {hero_thumb}
   </section>
   {"".join(sections_html)}
 </main>"""
@@ -549,7 +877,10 @@ def render_index(
     plan_codes: dict[str, set[str]],
     plan_availability: dict[str, dict[str, set[str]]],
     code_styles: dict[str, dict],
+    code_versions: dict[str, dict],
     catalog: dict,
+    download_index: dict[tuple[str, str], list[dict]],
+    detector_plates: dict[str, tuple[float, float]],
     generated_at: str,
 ) -> str:
     total_plots = sum(len(ots) for ots in plan_availability.values())
@@ -559,11 +890,18 @@ def render_index(
         codes = plan_codes.get(plan, set())
         pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
         n_ots = len(plan_availability.get(plan, {}))
+        thumb = render_profile_thumbnail(
+            download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
+            code_styles,
+            class_name="plan-thumb",
+            detector_plate=detector_plates.get(plan),
+        )
         plan_cards.append(f"""
 <article class="plan-card">
   <div class="pill-row" style="margin-bottom:.5rem">{pills}</div>
   <h3><a href="plans/{html.escape(plan)}.html">{html.escape(plan)}</a></h3>
   <p class="plan-meta">{n_ots} output type(s) catalogued</p>
+  {thumb}
 </article>""")
 
     code_cards: list[str] = []
@@ -572,10 +910,22 @@ def render_index(
         name = html.escape(info.get("name", short))
         url = info.get("url", "")
         link = f'<a href="{html.escape(url)}" target="_blank">{name}</a>' if url else name
+        version = code_versions.get(short, {})
+        if version.get("plans", 0):
+            version_html = f"""
+  <dl class="version-list">
+    <div class="version-row"><dt>MC version</dt><dd>{version_values(version["mc_code_version"])}</dd></div>
+    <div class="version-row"><dt>convertmc</dt><dd>{version_values(version["convertmc_version"])}</dd></div>
+    <div class="version-row"><dt>primaries</dt><dd>{version_values(version["number_of_primaries"])}</dd></div>
+    <div class="version-row"><dt>VERSION files</dt><dd>{version["plans"]} plan(s)</dd></div>
+  </dl>"""
+        else:
+            version_html = '<p class="muted">No <code>VERSION.txt</code> files found.</p>'
         code_cards.append(f"""
 <article class="code-card" style="border-top-color:{color}">
   <h3>{link}</h3>
   <p class="muted">short: <code>{html.escape(short)}</code></p>
+  {version_html}
 </article>""")
 
     body = f"""
@@ -650,10 +1000,13 @@ def main() -> int:
     catalog = load_catalog(args.catalog)
     code_styles = load_code_styles(args.data_root)
     manifests = load_manifests(args.data_root)
+    code_versions = load_code_versions(args.data_root)
     availability = build_availability(manifests)
+    reference_order = build_reference_order(manifests, catalog)
     plan_codes = codes_per_plan(manifests)
     preview_images = collect_preview_images(manifests)
     raw_download_index = build_download_index(manifests)
+    detector_plates = load_detector_plates(args.data_root)
 
     plans = sorted(availability)
     print(
@@ -673,6 +1026,7 @@ def main() -> int:
     site_root.mkdir(parents=True, exist_ok=True)
 
     download_index = copy_data_files(raw_download_index, site_root)
+    site_preview_images = copy_preview_images(preview_images, site_root)
 
     write_text(site_root / ".nojekyll", "")
     write_text(site_root / "assets/site.css", css_text())
@@ -682,7 +1036,17 @@ def main() -> int:
     # Index page
     write_text(
         site_root / "index.html",
-        render_index(plans, plan_codes, availability, code_styles, catalog, generated_at),
+        render_index(
+            plans,
+            plan_codes,
+            availability,
+            code_styles,
+            code_versions,
+            catalog,
+            download_index,
+            detector_plates,
+            generated_at,
+        ),
     )
 
     # Relative path from a plan page (plans/{plan}.html) back to the plots dir
@@ -704,10 +1068,12 @@ def main() -> int:
                 availability=availability.get(plan, {}),
                 catalog=catalog,
                 code_styles=code_styles,
+                reference_order=reference_order.get(plan, {}),
                 plots_rel_from_plan=plots_rel_from_plan,
                 plots_dir=plots_dir,
-                preview_images=preview_images.get(plan, {}),
+                preview_images=site_preview_images.get(plan, {}),
                 download_index=download_index,
+                detector_plate=detector_plates.get(plan),
             ),
         )
         print(f"  wrote plans/{plan}.html")

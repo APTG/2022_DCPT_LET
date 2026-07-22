@@ -3,7 +3,7 @@ MATERIAL Air   # AIR
     LOADDEDX Air.txt
 
 MATERIAL SW   # Solid water
-    STATE 2
+    STATE condensed
     RHO 1.032
     NUCLID 1   7.9367
     NUCLID 6   5.6032

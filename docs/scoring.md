@@ -1,6 +1,10 @@
 ## Scoring volumes
 We suggest to adhere to the list of scoring quantities and scoring volumes described below. This will allow to compare the results obtained using different MC codes.
 
+> 📋 For the concrete detector layout (output files, quantities, filters and page
+> indices as implemented in `detect.dat`), see the
+> **[Detector reference](detector_reference.md)**.
+
 -
 ### Target volume
 This volume represent the detector positioned in the PMMA holder.
