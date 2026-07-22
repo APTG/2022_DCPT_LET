@@ -1,0 +1,332 @@
+########################################
+# Scoring Geometry (parent "Gantry"; depth = +Z, isocenter Z=0)
+########################################
+# Depth profile: 2x2 cm2 lateral acceptance, 205 x 1 mm bins along Z. Matches the
+# SH12A Z_narrow mesh exactly, so postprocess resampling is essentially identity.
+s:Ge/ScoringZBox/Parent     = "Gantry"
+s:Ge/ScoringZBox/Type       = "TsBox"
+b:Ge/ScoringZBox/IsParallel = "TRUE"
+d:Ge/ScoringZBox/HLX        = 1 cm
+d:Ge/ScoringZBox/HLY        = 1 cm
+d:Ge/ScoringZBox/HLZ        = 10.25 cm
+i:Ge/ScoringZBox/XBins      = 1
+i:Ge/ScoringZBox/YBins      = 1
+i:Ge/ScoringZBox/ZBins      = 205
+d:Ge/ScoringZBox/TransZ     = 0.0 cm
+s:Ge/ScoringZBox/Color      = "green"
+
+# Longitudinal map (map_XZ): X vs depth Z, 2 cm thick in Y.
+s:Ge/ScoringXZBox/Parent     = "Gantry"
+s:Ge/ScoringXZBox/Type       = "TsBox"
+b:Ge/ScoringXZBox/IsParallel = "TRUE"
+d:Ge/ScoringXZBox/HLX        = 15 cm
+d:Ge/ScoringXZBox/HLY        = 1 cm
+d:Ge/ScoringXZBox/HLZ        = 10.25 cm
+i:Ge/ScoringXZBox/XBins      = 300
+i:Ge/ScoringXZBox/YBins      = 1
+i:Ge/ScoringXZBox/ZBins      = 205
+d:Ge/ScoringXZBox/TransZ     = 0.0 cm
+s:Ge/ScoringXZBox/Color      = "green"
+
+# Transverse map (map_XY): X vs Y at isocenter, 5 mm thick in Z.
+s:Ge/ScoringXYBox/Parent     = "Gantry"
+s:Ge/ScoringXYBox/Type       = "TsBox"
+b:Ge/ScoringXYBox/IsParallel = "TRUE"
+d:Ge/ScoringXYBox/HLX        = 15 cm
+d:Ge/ScoringXYBox/HLY        = 15 cm
+d:Ge/ScoringXYBox/HLZ        = 0.25 cm
+i:Ge/ScoringXYBox/XBins      = 300
+i:Ge/ScoringXYBox/YBins      = 300
+i:Ge/ScoringXYBox/ZBins      = 1
+d:Ge/ScoringXYBox/TransZ     = 0.0 cm
+s:Ge/ScoringXYBox/Color      = "green"
+
+# Target detector volume (5 x 5 x 0.2 cm3) at isocenter (pmma centre), for spectra.
+s:Ge/TargetBox/Parent     = "Gantry"
+s:Ge/TargetBox/Type       = "TsBox"
+b:Ge/TargetBox/IsParallel = "TRUE"
+d:Ge/TargetBox/HLX        = 2.5 cm
+d:Ge/TargetBox/HLY        = 2.5 cm
+d:Ge/TargetBox/HLZ        = 0.1 cm
+i:Ge/TargetBox/XBins      = 1
+i:Ge/TargetBox/YBins      = 1
+i:Ge/TargetBox/ZBins      = 1
+d:Ge/TargetBox/TransZ     = 0.0 cm
+s:Ge/TargetBox/Color      = "magenta"
+
+########################################
+# Scoring
+########################################
+# All scorers below are NATIVE OpenTOPAS (no extension). OutputFile == the
+# data/output_catalog.json key, so postprocess_local.py maps each CSV to its
+# output_type by filename. Depth scorers bin along beam +Z (ScoringZBox) = the
+# derived depth; no readback/flip needed. Particle filters: OnlyIncludeParticlesNamed
+# (proton/deuteron/triton/He3/alpha), OnlyIncludeParticlesOfGeneration="Primary".
+# heavy_recoils (Z>=3) is deferred (native atomic-number filter is exact-Z only).
+
+# ---------- Depth dose to medium (mat) : DoseToMedium ----------
+s:Sc/dD_all_mat/Quantity = "DoseToMedium"
+s:Sc/dD_all_mat/Component = "ScoringZBox"
+s:Sc/dD_all_mat/OutputType = "csv"
+s:Sc/dD_all_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_all_mat/PropagateToChildren = "True"
+s:Sc/dD_all_mat/OutputFile = outdir + "depth_Z.DOSE.all.mat"
+
+s:Sc/dD_prim_mat/Quantity = "DoseToMedium"
+s:Sc/dD_prim_mat/Component = "ScoringZBox"
+s:Sc/dD_prim_mat/OutputType = "csv"
+s:Sc/dD_prim_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_prim_mat/PropagateToChildren = "True"
+sv:Sc/dD_prim_mat/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dD_prim_mat/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dD_prim_mat/OutputFile = outdir + "depth_Z.DOSE.primary.mat"
+
+s:Sc/dD_p_mat/Quantity = "DoseToMedium"
+s:Sc/dD_p_mat/Component = "ScoringZBox"
+s:Sc/dD_p_mat/OutputType = "csv"
+s:Sc/dD_p_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_p_mat/PropagateToChildren = "True"
+sv:Sc/dD_p_mat/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dD_p_mat/OutputFile = outdir + "depth_Z.DOSE.protons.mat"
+
+s:Sc/dD_d_mat/Quantity = "DoseToMedium"
+s:Sc/dD_d_mat/Component = "ScoringZBox"
+s:Sc/dD_d_mat/OutputType = "csv"
+s:Sc/dD_d_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_d_mat/PropagateToChildren = "True"
+sv:Sc/dD_d_mat/OnlyIncludeParticlesNamed = 1 "deuteron"
+s:Sc/dD_d_mat/OutputFile = outdir + "depth_Z.DOSE.deuterons.mat"
+
+s:Sc/dD_t_mat/Quantity = "DoseToMedium"
+s:Sc/dD_t_mat/Component = "ScoringZBox"
+s:Sc/dD_t_mat/OutputType = "csv"
+s:Sc/dD_t_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_t_mat/PropagateToChildren = "True"
+sv:Sc/dD_t_mat/OnlyIncludeParticlesNamed = 1 "triton"
+s:Sc/dD_t_mat/OutputFile = outdir + "depth_Z.DOSE.tritons.mat"
+
+s:Sc/dD_he3_mat/Quantity = "DoseToMedium"
+s:Sc/dD_he3_mat/Component = "ScoringZBox"
+s:Sc/dD_he3_mat/OutputType = "csv"
+s:Sc/dD_he3_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_he3_mat/PropagateToChildren = "True"
+sv:Sc/dD_he3_mat/OnlyIncludeParticlesNamed = 1 "He3"
+s:Sc/dD_he3_mat/OutputFile = outdir + "depth_Z.DOSE.he3.mat"
+
+s:Sc/dD_a_mat/Quantity = "DoseToMedium"
+s:Sc/dD_a_mat/Component = "ScoringZBox"
+s:Sc/dD_a_mat/OutputType = "csv"
+s:Sc/dD_a_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_a_mat/PropagateToChildren = "True"
+sv:Sc/dD_a_mat/OnlyIncludeParticlesNamed = 1 "alpha"
+s:Sc/dD_a_mat/OutputFile = outdir + "depth_Z.DOSE.alphas.mat"
+
+# ---------- Depth dose to water (H2O) : DoseToWater ----------
+s:Sc/dD_all_H2O/Quantity = "DoseToWater"
+s:Sc/dD_all_H2O/Component = "ScoringZBox"
+s:Sc/dD_all_H2O/OutputType = "csv"
+s:Sc/dD_all_H2O/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_all_H2O/PropagateToChildren = "True"
+s:Sc/dD_all_H2O/OutputFile = outdir + "depth_Z.DOSE.all.H2O"
+
+s:Sc/dD_prim_H2O/Quantity = "DoseToWater"
+s:Sc/dD_prim_H2O/Component = "ScoringZBox"
+s:Sc/dD_prim_H2O/OutputType = "csv"
+s:Sc/dD_prim_H2O/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_prim_H2O/PropagateToChildren = "True"
+sv:Sc/dD_prim_H2O/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dD_prim_H2O/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dD_prim_H2O/OutputFile = outdir + "depth_Z.DOSE.primary.H2O"
+
+s:Sc/dD_p_H2O/Quantity = "DoseToWater"
+s:Sc/dD_p_H2O/Component = "ScoringZBox"
+s:Sc/dD_p_H2O/OutputType = "csv"
+s:Sc/dD_p_H2O/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dD_p_H2O/PropagateToChildren = "True"
+sv:Sc/dD_p_H2O/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dD_p_H2O/OutputFile = outdir + "depth_Z.DOSE.protons.H2O"
+
+# ---------- Depth fluence : Fluence (medium-independent) ----------
+s:Sc/dF_all_mat/Quantity = "Fluence"
+s:Sc/dF_all_mat/Component = "ScoringZBox"
+s:Sc/dF_all_mat/OutputType = "csv"
+s:Sc/dF_all_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_all_mat/PropagateToChildren = "True"
+s:Sc/dF_all_mat/OutputFile = outdir + "depth_Z.FLUENCE.all.mat"
+
+s:Sc/dF_prim_mat/Quantity = "Fluence"
+s:Sc/dF_prim_mat/Component = "ScoringZBox"
+s:Sc/dF_prim_mat/OutputType = "csv"
+s:Sc/dF_prim_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_prim_mat/PropagateToChildren = "True"
+sv:Sc/dF_prim_mat/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dF_prim_mat/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dF_prim_mat/OutputFile = outdir + "depth_Z.FLUENCE.primary.mat"
+
+s:Sc/dF_p_mat/Quantity = "Fluence"
+s:Sc/dF_p_mat/Component = "ScoringZBox"
+s:Sc/dF_p_mat/OutputType = "csv"
+s:Sc/dF_p_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_p_mat/PropagateToChildren = "True"
+sv:Sc/dF_p_mat/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/dF_p_mat/OutputFile = outdir + "depth_Z.FLUENCE.protons.mat"
+
+s:Sc/dF_d_mat/Quantity = "Fluence"
+s:Sc/dF_d_mat/Component = "ScoringZBox"
+s:Sc/dF_d_mat/OutputType = "csv"
+s:Sc/dF_d_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_d_mat/PropagateToChildren = "True"
+sv:Sc/dF_d_mat/OnlyIncludeParticlesNamed = 1 "deuteron"
+s:Sc/dF_d_mat/OutputFile = outdir + "depth_Z.FLUENCE.deuterons.mat"
+
+s:Sc/dF_t_mat/Quantity = "Fluence"
+s:Sc/dF_t_mat/Component = "ScoringZBox"
+s:Sc/dF_t_mat/OutputType = "csv"
+s:Sc/dF_t_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_t_mat/PropagateToChildren = "True"
+sv:Sc/dF_t_mat/OnlyIncludeParticlesNamed = 1 "triton"
+s:Sc/dF_t_mat/OutputFile = outdir + "depth_Z.FLUENCE.tritons.mat"
+
+s:Sc/dF_he3_mat/Quantity = "Fluence"
+s:Sc/dF_he3_mat/Component = "ScoringZBox"
+s:Sc/dF_he3_mat/OutputType = "csv"
+s:Sc/dF_he3_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_he3_mat/PropagateToChildren = "True"
+sv:Sc/dF_he3_mat/OnlyIncludeParticlesNamed = 1 "He3"
+s:Sc/dF_he3_mat/OutputFile = outdir + "depth_Z.FLUENCE.he3.mat"
+
+s:Sc/dF_a_mat/Quantity = "Fluence"
+s:Sc/dF_a_mat/Component = "ScoringZBox"
+s:Sc/dF_a_mat/OutputType = "csv"
+s:Sc/dF_a_mat/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dF_a_mat/PropagateToChildren = "True"
+sv:Sc/dF_a_mat/OnlyIncludeParticlesNamed = 1 "alpha"
+s:Sc/dF_a_mat/OutputFile = outdir + "depth_Z.FLUENCE.alphas.mat"
+
+# ---------- Native ProtonLET (depth): dose- and track-averaged ----------
+# TOPAS's native ProtonLET with DEFAULT settings, so we can see how the native
+# scorer behaves. WeightBy selects dose- (DLET) vs fluence/track-averaged (TLET).
+# CAVEAT: by default it looks up LET at each step's INITIAL energy
+# (UsePreStepLookup), so it is biased where dE/dx changes fast (distal edge). The
+# corrected/averaged, particle-filtered, LET-to-water version is issue #153.
+s:Sc/dDLET_p/Quantity = "ProtonLET"
+s:Sc/dDLET_p/Component = "ScoringZBox"
+s:Sc/dDLET_p/OutputType = "csv"
+s:Sc/dDLET_p/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dDLET_p/PropagateToChildren = "True"
+s:Sc/dDLET_p/WeightBy = "dose"
+s:Sc/dDLET_p/OutputFile = outdir + "depth_Z.DLET.protons.mat"
+
+s:Sc/dTLET_p/Quantity = "ProtonLET"
+s:Sc/dTLET_p/Component = "ScoringZBox"
+s:Sc/dTLET_p/OutputType = "csv"
+s:Sc/dTLET_p/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dTLET_p/PropagateToChildren = "True"
+s:Sc/dTLET_p/WeightBy = "fluence"
+s:Sc/dTLET_p/OutputFile = outdir + "depth_Z.TLET.protons.mat"
+
+# Primary protons only (Generation filter). ProtonLET is proton-only, so there is
+# no native all-charged LET (depth_Z.*LET.all.* stays with the #153 custom scorer).
+s:Sc/dDLET_prim/Quantity = "ProtonLET"
+s:Sc/dDLET_prim/Component = "ScoringZBox"
+s:Sc/dDLET_prim/OutputType = "csv"
+s:Sc/dDLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dDLET_prim/PropagateToChildren = "True"
+s:Sc/dDLET_prim/WeightBy = "dose"
+s:Sc/dDLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dDLET_prim/OutputFile = outdir + "depth_Z.DLET.primary.mat"
+
+s:Sc/dTLET_prim/Quantity = "ProtonLET"
+s:Sc/dTLET_prim/Component = "ScoringZBox"
+s:Sc/dTLET_prim/OutputType = "csv"
+s:Sc/dTLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dTLET_prim/PropagateToChildren = "True"
+s:Sc/dTLET_prim/WeightBy = "fluence"
+s:Sc/dTLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dTLET_prim/OutputFile = outdir + "depth_Z.TLET.primary.mat"
+
+# ---------- 2D dose maps (beam frame) ----------
+# Transverse (X-Y at isocenter) and longitudinal (X-Z) dose maps.
+s:Sc/mapXY_D/Quantity = "DoseToMedium"
+s:Sc/mapXY_D/Component = "ScoringXYBox"
+s:Sc/mapXY_D/OutputType = "csv"
+s:Sc/mapXY_D/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/mapXY_D/PropagateToChildren = "True"
+s:Sc/mapXY_D/OutputFile = outdir + "map_XY.DOSE.all.mat"
+
+s:Sc/mapXZ_D/Quantity = "DoseToMedium"
+s:Sc/mapXZ_D/Component = "ScoringXZBox"
+s:Sc/mapXZ_D/OutputType = "csv"
+s:Sc/mapXZ_D/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/mapXZ_D/PropagateToChildren = "True"
+s:Sc/mapXZ_D/OutputFile = outdir + "map_XZ.DOSE.all.mat"
+
+# ---------- Target differential fluence spectra vs ENUC ----------
+# TOPAS bins PreStep total kinetic energy. For species with mass number A,
+# postprocess maps E_total/A onto the shared SH12A ENUC grid (0.1..300 MeV/u)
+# and sums the species spectra to produce the all-particles page.
+s:Sc/sp_p/Quantity = "Fluence"
+s:Sc/sp_p/Component = "TargetBox"
+s:Sc/sp_p/OutputType = "csv"
+s:Sc/sp_p/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/sp_p/EBins = 150
+d:Sc/sp_p/EBinMin = 0.1 MeV
+d:Sc/sp_p/EBinMax = 300. MeV
+sc:Sc/sp_p/EBinEnergy = "PreStep"
+sv:Sc/sp_p/OnlyIncludeParticlesNamed = 1 "proton"
+s:Sc/sp_p/OutputFile = outdir + "spectrum_target.FLUENCE.protons.mat.vs_ENUC"
+
+s:Sc/sp_d/Quantity = "Fluence"
+s:Sc/sp_d/Component = "TargetBox"
+s:Sc/sp_d/OutputType = "csv"
+s:Sc/sp_d/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/sp_d/EBins = 150
+d:Sc/sp_d/EBinMin = 0.2 MeV
+d:Sc/sp_d/EBinMax = 600. MeV
+sc:Sc/sp_d/EBinEnergy = "PreStep"
+sv:Sc/sp_d/OnlyIncludeParticlesNamed = 1 "deuteron"
+s:Sc/sp_d/OutputFile = outdir + "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC"
+
+s:Sc/sp_t/Quantity = "Fluence"
+s:Sc/sp_t/Component = "TargetBox"
+s:Sc/sp_t/OutputType = "csv"
+s:Sc/sp_t/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/sp_t/EBins = 150
+d:Sc/sp_t/EBinMin = 0.3 MeV
+d:Sc/sp_t/EBinMax = 900. MeV
+sc:Sc/sp_t/EBinEnergy = "PreStep"
+sv:Sc/sp_t/OnlyIncludeParticlesNamed = 1 "triton"
+s:Sc/sp_t/OutputFile = outdir + "spectrum_target.FLUENCE.tritons.mat.vs_ENUC"
+
+s:Sc/sp_he3/Quantity = "Fluence"
+s:Sc/sp_he3/Component = "TargetBox"
+s:Sc/sp_he3/OutputType = "csv"
+s:Sc/sp_he3/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/sp_he3/EBins = 150
+d:Sc/sp_he3/EBinMin = 0.3 MeV
+d:Sc/sp_he3/EBinMax = 900. MeV
+sc:Sc/sp_he3/EBinEnergy = "PreStep"
+sv:Sc/sp_he3/OnlyIncludeParticlesNamed = 1 "He3"
+s:Sc/sp_he3/OutputFile = outdir + "spectrum_target.FLUENCE.he3.mat.vs_ENUC"
+
+s:Sc/sp_a/Quantity = "Fluence"
+s:Sc/sp_a/Component = "TargetBox"
+s:Sc/sp_a/OutputType = "csv"
+s:Sc/sp_a/IfOutputFileAlreadyExists = "Overwrite"
+i:Sc/sp_a/EBins = 150
+d:Sc/sp_a/EBinMin = 0.4 MeV
+d:Sc/sp_a/EBinMax = 1200. MeV
+sc:Sc/sp_a/EBinEnergy = "PreStep"
+sv:Sc/sp_a/OnlyIncludeParticlesNamed = 1 "alpha"
+s:Sc/sp_a/OutputFile = outdir + "spectrum_target.FLUENCE.alphas.mat.vs_ENUC"
+
+# ---------- Qeff (needs the extension, issue #153) ----------
+# Uncomment once your TOPAS is compiled with the Qeff scorer extension. Left
+# disabled so the no-extension smoke test does not abort on an unknown Quantity.
+# s:Sc/Qeff/Quantity = "Qeff"
+# s:Sc/Qeff/Component = "ScoringZBox"
+# s:Sc/Qeff/OutputType = "csv"
+# s:Sc/Qeff/IfOutputFileAlreadyExists = "Overwrite"
+# sv:Sc/Qeff/includeparticles = 1 "protons"
+# b:Sc/Qeff/PropagateToChildren = "True"
+# s:Sc/Qeff/OutputFile = outdir + "depth_Z.DQEFF.protons.mat"

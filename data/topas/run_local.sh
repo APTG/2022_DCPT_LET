@@ -2,11 +2,11 @@
 #
 # Run TOPAS locally at (fairly low) statistics, mirroring data/sh12a/run_local.sh.
 #
-# TOPAS must be launched from the repository root, because each main.txt uses
-# repo-root-relative includeFile paths (e.g. data/topas/input/<plan>/beam_*.txt).
-# Statistics are controlled at beam-generation time via tools/make_topas.sh (-N /
-# NSTAT, baked into the beam file's REQUESTED_HISTORIES); this runner does not
-# override them.
+# TOPAS must be launched from the repository root, because main.txt files use
+# repo-root-relative output paths and legacy mains may still use repo-root-relative
+# includeFile paths. Statistics are controlled at generation time by
+# dicomexportplan (-N / NSTAT, baked into REQUESTED_HISTORIES); this runner does
+# not override them.
 #
 # Usage:
 #   data/topas/run_local.sh                       # run every main.txt under input/plan*

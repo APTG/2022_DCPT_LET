@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 #
-# Generate TOPAS beam input files for ALL plans directly from the DICOM plans,
-# using dicomexport. Manifest-driven, exactly like tools/make_spotlists.sh.
+# Legacy helper: generate TOPAS beam-only input files for ALL plans directly from
+# the DICOM plans, using dicomexport. Manifest-driven, exactly like
+# tools/make_spotlists.sh.
 #
 # The generated file is BEAM-ONLY (source + spot time features, in the DICOM->IEC
 # "nozzle" frame). It is geometry-independent, so it is written once per
 # plan+field+beam-model into data/topas/input/beam/ and shared by every geometry
 # variant's main.txt (which includeFile's it) -- the same "one source per plan"
 # arrangement used for the SH12A/OSH spotlists.
+#
+# Current runnable TOPAS mains should instead start from dicomexportplan
+# --test-mode and then be patched with tools/patch_topas_testmode.py; see
+# data/topas/README.md. That keeps gantry/couch angle plumbing and BeamPosition in
+# one TOPAS parameter chain.
 #
 # Coordinate convention: exported with --nozzle-side neg-z, the verified
 # patient-correct IEC convention (source on the anterior side, beam travelling
@@ -87,4 +93,4 @@ done < "$plan_manifest"
 
 echo
 echo "make_topas.sh: exported beam files for ${generated} plan(s) into ${beam_out}/."
-echo "Each main.txt must includeFile the matching ${beam_out}/plan<NN>_<model>_field0N.txt."
+echo "Legacy beam-only export complete. For runnable mains, prefer --test-mode + tools/patch_topas_testmode.py."

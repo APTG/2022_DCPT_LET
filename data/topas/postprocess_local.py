@@ -320,6 +320,10 @@ def requested_histories(plan: str) -> int | None:
     if not main.is_file():
         return None
     text = main.read_text(errors="ignore")
+    mh = re.search(r"REQUESTED_HISTORIES:\s*(\d+)", text)
+    if mh:
+        return int(mh[1])
+
     m = re.search(r"^\s*includeFile\s*=\s*(\S+)", text, re.MULTILINE)
     if not m:
         return None

@@ -1,0 +1,35 @@
+########################################
+# Geometry A (docs/geometry.md), isocenter-referenced z -> beam +Z
+#   slab1 z=[-10.25,-0.25], pmma z=[-0.25,0.25], slab3 z=[0.25,10.25]
+########################################
+s:Ge/SolidWater_slab1/Parent      = "Gantry"
+s:Ge/SolidWater_slab1/Type        = "TsBox"
+s:Ge/SolidWater_slab1/Material    = "Solid_Water"
+d:Ge/SolidWater_slab1/HLX         = 15.0 cm
+d:Ge/SolidWater_slab1/HLY         = 15.0 cm
+d:Ge/SolidWater_slab1/HLZ         = 5.0 cm
+d:Ge/SolidWater_slab1/TransZ      = -5.25 cm
+d:Ge/SolidWater_slab1/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab1/Color       = "blue"
+
+s:Ge/pmma_slab/Parent      = "Gantry"
+s:Ge/pmma_slab/Type        = "TsBox"
+s:Ge/pmma_slab/Material    = "PMMA"
+d:Ge/pmma_slab/HLX         = 15.0 cm
+d:Ge/pmma_slab/HLY         = 15.0 cm
+d:Ge/pmma_slab/HLZ         = 0.25 cm
+d:Ge/pmma_slab/TransZ      = 0.0 cm
+d:Ge/pmma_slab/MaxStepSize = 0.5 mm
+s:Ge/pmma_slab/Color       = "yellow"
+
+s:Ge/SolidWater_slab3/Parent      = "Gantry"
+s:Ge/SolidWater_slab3/Type        = "TsBox"
+s:Ge/SolidWater_slab3/Material    = "Solid_Water"
+d:Ge/SolidWater_slab3/HLX         = 15.0 cm
+d:Ge/SolidWater_slab3/HLY         = 15.0 cm
+d:Ge/SolidWater_slab3/HLZ         = 5.0 cm
+d:Ge/SolidWater_slab3/TransZ      = 5.25 cm
+d:Ge/SolidWater_slab3/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab3/Color       = "red"
+
+s:outdir = "data/topas/results/output/plan01_field01_geoA_SOBPcent/"
