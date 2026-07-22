@@ -25,7 +25,7 @@
       "dimensionality": 1,
       "render_as": "spectrum_plot",
       "frame": "beam",
-      "orientation": "Differential spectrum in the detector volume; axis is a physical quantity (dE/dx, LET, EKIN), not a spatial coordinate; frame-invariant. See docs/coordinates.md."
+      "orientation": "Differential spectrum in the detector volume; axis is a physical quantity (dE/dx, LET, ENUC), not a spatial coordinate; frame-invariant. See docs/coordinates.md."
     },
     "map_XZ": {
       "description": "2D longitudinal (X–Z) dose or fluence map",
@@ -733,15 +733,15 @@
       },
       "render_as": "line_plot"
     },
-    "spectrum_target.FLUENCE.all.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.all.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "all",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (all particles)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (all particles)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -750,15 +750,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.protons.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.protons.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "protons",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (all protons)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (all protons)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -767,15 +767,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "deuterons",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (deuterons)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (deuterons)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -784,15 +784,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.tritons.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.tritons.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "tritons",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (tritons)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (tritons)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -801,15 +801,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.he3.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.he3.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "he3",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (helium-3)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (helium-3)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -818,15 +818,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.alphas.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.alphas.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "alphas",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (alpha particles)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (alpha particles)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {
@@ -835,15 +835,15 @@
       },
       "render_as": "spectrum_plot"
     },
-    "spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN": {
+    "spectrum_target.FLUENCE.heavy_recoils.mat.vs_ENUC": {
       "geometry": "spectrum_target",
       "quantity": "FLUENCE",
       "filter": "heavy_recoils",
       "medium": "mat",
-      "diff_axis": "EKIN",
-      "label": "Kinetic-energy fluence spectrum (heavy recoils/fragments)",
+      "diff_axis": "ENUC",
+      "label": "Energy-per-nucleon fluence spectrum (heavy recoils/fragments)",
       "axis_x": {
-        "quantity": "kinetic energy",
+        "quantity": "energy per nucleon",
         "unit": "MeV/u"
       },
       "axis_y": {

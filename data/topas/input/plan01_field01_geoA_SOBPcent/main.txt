@@ -355,26 +355,17 @@ b:Sc/mapXY_D/PropagateToChildren = "True"
 s:Sc/mapXY_D/OutputFile = outdir + "map_XY.DOSE.all.mat"
 
 # ---------- Target differential fluence spectra vs ENUC ----------
-# Native Fluence binned by PreStep kinetic energy (= spectral fluence) in the
-# TargetBox. The x-axis here is TOTAL kinetic energy [MeV]; postprocess divides
-# by the integer nucleon number A per species to give ENUC [MeV/u].
-s:Sc/sp_all/Quantity = "Fluence"
-s:Sc/sp_all/Component = "TargetBox"
-s:Sc/sp_all/OutputType = "csv"
-s:Sc/sp_all/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_all/EBins = 250
-d:Sc/sp_all/EBinMin = 0. MeV
-d:Sc/sp_all/EBinMax = 250. MeV
-sc:Sc/sp_all/EBinEnergy = "PreStep"
-s:Sc/sp_all/OutputFile = outdir + "spectrum_target.FLUENCE.all.mat.vs_ENUC"
+# TOPAS bins PreStep total kinetic energy. For species with mass number A,
+# postprocess maps E_total/A onto the shared SH12A ENUC grid (0.1..300 MeV/u)
+# and sums the species spectra to produce the all-particles page.
 
 s:Sc/sp_p/Quantity = "Fluence"
 s:Sc/sp_p/Component = "TargetBox"
 s:Sc/sp_p/OutputType = "csv"
 s:Sc/sp_p/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_p/EBins = 250
-d:Sc/sp_p/EBinMin = 0. MeV
-d:Sc/sp_p/EBinMax = 250. MeV
+i:Sc/sp_p/EBins = 150
+d:Sc/sp_p/EBinMin = 0.1 MeV
+d:Sc/sp_p/EBinMax = 300. MeV
 sc:Sc/sp_p/EBinEnergy = "PreStep"
 sv:Sc/sp_p/OnlyIncludeParticlesNamed = 1 "proton"
 s:Sc/sp_p/OutputFile = outdir + "spectrum_target.FLUENCE.protons.mat.vs_ENUC"
@@ -383,9 +374,9 @@ s:Sc/sp_d/Quantity = "Fluence"
 s:Sc/sp_d/Component = "TargetBox"
 s:Sc/sp_d/OutputType = "csv"
 s:Sc/sp_d/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_d/EBins = 250
-d:Sc/sp_d/EBinMin = 0. MeV
-d:Sc/sp_d/EBinMax = 250. MeV
+i:Sc/sp_d/EBins = 150
+d:Sc/sp_d/EBinMin = 0.2 MeV
+d:Sc/sp_d/EBinMax = 600. MeV
 sc:Sc/sp_d/EBinEnergy = "PreStep"
 sv:Sc/sp_d/OnlyIncludeParticlesNamed = 1 "deuteron"
 s:Sc/sp_d/OutputFile = outdir + "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC"
@@ -394,9 +385,9 @@ s:Sc/sp_t/Quantity = "Fluence"
 s:Sc/sp_t/Component = "TargetBox"
 s:Sc/sp_t/OutputType = "csv"
 s:Sc/sp_t/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_t/EBins = 250
-d:Sc/sp_t/EBinMin = 0. MeV
-d:Sc/sp_t/EBinMax = 250. MeV
+i:Sc/sp_t/EBins = 150
+d:Sc/sp_t/EBinMin = 0.3 MeV
+d:Sc/sp_t/EBinMax = 900. MeV
 sc:Sc/sp_t/EBinEnergy = "PreStep"
 sv:Sc/sp_t/OnlyIncludeParticlesNamed = 1 "triton"
 s:Sc/sp_t/OutputFile = outdir + "spectrum_target.FLUENCE.tritons.mat.vs_ENUC"
@@ -405,9 +396,9 @@ s:Sc/sp_he3/Quantity = "Fluence"
 s:Sc/sp_he3/Component = "TargetBox"
 s:Sc/sp_he3/OutputType = "csv"
 s:Sc/sp_he3/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_he3/EBins = 250
-d:Sc/sp_he3/EBinMin = 0. MeV
-d:Sc/sp_he3/EBinMax = 250. MeV
+i:Sc/sp_he3/EBins = 150
+d:Sc/sp_he3/EBinMin = 0.3 MeV
+d:Sc/sp_he3/EBinMax = 900. MeV
 sc:Sc/sp_he3/EBinEnergy = "PreStep"
 sv:Sc/sp_he3/OnlyIncludeParticlesNamed = 1 "He3"
 s:Sc/sp_he3/OutputFile = outdir + "spectrum_target.FLUENCE.he3.mat.vs_ENUC"
@@ -416,9 +407,9 @@ s:Sc/sp_a/Quantity = "Fluence"
 s:Sc/sp_a/Component = "TargetBox"
 s:Sc/sp_a/OutputType = "csv"
 s:Sc/sp_a/IfOutputFileAlreadyExists = "Overwrite"
-i:Sc/sp_a/EBins = 250
-d:Sc/sp_a/EBinMin = 0. MeV
-d:Sc/sp_a/EBinMax = 250. MeV
+i:Sc/sp_a/EBins = 150
+d:Sc/sp_a/EBinMin = 0.4 MeV
+d:Sc/sp_a/EBinMax = 1200. MeV
 sc:Sc/sp_a/EBinEnergy = "PreStep"
 sv:Sc/sp_a/OnlyIncludeParticlesNamed = 1 "alpha"
 s:Sc/sp_a/OutputFile = outdir + "spectrum_target.FLUENCE.alphas.mat.vs_ENUC"

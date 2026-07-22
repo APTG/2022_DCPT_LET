@@ -46,7 +46,7 @@ MEV_PER_G_TO_GY = 1.602176634e-10
 
 # Scorer OutputFile names in main.txt are the data/output_catalog.json keys, so a
 # CSV's stem IS its output_type. Depth profiles (depth_Z.*) get the Y->depth readback;
-# target spectra (spectrum_target.*.vs_ENUC) get E -> E/A per species.
+# target spectra (spectrum_target.*.vs_ENUC) get total kinetic E -> ENUC per species.
 #
 DEPTH_OUTPUTS = {
     "depth_Z.DOSE.all.mat": ("NB_Z_narrow_dose_p1.dat", "Depth profiles - dose in material (Z_narrow)"),
@@ -69,29 +69,30 @@ DEPTH_OUTPUTS = {
 }
 
 SPECTRUM_OUTPUTS = {
-    "spectrum_target.FLUENCE.all.mat.vs_ENUC": (
-        "NB_target_diff_p05.dat",
-        "spectrum_target.FLUENCE.all.mat.vs_EKIN",
-    ),
     "spectrum_target.FLUENCE.protons.mat.vs_ENUC": (
         "NB_target_diff_p06.dat",
-        "spectrum_target.FLUENCE.protons.mat.vs_EKIN",
+        "spectrum_target.FLUENCE.protons.mat.vs_ENUC",
+        1,
     ),
     "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC": (
         "NB_target_diff_p07.dat",
-        "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN",
+        "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC",
+        2,
     ),
     "spectrum_target.FLUENCE.tritons.mat.vs_ENUC": (
         "NB_target_diff_p08.dat",
-        "spectrum_target.FLUENCE.tritons.mat.vs_EKIN",
+        "spectrum_target.FLUENCE.tritons.mat.vs_ENUC",
+        3,
     ),
     "spectrum_target.FLUENCE.he3.mat.vs_ENUC": (
         "NB_target_diff_p09.dat",
-        "spectrum_target.FLUENCE.he3.mat.vs_EKIN",
+        "spectrum_target.FLUENCE.he3.mat.vs_ENUC",
+        3,
     ),
     "spectrum_target.FLUENCE.alphas.mat.vs_ENUC": (
         "NB_target_diff_p10.dat",
-        "spectrum_target.FLUENCE.alphas.mat.vs_EKIN",
+        "spectrum_target.FLUENCE.alphas.mat.vs_ENUC",
+        4,
     ),
 }
 
@@ -119,6 +120,24 @@ def read_target_grid(plan: str) -> np.ndarray:
     else:
         print(f"  warning: {detect} not found; using default depth grid", file=sys.stderr)
     edges = np.linspace(zmin, zmax, nbins + 1)
+    return 0.5 * (edges[:-1] + edges[1:])
+
+
+def read_target_enuc_grid(plan: str) -> np.ndarray:
+    """Return the SH12A ENUC spectrum bin centres for NB_target_diff_p05..p11."""
+    detect = REPO_ROOT / "data" / "sh12a" / "input" / plan / "detect.dat"
+    emin, emax, nbins = 0.1, 300.0, 150
+    if detect.is_file():
+        lines = detect.read_text().splitlines()
+        for i, ln in enumerate(lines):
+            if "Diff1Type" in ln and "ENUC" in ln:
+                for pln in reversed(lines[max(0, i - 3) : i]):
+                    m = re.match(r"\s*Diff1\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(\d+)", pln)
+                    if m:
+                        emin, emax, nbins = float(m[1]), float(m[2]), int(m[3])
+                        break
+                break
+    edges = np.linspace(emin, emax, nbins + 1)
     return 0.5 * (edges[:-1] + edges[1:])
 
 
@@ -197,11 +216,10 @@ def topas_depth_profile(
     return np.column_stack([target_centres, val_i, rel_i])
 
 
-def topas_ekin_spectrum(csv_path: Path, scale: float) -> np.ndarray | None:
+def topas_enuc_spectrum(csv_path: Path, target_enuc: np.ndarray, scale: float, mass_number: int) -> np.ndarray | None:
     """Convert a native TOPAS Fluence-vs-PreStep-energy histogram (total kinetic
-    energy, MeV) into a differential fluence spectrum vs EKIN (MeV).
-    Returns [ekin_center, dPhi/dE, rel_err] or None ('all' is deferred, since it
-    needs per-species summation including heavy recoils).
+    energy, MeV) into a differential fluence spectrum vs ENUC (MeV/u).
+    Returns [enuc_center, dPhi/dENUC, rel_err].
     NOTE: best-effort CSV parse; validate the column/row layout against a real
     TOPAS EBins output on the first run."""
     emin, emax, nbins = 0.0, 250.0, None
@@ -234,10 +252,13 @@ def topas_ekin_spectrum(csv_path: Path, scale: float) -> np.ndarray | None:
             f"  warning: {csv_path.name} header says {nbins} energy bins, parsed {len(v)}",
             file=sys.stderr,
         )
-    edges = np.linspace(emin, emax, len(v) + 1)
-    ecen = 0.5 * (edges[:-1] + edges[1:])
-    ewidth = edges[1] - edges[0]
-    return np.column_stack([ecen, v * scale / ewidth, np.zeros_like(v)])
+    edges_total = np.linspace(emin, emax, len(v) + 1)
+    ecen_enuc = 0.5 * (edges_total[:-1] + edges_total[1:]) / mass_number
+    ewidth_total = edges_total[1] - edges_total[0]
+    # dE_total = A * dENUC, so dPhi/dENUC = A * dPhi/dE_total.
+    density = v * scale * mass_number / ewidth_total
+    val_i = np.interp(target_enuc, ecen_enuc, density, left=0.0, right=0.0)
+    return np.column_stack([target_enuc, val_i, np.zeros_like(target_enuc)])
 
 
 def topas_2d_map_png(csv_path: Path, png_path: Path) -> bool:
@@ -366,12 +387,12 @@ def write_manifest(plan: str, results_dir: Path, version: str, outputs: dict[str
             "Differential fluence spectra in target (material)",
             "derived",
             [
-                "spectrum_target.FLUENCE.all.mat.vs_EKIN",
-                "spectrum_target.FLUENCE.protons.mat.vs_EKIN",
-                "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN",
-                "spectrum_target.FLUENCE.tritons.mat.vs_EKIN",
-                "spectrum_target.FLUENCE.he3.mat.vs_EKIN",
-                "spectrum_target.FLUENCE.alphas.mat.vs_EKIN",
+                "spectrum_target.FLUENCE.all.mat.vs_ENUC",
+                "spectrum_target.FLUENCE.protons.mat.vs_ENUC",
+                "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC",
+                "spectrum_target.FLUENCE.tritons.mat.vs_ENUC",
+                "spectrum_target.FLUENCE.he3.mat.vs_ENUC",
+                "spectrum_target.FLUENCE.alphas.mat.vs_ENUC",
             ],
         ),
     ]
@@ -443,6 +464,7 @@ def process_plan(input_dir: Path) -> bool:
 
     print(f"\n== Processing: {plan} ==")
     target = read_target_grid(plan)
+    target_enuc = read_target_enuc_grid(plan)
     histories = requested_histories(plan)
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -465,17 +487,29 @@ def process_plan(input_dir: Path) -> bool:
         manifest_outputs.setdefault(csv_path.stem, []).append(dat_name)
         wrote += 1
 
+    species_specs: list[np.ndarray] = []
     for csv_path in spec_csvs:
         mapped = SPECTRUM_OUTPUTS.get(csv_path.stem)
         if mapped is None:
             continue
-        dat_name, output_type = mapped
+        dat_name, output_type, mass_number = mapped
         scale = topas_output_scale(output_type, histories)
-        spec = topas_ekin_spectrum(csv_path, scale)
+        spec = topas_enuc_spectrum(csv_path, target_enuc, scale, mass_number)
         if spec is None:
             continue
+        species_specs.append(spec)
         dat = results_dir / dat_name
         np.savetxt(dat, spec, fmt="%.6g")
+        print(f"  wrote {dat.relative_to(REPO_ROOT)}")
+        manifest_outputs.setdefault(output_type, []).append(dat_name)
+        wrote += 1
+    if species_specs:
+        all_spec = species_specs[0].copy()
+        all_spec[:, 1] = sum(spec[:, 1] for spec in species_specs)
+        dat_name = "NB_target_diff_p05.dat"
+        output_type = "spectrum_target.FLUENCE.all.mat.vs_ENUC"
+        dat = results_dir / dat_name
+        np.savetxt(dat, all_spec, fmt="%.6g")
         print(f"  wrote {dat.relative_to(REPO_ROOT)}")
         manifest_outputs.setdefault(output_type, []).append(dat_name)
         wrote += 1
