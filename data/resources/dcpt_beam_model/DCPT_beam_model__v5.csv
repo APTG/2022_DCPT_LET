@@ -1,6 +1,6 @@
 #"DCPT beam model",,,,,,,,,
 #"Simon Norrig, DCPT",,,,,,,,,
-#"BMODPOS 600.0",,,,,,,,,
+#"BMODPOS 600.0 mm",,,,,,,,,
 #"source type: emittance",,,,,,,,,
 #"Energy nominal [MeV]","# E real [MeV]","# E real sigma [MeV]","# protons/MU","# sigma x [mm]","# sigma y [mm]","# sigma x' [rad]","# sigma y' [rad]","# cor(x x')","# cor(y y')"
 70,70.13844937,0.8245064601,2029456,4.186392496,3.779520192,0.00678519595,0.00664468331,0.04545762851,0.2239972872

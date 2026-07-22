@@ -42,7 +42,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOPAS_ROOT = REPO_ROOT / "data" / "topas"
 
 # TOPAS CSV scorer file -> (output_type stem for the .dat, human label).
-# The current main_*.txt score DoseToWater and ProtonLET in the Y box; both are
+# The current main.txt score DoseToWater and ProtonLET in the Y box; both are
 # proton, water-referenced quantities.
 CSV_OUTPUTS = {
     "Scoring_protonD_YBox.csv": ("depth_Z.DOSE.protons.H2O", "dose"),
@@ -120,7 +120,7 @@ def topas_version(csv_path: Path) -> str:
 
 def process_plan(input_dir: Path) -> bool:
     plan = input_dir.name
-    # TOPAS writes to the outdir declared in main_*.txt (e.g. results/output/plan_1a/).
+    # TOPAS writes to the outdir declared in main.txt (e.g. results/output/plan_1a/).
     # Search anywhere under results/ for this plan's CSVs.
     results_dir = TOPAS_ROOT / "results" / plan
     csv_dirs = {p.parent for name in CSV_OUTPUTS for p in (TOPAS_ROOT / "results").rglob(name)}
@@ -162,7 +162,7 @@ def process_plan(input_dir: Path) -> bool:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("plans", nargs="*", help="Plan directory names (default: all with a main_*.txt).")
+    ap.add_argument("plans", nargs="*", help="Plan directory names (default: all with a main.txt).")
     args = ap.parse_args()
 
     if args.plans:
@@ -170,7 +170,7 @@ def main() -> int:
     else:
         input_dirs = sorted(
             d for d in (TOPAS_ROOT / "input").glob("plan*_field*_geo*")
-            if any(d.glob("main_*.txt"))
+            if any(d.glob("main*.txt"))
         )
 
     any_ok = False

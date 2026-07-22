@@ -1,6 +1,6 @@
 #"DCPT beam model iter4",,,,,,,,,
 #"Anne Vestergaard and Peter Lægdsmand, DCPT",,,,,,,,,
-#"valid at -50 cm from ISO",,,,,,,,,
+#"BMODPOS 500.0 mm",,,,,,,,,
 #"source type: emittance",,,,,,,,,
 #"x/y reversed in Exp. Room",,,,,,,,,
 #"Energy nominal [MeV]","# E real [MeV]","# E real sigma [MeV]","# protons/MU","# sigma x [mm]","# sigma y [mm]","# sigma x' [rad]","# sigma y' [rad]","# cor(x x')","# cor(y y')"

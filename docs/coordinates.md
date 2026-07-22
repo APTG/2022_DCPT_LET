@@ -94,7 +94,9 @@ the verified patient-correct IEC convention (source on the anterior side, beam
 travelling toward isocenter). **Do not** use `--nozzle-side pos-z`: that mirror is only
 for non-patient research setups and would silently flip anthropomorphic anatomy. The
 export is *beam-only*; the phantom geometry and scoring live in the hand-maintained
-`main_*.txt`, which `includeFile`s the generated `beam_<model>_field0N.txt`. The
+`main.txt`, which `includeFile`s the generated
+`data/topas/input/beam/plan<NN>_<model>_field0N.txt` (written once per plan, shared
+across geometry variants like the SH12A/OSH spotlists). The
 hand-written scoring still bins depth along world Y (`ScoringYBox` + `RotZ 180`), so the
 Y→depth reversal in the table above is applied at readback (see below).
 

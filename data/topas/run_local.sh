@@ -2,14 +2,14 @@
 #
 # Run TOPAS locally at (fairly low) statistics, mirroring data/sh12a/run_local.sh.
 #
-# TOPAS must be launched from the repository root, because each main_*.txt uses
+# TOPAS must be launched from the repository root, because each main.txt uses
 # repo-root-relative includeFile paths (e.g. data/topas/input/<plan>/beam_*.txt).
 # Statistics are controlled at beam-generation time via tools/make_topas.sh (-N /
 # NSTAT, baked into the beam file's REQUESTED_HISTORIES); this runner does not
 # override them.
 #
 # Usage:
-#   data/topas/run_local.sh                       # run every main_*.txt under input/plan*
+#   data/topas/run_local.sh                       # run every main.txt under input/plan*
 #   data/topas/run_local.sh plan02_field01_geoD_mono
 #   TOPAS_EXE=/path/to/topas THREADS=4 data/topas/run_local.sh
 #
@@ -39,7 +39,7 @@ run_one() {
 export EXE repo_root
 export -f run_one
 
-# Collect main_*.txt files from the requested (or all) input dirs.
+# Collect main.txt files from the requested (or all) input dirs.
 input_dirs=()
 if [[ $# -eq 0 ]]; then
     shopt -s nullglob
@@ -52,11 +52,11 @@ mains=()
 for d in "${input_dirs[@]}"; do
     [[ -d "$d" ]] || continue
     shopt -s nullglob
-    for m in "$d"/main_*.txt; do mains+=( "$m" ); done
+    for m in "$d"/main*.txt; do mains+=( "$m" ); done
 done
 
 if [[ ${#mains[@]} -eq 0 ]]; then
-    echo "No main_*.txt files found (TODO stubs are skipped)." >&2
+    echo "No main.txt files found (TODO stubs are skipped)." >&2
     exit 1
 fi
 
