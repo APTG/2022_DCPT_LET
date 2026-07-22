@@ -92,6 +92,29 @@ def build_index(
     return dict(index)
 
 
+def load_detector_plates(data_root: Path) -> dict[str, tuple[float, float]]:
+    """
+    Read PMMA detector plate z-bounds from the SH12A reference geometries.
+
+    In the benchmark geometries the detector plate is RPP 4.  The final two
+    numeric fields are z_min/z_max in cm, matching the depth-profile x-axis.
+    """
+    plates: dict[str, tuple[float, float]] = {}
+    for geo_path in sorted((data_root / "sh12a" / "input").glob("*/geo.dat")):
+        plan = geo_path.parent.name
+        for line in geo_path.read_text(encoding="utf-8").splitlines():
+            fields = line.split()
+            if len(fields) >= 8 and fields[0].upper() == "RPP" and fields[1] == "4":
+                try:
+                    z_min = float(fields[6])
+                    z_max = float(fields[7])
+                except ValueError:
+                    continue
+                plates[plan] = (min(z_min, z_max), max(z_min, z_max))
+                break
+    return plates
+
+
 # ---------------------------------------------------------------------------
 # Data readers
 # ---------------------------------------------------------------------------
@@ -183,6 +206,7 @@ def make_profile_figure(
     meta: dict,
     traces: list[dict],
     code_styles: dict[str, dict],
+    detector_plate: tuple[float, float] | None = None,
 ) -> go.Figure:
     """
     One Scatter trace per file.  Files from the same code share a legend group
@@ -301,6 +325,20 @@ def make_profile_figure(
                      type="log" if log_y else "linear",
                      exponentformat="power" if log_y else "e",
                      showexponent="all" if log_y else "first")
+    if detector_plate and meta.get("geometry") == "depth_Z":
+        z_min, z_max = detector_plate
+        fig.add_vrect(
+            x0=z_min,
+            x1=z_max,
+            fillcolor="#ee9b00",
+            opacity=0.16,
+            line_width=0,
+            layer="below",
+            annotation_text="PMMA detector plate",
+            annotation_position="top left",
+            annotation_font_size=10,
+            annotation_font_color="#7a4f00",
+        )
     return fig
 
 
@@ -417,6 +455,7 @@ def main() -> int:
     code_styles = load_code_styles(args.data_root)
     manifests = collect_manifests(args.data_root)
     index = build_index(manifests)
+    detector_plates = load_detector_plates(args.data_root)
 
     print(
         f"Catalog: {len(catalog)} output types  |  "
@@ -441,7 +480,12 @@ def main() -> int:
 
         try:
             if geometry in ("depth_Z", "spectrum_target"):
-                fig = make_profile_figure(meta, traces, code_styles)
+                fig = make_profile_figure(
+                    meta,
+                    traces,
+                    code_styles,
+                    detector_plate=detector_plates.get(plan),
+                )
             elif geometry == "target":
                 fig = make_scalar_figure(meta, traces, code_styles)
             else:

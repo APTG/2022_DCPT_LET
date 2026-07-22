@@ -99,6 +99,24 @@ def load_code_versions(data_root: Path) -> dict[str, dict]:
     return versions
 
 
+def load_detector_plates(data_root: Path) -> dict[str, tuple[float, float]]:
+    """Read PMMA detector plate z-bounds from SH12A reference geo.dat files."""
+    plates: dict[str, tuple[float, float]] = {}
+    for geo_path in sorted((data_root / "sh12a" / "input").glob("*/geo.dat")):
+        plan = geo_path.parent.name
+        for line in geo_path.read_text(encoding="utf-8").splitlines():
+            fields = line.split()
+            if len(fields) >= 8 and fields[0].upper() == "RPP" and fields[1] == "4":
+                try:
+                    z_min = float(fields[6])
+                    z_max = float(fields[7])
+                except ValueError:
+                    continue
+                plates[plan] = (min(z_min, z_max), max(z_min, z_max))
+                break
+    return plates
+
+
 def build_availability(
     manifests: list[dict],
 ) -> dict[str, dict[str, set[str]]]:
@@ -346,12 +364,35 @@ def profile_polyline(points: list[tuple[float, float]], x_min: float, x_max: flo
     return " ".join(coords)
 
 
+def profile_plate_rect(detector_plate: tuple[float, float], x_min: float, x_max: float) -> str:
+    width = 170.0
+    height = 110.0
+    pad_x = 12.0
+    pad_y = 12.0
+    plot_w = width - 2.0 * pad_x
+    plot_h = height - 2.0 * pad_y
+    if x_max <= x_min:
+        return ""
+    z_min, z_max = detector_plate
+    left = max(min(z_min, z_max), x_min)
+    right = min(max(z_min, z_max), x_max)
+    if right <= left:
+        return ""
+    x0 = pad_x + ((left - x_min) / (x_max - x_min)) * plot_w
+    x1 = pad_x + ((right - x_min) / (x_max - x_min)) * plot_w
+    return (
+        f'<rect x="{x0:.1f}" y="{pad_y:.1f}" width="{x1 - x0:.1f}" '
+        f'height="{plot_h:.1f}" fill="#ee9b00" opacity="0.18" />'
+    )
+
+
 def render_profile_thumbnail(
     files: list[dict],
     code_styles: dict[str, dict],
     *,
     title: str = "Dose-to-water",
     class_name: str = "hero-thumb",
+    detector_plate: tuple[float, float] | None = None,
 ) -> str:
     series: list[dict] = []
     for item in sorted(files, key=lambda x: x["code_short"]):
@@ -373,6 +414,7 @@ def render_profile_thumbnail(
     x_min = min(all_x)
     x_max = max(all_x)
     y_max = max(all_y)
+    plate_rect = profile_plate_rect(detector_plate, x_min, x_max) if detector_plate else ""
     lines: list[str] = []
     for s in series:
         code_short = s["code_short"]
@@ -392,6 +434,7 @@ def render_profile_thumbnail(
     return f"""
 <aside class="{html.escape(class_name)}" aria-label="{html.escape(title)} profile thumbnail">
   <svg viewBox="0 0 170 110" role="img" aria-label="{html.escape(title)} depth profile">
+    {plate_rect}
     <line x1="12" y1="98" x2="158" y2="98" />
     <line x1="12" y1="12" x2="12" y2="98" />
     {"".join(lines)}
@@ -660,6 +703,7 @@ def render_plot_card(
     plot_exists: bool,
     catalog_meta: dict,
     download_files: list[dict],
+    detector_plate: tuple[float, float] | None = None,
 ) -> str:
     label = html.escape(catalog_meta.get("label", output_type))
     thumb = ""
@@ -669,6 +713,7 @@ def render_plot_card(
             code_styles,
             title=catalog_meta.get("label", output_type),
             class_name="plot-thumb",
+            detector_plate=detector_plate if catalog_meta.get("geometry") == "depth_Z" else None,
         )
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
     if plot_exists:
@@ -718,12 +763,14 @@ def render_plan_page(
     plots_dir: Path,
     preview_images: dict[str, list[str]],
     download_index: dict[tuple[str, str], list[dict]],
+    detector_plate: tuple[float, float] | None,
 ) -> str:
     output_types = catalog["output_types"]
     pills = " ".join(code_pill(c, code_styles) for c in sorted(plan_codes))
     hero_thumb = render_profile_thumbnail(
         download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
         code_styles,
+        detector_plate=detector_plate,
     )
 
     # Group available output types by geometry class
@@ -790,6 +837,7 @@ def render_plan_page(
                             plot_rel, plot_file.exists(),
                             output_types.get(ot, {}),
                             download_index.get((plan, ot), []),
+                            detector_plate=detector_plate,
                         )
                     )
                 title_html = ""
@@ -832,6 +880,7 @@ def render_index(
     code_versions: dict[str, dict],
     catalog: dict,
     download_index: dict[tuple[str, str], list[dict]],
+    detector_plates: dict[str, tuple[float, float]],
     generated_at: str,
 ) -> str:
     total_plots = sum(len(ots) for ots in plan_availability.values())
@@ -845,6 +894,7 @@ def render_index(
             download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
             code_styles,
             class_name="plan-thumb",
+            detector_plate=detector_plates.get(plan),
         )
         plan_cards.append(f"""
 <article class="plan-card">
@@ -956,6 +1006,7 @@ def main() -> int:
     plan_codes = codes_per_plan(manifests)
     preview_images = collect_preview_images(manifests)
     raw_download_index = build_download_index(manifests)
+    detector_plates = load_detector_plates(args.data_root)
 
     plans = sorted(availability)
     print(
@@ -985,7 +1036,17 @@ def main() -> int:
     # Index page
     write_text(
         site_root / "index.html",
-        render_index(plans, plan_codes, availability, code_styles, code_versions, catalog, download_index, generated_at),
+        render_index(
+            plans,
+            plan_codes,
+            availability,
+            code_styles,
+            code_versions,
+            catalog,
+            download_index,
+            detector_plates,
+            generated_at,
+        ),
     )
 
     # Relative path from a plan page (plans/{plan}.html) back to the plots dir
@@ -1012,6 +1073,7 @@ def main() -> int:
                 plots_dir=plots_dir,
                 preview_images=site_preview_images.get(plan, {}),
                 download_index=download_index,
+                detector_plate=detector_plates.get(plan),
             ),
         )
         print(f"  wrote plans/{plan}.html")
