@@ -4,19 +4,22 @@
 #
 # TOPAS must be launched from the repository root, because main.txt files use
 # repo-root-relative output paths and legacy mains may still use repo-root-relative
-# includeFile paths. Statistics are controlled at generation time by
-# dicomexportplan (-N / NSTAT, baked into REQUESTED_HISTORIES); this runner does
-# not override them.
+# includeFile paths. Runnable mains should be generated at high statistics to
+# preserve spot-weight precision. By default this runner downscales to 1M
+# histories for local checks. Set NSTAT to choose another runtime total; the
+# runner rescales Tf/spotWeight/Values in a temporary main and writes the
+# effective history count next to the scratch CSVs for post-processing.
 #
 # Usage:
 #   data/topas/run_local.sh                       # run every main.txt under input/plan*
 #   data/topas/run_local.sh plan02_field01_geoD_mono
-#   TOPAS_EXE=/path/to/topas THREADS=4 data/topas/run_local.sh
+#   NSTAT=10000000 TOPAS_EXE=/path/to/topas THREADS=4 data/topas/run_local.sh
 #
 set -euo pipefail
 
 EXE="${TOPAS_EXE:-${EXE:-topas}}"
 THREADS="${THREADS:-4}"
+NSTAT="${NSTAT:-1000000}"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"          # data/topas
 repo_root="$(cd "$root/../.." && pwd)"
 
@@ -36,11 +39,17 @@ run_one() {
     # TOPAS does not create output directories; the main.txt writes its scorer CSVs
     # to data/topas/results/output/<plan>/ (untracked scratch, see .gitignore).
     mkdir -p "$repo_root/data/topas/results/output/$plan"
+    local effective_main="$main"
+    local history_file="$repo_root/data/topas/results/output/$plan/REQUESTED_HISTORIES"
+    local runtime_dir="$repo_root/data/topas/results/output/$plan/.runtime"
+    local runtime_main="$runtime_dir/main.txt"
+    "$repo_root/tools/topas_set_nstat.py" "$main" "$runtime_main" --nstat "$NSTAT" --history-file "$history_file"
+    effective_main="$runtime_main"
     echo
     echo "== Running: ${main#$repo_root/} =="
-    ( cd "$repo_root" && "$EXE" "${main#$repo_root/}" )
+    ( cd "$repo_root" && "$EXE" "${effective_main#$repo_root/}" )
 }
-export EXE repo_root
+export EXE repo_root NSTAT
 export -f run_one
 
 # Collect main.txt files from the requested (or all) input dirs.

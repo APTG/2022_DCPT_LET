@@ -27,7 +27,7 @@ patchins/common_*.txt + patchins/geo*.txt ──(patch_topas_testmode.py)──�
 dicomexportplan \
   -b data/resources/dcpt_beam_model/DCPT_beam_model__v2.csv \
   -p=500.0 \
-  -N "${NSTAT:-1000000}" \
+  -N "${NSTAT:-100000000}" \
   --export-fmt topas \
   --nozzle-side neg-z \
   --test-mode \
@@ -40,11 +40,15 @@ Manifest-driven, like `tools/make_spotlists.sh`. Requires **dicomexport ≥ 1.4.
 patient-correct IEC convention (never `pos-z` for patient runs).
 
 Use `--test-mode`, not the beam-only export, as the starting point for runnable
-project inputs. The test-mode file is self-contained: it carries `Ge/gantryAngle`,
-`Ge/couchAngle`, `World -> Couch -> DCM_to_IEC -> Gantry`, `BeamPosition`, the
-source, and all spot time features in a single TOPAS parameter file. Keeping those
-definitions in one file avoids TOPAS 4.2.p3 include-chain conflicts and preserves
-future non-zero gantry/couch angles directly from the RTPLAN.
+project inputs. Generate this canonical input at high statistics, currently
+`100000000` by default, so dicomexport's integer spot weights preserve small-MU
+spots. Local and production runs can then downscale from that high-resolution
+vector via `run_local.sh NSTAT=...`. The test-mode file is self-contained: it
+carries `Ge/gantryAngle`, `Ge/couchAngle`, `World -> Couch -> DCM_to_IEC ->
+Gantry`, `BeamPosition`, the source, and all spot time features in a single TOPAS
+parameter file. Keeping those definitions in one file avoids TOPAS 4.2.p3
+include-chain conflicts and preserves future non-zero gantry/couch angles
+directly from the RTPLAN.
 
 Beam model: plans 01-04 export both v2 and v5, plans 05-07 v5 only; the committed
 mains/results use **v2** for 01-04. The v2 source plane is 500 mm upstream, v5 is
@@ -94,14 +98,29 @@ maps each CSV to its `output_type` by filename. Scoring boxes: `ScoringZBox` (de
 205×1 mm along Z = SH12A `Z_narrow`), `ScoringXZBox` (map_XZ), `ScoringXYBox`
 (map_XY at isocenter), `TargetBox` (differential spectra).
 
-### 4. Run locally (low statistics)
+Native TOPAS `ProtonLET` depth scorers are included for material DLET/TLET for
+primary protons and all protons. They are written as `NB_Z_narrow_LET_p2/p3/p5/p6`
+by post-processing after converting TOPAS's `MeV/mm/(g/cm3)` output to the catalog
+`MeV/cm` convention. The missing `all` charged-particle LET pages and water LET
+pages still require the corrected/custom LET scorer work tracked in issue #153.
+
+### 4. Run locally
 
 ```bash
 TOPAS_EXE=/path/to/topas data/topas/run_local.sh [plan ...]
+NSTAT=10000000 TOPAS_EXE=/path/to/topas data/topas/run_local.sh [plan ...]
 ```
 
-Launches from the repo root (mains use repo-root-relative include paths) and creates
-the scratch outdir. TOPAS must be able to resolve the beam model / native scorers.
+Launches from the repo root and creates the scratch outdir. TOPAS must be able to
+resolve the beam model / native scorers.
+
+Without `NSTAT`, the runner uses `1000000` histories for local checks. With
+`NSTAT`, it uses the requested runtime total. In both cases it writes a temporary
+main under `results/output/<plan>/.runtime/`, rescales `Tf/spotWeight/Values` from
+the high-stat canonical input so the spot histories sum exactly to the runtime
+total, and writes `results/output/<plan>/REQUESTED_HISTORIES`.
+`postprocess_local.py` reads that sidecar first, so dose and fluence remain
+normalized as MeV/g/primary and /cm2/primary for the actual run statistics.
 
 ### 5. Post-process
 

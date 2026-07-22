@@ -24,8 +24,8 @@
 # Requires dicomexport >= 1.4.4.
 #
 # Usage:
-#   tools/make_topas.sh                 # regenerate beam files for all plans
-#   NSTAT=1000000 tools/make_topas.sh   # override target protons (low-stat local default)
+#   tools/make_topas.sh                   # regenerate beam files for all plans
+#   NSTAT=1000000000 tools/make_topas.sh  # override canonical export statistics
 #
 set -euo pipefail
 
@@ -37,9 +37,10 @@ dir_plan="data/resources/plans"
 plan_manifest="tools/plan_manifest.txt"
 beam_out="data/topas/input/beam"
 
-# Target protons for the (local, low-stat) simulation. Baked into the beam file's
-# REQUESTED_HISTORIES / PARTICLE_SCALING. Bump for production runs.
-NSTAT="${NSTAT:-1000000}"
+# Canonical export statistics. Keep this high so dicomexport's spot-weight
+# integerization preserves small monitor-unit spots. Local runs can downscale
+# from these weights via data/topas/run_local.sh NSTAT=...
+NSTAT="${NSTAT:-100000000}"
 
 command -v "$exe" >/dev/null 2>&1 || { echo "Error: '$exe' not found. Install dicomexport >= ${required_version}." >&2; exit 1; }
 

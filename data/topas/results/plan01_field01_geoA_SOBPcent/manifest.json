@@ -7,8 +7,8 @@
     "version": "4.2.p3"
   },
   "frame": {
-    "native": "topas-y",
-    "to_patient": "TOPAS slab geometry scores depth along world Y. postprocess_local.py applies the documented Y->depth readback before writing NB_Z_narrow*.dat.",
+    "native": "topas-bev",
+    "to_patient": "TOPAS scores in beam coordinates (depth = +Z downstream, isocenter Z=0, phantom + scoring parented to dicomexport's Gantry frame). depth = +Z directly, no flip; postprocess_local.py only resamples onto the SH12A Z_narrow grid.",
     "beam_model": "v2"
   },
   "provenance": {
@@ -17,10 +17,10 @@
   },
   "statistics": {
     "normalization": "per_primary",
-    "n_primaries": 1000000
+    "n_primaries": 10000000
   },
   "capabilities": {
-    "notes": "Native TOPAS smoke-test outputs. Qeff, heavy recoils, and corrected LET spectra are not yet produced."
+    "notes": "Native TOPAS smoke-test outputs. Native ProtonLET depth profiles are available for primary/all protons in material only; all-charged LET, water LET, Qeff, heavy recoils, and corrected LET spectra are not yet produced."
   },
   "outputs": [
     {
@@ -110,6 +110,64 @@
       ]
     },
     {
+      "description": "Depth profiles - native TOPAS proton LET in material (Z_narrow)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_LET_p2.dat",
+          "output_type": "depth_Z.DLET.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p3.dat",
+          "output_type": "depth_Z.DLET.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p5.dat",
+          "output_type": "depth_Z.TLET.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_LET_p6.dat",
+          "output_type": "depth_Z.TLET.protons.mat"
+        }
+      ]
+    },
+    {
+      "description": "Target scalars in material",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_target_p01.txt",
+          "output_type": "target.DOSE.all.mat"
+        },
+        {
+          "path": "NB_target_p03.txt",
+          "output_type": "target.DLET.primary.mat"
+        },
+        {
+          "path": "NB_target_p04.txt",
+          "output_type": "target.DLET.protons.mat"
+        },
+        {
+          "path": "NB_target_p06.txt",
+          "output_type": "target.TLET.primary.mat"
+        },
+        {
+          "path": "NB_target_p07.txt",
+          "output_type": "target.TLET.protons.mat"
+        }
+      ]
+    },
+    {
+      "description": "Target scalars in water",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_target_water_p1.txt",
+          "output_type": "target.DOSE.all.H2O"
+        }
+      ]
+    },
+    {
       "description": "Differential fluence spectra in target (material)",
       "role": "derived",
       "files": [
@@ -145,6 +203,9 @@
       "files": [
         {
           "path": "NB_XY_p1.png"
+        },
+        {
+          "path": "NB_XZ_map_p1.png"
         }
       ]
     }

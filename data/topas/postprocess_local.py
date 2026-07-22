@@ -59,6 +59,12 @@ DEPTH_OUTPUTS = {
     "depth_Z.DOSE.all.H2O": ("NB_Z_narrow_dose_water_p1.dat", "Depth profiles - dose in water (Z_narrow)"),
     "depth_Z.DOSE.primary.H2O": ("NB_Z_narrow_dose_water_p2.dat", "Depth profiles - dose in water (Z_narrow)"),
     "depth_Z.DOSE.protons.H2O": ("NB_Z_narrow_dose_water_p3.dat", "Depth profiles - dose in water (Z_narrow)"),
+    # Native TOPAS ProtonLET only covers protons. The all-charged and water-LET
+    # pages remain absent until the corrected/custom LET scorer is available.
+    "depth_Z.DLET.primary.mat": ("NB_Z_narrow_LET_p2.dat", "Depth profiles - native TOPAS proton LET in material (Z_narrow)"),
+    "depth_Z.DLET.protons.mat": ("NB_Z_narrow_LET_p3.dat", "Depth profiles - native TOPAS proton LET in material (Z_narrow)"),
+    "depth_Z.TLET.primary.mat": ("NB_Z_narrow_LET_p5.dat", "Depth profiles - native TOPAS proton LET in material (Z_narrow)"),
+    "depth_Z.TLET.protons.mat": ("NB_Z_narrow_LET_p6.dat", "Depth profiles - native TOPAS proton LET in material (Z_narrow)"),
 }
 
 SPECTRUM_OUTPUTS = {
@@ -90,7 +96,17 @@ SPECTRUM_OUTPUTS = {
 }
 
 MAP_OUTPUTS = {
+    "map_XZ.DOSE.all.mat": "NB_XZ_map_p1.png",
     "map_XY.DOSE.all.mat": "NB_XY_p1.png",
+}
+
+TARGET_OUTPUTS = {
+    "target.DOSE.all.mat": ("NB_target_p01.txt", "Target scalars in material"),
+    "target.DLET.primary.mat": ("NB_target_p03.txt", "Target scalars in material"),
+    "target.DLET.protons.mat": ("NB_target_p04.txt", "Target scalars in material"),
+    "target.TLET.primary.mat": ("NB_target_p06.txt", "Target scalars in material"),
+    "target.TLET.protons.mat": ("NB_target_p07.txt", "Target scalars in material"),
+    "target.DOSE.all.H2O": ("NB_target_water_p1.txt", "Target scalars in water"),
 }
 
 
@@ -138,9 +154,12 @@ def topas_output_scale(output_type: str, histories: int | None) -> float:
     """Convert native TOPAS CSV Sum values into the benchmark convention.
 
     TOPAS dose scorers write total Gy accumulated over the run; the prototype
-    NB dose files are MeV/g/source-particle. TOPAS fluence scorers write total
+    NB dose files are MeV/g/primary. TOPAS fluence scorers write total
     /mm2; the prototype fluence files are /cm2/source-particle.
     """
+    if ".DLET." in output_type or ".TLET." in output_type:
+        # TOPAS ProtonLET reports MeV/mm/(g/cm3); the catalog convention is MeV/cm.
+        return 10.0
     if histories is None:
         print("  warning: unknown TOPAS history count; writing native TOPAS sums", file=sys.stderr)
         return 1.0
@@ -252,31 +271,36 @@ def topas_enuc_spectrum(csv_path: Path, target_enuc: np.ndarray, scale: float, m
     return np.column_stack([target_enuc, val_i, np.zeros_like(target_enuc)])
 
 
-def topas_2d_map_png(csv_path: Path, png_path: Path) -> bool:
+def topas_2d_map_png(csv_path: Path, png_path: Path, scale: float) -> bool:
     """Render a native TOPAS 2D scorer CSV to a compact inspection PNG."""
-    x_bins: int | None = None
-    y_bins: int | None = None
+    axis_cols = (0, 1)
+    if csv_path.stem.startswith("map_XZ."):
+        axis_cols = (0, 2)
+
+    bins: dict[str, int] = {"X": 1, "Y": 1, "Z": 1}
+    widths_cm: dict[str, float] = {"X": 5.0, "Y": 5.0, "Z": 0.2}
     rows: list[tuple[int, int, float]] = []
     for line in csv_path.read_text(errors="ignore").splitlines():
         s = line.strip()
         if not s:
             continue
         if s.startswith("#"):
-            mx = re.match(r"#\s*X\s+in\s+(\d+)\s+bins", s)
-            my = re.match(r"#\s*Y\s+in\s+(\d+)\s+bins", s)
-            if mx:
-                x_bins = int(mx[1])
-            if my:
-                y_bins = int(my[1])
+            m = re.match(r"#\s*([XYZ])\s+in\s+(\d+)\s+bins?\s+of\s+([-0-9.eE]+)\s+cm", s)
+            if m:
+                bins[m[1]] = int(m[2])
+                widths_cm[m[1]] = float(m[3])
             continue
         cols = [c.strip() for c in s.split(",")]
         if len(cols) < 4:
             continue
         try:
-            rows.append((int(cols[0]), int(cols[1]), float(cols[3])))
+            rows.append((int(cols[axis_cols[0]]), int(cols[axis_cols[1]]), float(cols[3]) * scale))
         except ValueError:
             continue
 
+    x_bins = bins.get("X")
+    y_axis = "Z" if axis_cols[1] == 2 else "Y"
+    y_bins = bins.get(y_axis)
     if x_bins is None or y_bins is None or not rows:
         print(f"  warning: could not parse TOPAS 2D CSV {csv_path}", file=sys.stderr)
         return False
@@ -295,15 +319,76 @@ def topas_2d_map_png(csv_path: Path, png_path: Path) -> bool:
         print("  warning: matplotlib is required to write TOPAS map PNGs", file=sys.stderr)
         return False
 
-    fig, ax = plt.subplots(figsize=(5, 4), constrained_layout=True)
-    im = ax.imshow(data, origin="lower", cmap="viridis", aspect="equal")
-    ax.set_title(csv_path.stem)
-    ax.set_xlabel("X bin")
-    ax.set_ylabel("Y bin")
-    fig.colorbar(im, ax=ax, shrink=0.85)
+    x_width = widths_cm.get("X", 1.0)
+    y_width = widths_cm.get(y_axis, 1.0)
+    extent = [
+        -0.5 * x_bins * x_width,
+        0.5 * x_bins * x_width,
+        -0.5 * y_bins * y_width,
+        0.5 * y_bins * y_width,
+    ]
+
+    fig, ax = plt.subplots(figsize=(6.4, 4.8), constrained_layout=True)
+    im = ax.imshow(data, origin="lower", cmap="gnuplot2", aspect="equal", extent=extent, vmin=0.0)
+    ax.set_xlabel("Position (X) [cm]")
+    ax.set_ylabel(f"Position ({y_axis}) [cm]")
+    ax.grid(color="0.5", alpha=0.45)
+    cbar = fig.colorbar(im, ax=ax, shrink=0.85)
+    if ".DOSE." in csv_path.stem:
+        cbar.set_label("Dose [MeV/g/prim]")
     png_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(png_path, dpi=150)
+    fig.savefig(png_path, dpi=100)
     plt.close(fig)
+    return True
+
+
+def topas_target_scalar(csv_path: Path, txt_path: Path, output_type: str, scale: float, histories: int | None) -> bool:
+    """Write a one-voxel TOPAS target scorer as a SH12A-style scalar text file."""
+    bins: dict[str, int] = {"X": 1, "Y": 1, "Z": 1}
+    widths_cm: dict[str, float] = {"X": 5.0, "Y": 5.0, "Z": 0.2}
+    value: float | None = None
+    for line in csv_path.read_text(errors="ignore").splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            m = re.match(r"#\s*([XYZ])\s+in\s+(\d+)\s+bins?\s+of\s+([-0-9.eE]+)\s+cm", s)
+            if m:
+                bins[m[1]] = int(m[2])
+                widths_cm[m[1]] = float(m[3])
+            continue
+        cols = [c.strip() for c in s.split(",")]
+        try:
+            value = float(cols[3] if len(cols) >= 4 else cols[0]) * scale
+            break
+        except ValueError:
+            continue
+
+    if value is None:
+        print(f"  warning: could not parse TOPAS target scalar CSV {csv_path}", file=sys.stderr)
+        return False
+
+    quantity = output_type.split(".")[1]
+    x_bins, y_bins, z_bins = bins["X"], bins["Y"], bins["Z"]
+    x_half = 0.5 * x_bins * widths_cm["X"]
+    y_half = 0.5 * y_bins * widths_cm["Y"]
+    z_half = 0.5 * z_bins * widths_cm["Z"]
+    primaries = float(histories) if histories is not None else 0.0
+
+    txt_path.write_text(
+        "\n".join(
+            [
+                "#   DETECTOR OUTPUT MSH/DMSH",
+                f"#   X BIN:{x_bins:6d} Y BIN:{y_bins:6d} Z BIN:{z_bins:6d}",
+                f"#                DETECTOR TYPE: {quantity:<10s}",
+                f"#   X START:{-x_half: .3E} Y START:{-y_half: .3E} Z START:{-z_half: .3E}",
+                f"#   X END  :{x_half: .3E} Y END  :{y_half: .3E} Z END  :{z_half: .3E}",
+                f"#   PRIMARIES: {primaries:.3E}",
+                f" {0.0: .7E}  {0.0: .7E}  {0.0: .7E}  {value: .16E}  {0.0: .16E}",
+                "",
+            ]
+        )
+    )
     return True
 
 
@@ -316,6 +401,12 @@ def topas_version(csv_path: Path) -> str:
 
 
 def requested_histories(plan: str) -> int | None:
+    sidecar = TOPAS_ROOT / "results" / "output" / plan / "REQUESTED_HISTORIES"
+    if sidecar.is_file():
+        mh = re.match(r"\s*(\d+)\s*$", sidecar.read_text(errors="ignore"))
+        if mh:
+            return int(mh[1])
+
     main = TOPAS_ROOT / "input" / plan / "main.txt"
     if not main.is_file():
         return None
@@ -379,6 +470,34 @@ def write_manifest(plan: str, results_dir: Path, version: str, outputs: dict[str
             ],
         ),
         (
+            "Depth profiles - native TOPAS proton LET in material (Z_narrow)",
+            "primary_data",
+            [
+                "depth_Z.DLET.primary.mat",
+                "depth_Z.DLET.protons.mat",
+                "depth_Z.TLET.primary.mat",
+                "depth_Z.TLET.protons.mat",
+            ],
+        ),
+        (
+            "Target scalars in material",
+            "primary_data",
+            [
+                "target.DOSE.all.mat",
+                "target.DLET.primary.mat",
+                "target.DLET.protons.mat",
+                "target.TLET.primary.mat",
+                "target.TLET.protons.mat",
+            ],
+        ),
+        (
+            "Target scalars in water",
+            "primary_data",
+            [
+                "target.DOSE.all.H2O",
+            ],
+        ),
+        (
             "Differential fluence spectra in target (material)",
             "derived",
             [
@@ -434,8 +553,9 @@ def write_manifest(plan: str, results_dir: Path, version: str, outputs: dict[str
         "statistics": stats,
         "capabilities": {
             "notes": (
-                "Native TOPAS smoke-test outputs. Qeff, heavy recoils, and corrected "
-                "LET spectra are not yet produced."
+                "Native TOPAS smoke-test outputs. Native ProtonLET depth profiles are "
+                "available for primary/all protons in material only; all-charged LET, "
+                "water LET, Qeff, heavy recoils, and corrected LET spectra are not yet produced."
             )
         },
         "outputs": manifest_outputs,
@@ -455,7 +575,8 @@ def process_plan(input_dir: Path) -> bool:
     depth_csvs = sorted(out_dir.glob("depth_Z.*.csv")) if out_dir.is_dir() else []
     spec_csvs = sorted(out_dir.glob("spectrum_target.*.vs_ENUC.csv")) if out_dir.is_dir() else []
     map_csvs = sorted(out_dir.glob("map_*.csv")) if out_dir.is_dir() else []
-    if not depth_csvs and not spec_csvs and not map_csvs:
+    target_csvs = sorted(out_dir.glob("target.*.csv")) if out_dir.is_dir() else []
+    if not depth_csvs and not spec_csvs and not map_csvs and not target_csvs:
         print(f"  skip {plan}: no TOPAS depth/spectrum CSV in results/output/{plan}/")
         return False
 
@@ -466,7 +587,7 @@ def process_plan(input_dir: Path) -> bool:
     results_dir.mkdir(parents=True, exist_ok=True)
 
     wrote = 0
-    ref_csv = depth_csvs[0] if depth_csvs else spec_csvs[0] if spec_csvs else map_csvs[0]
+    ref_csv = depth_csvs[0] if depth_csvs else spec_csvs[0] if spec_csvs else map_csvs[0] if map_csvs else target_csvs[0]
     manifest_outputs: dict[str, list[str]] = {}
 
     for csv_path in depth_csvs:                        # stem == catalog output_type
@@ -516,10 +637,26 @@ def process_plan(input_dir: Path) -> bool:
         if png_name is None:
             continue
         png = results_dir / png_name
-        if topas_2d_map_png(csv_path, png):
+        scale = topas_output_scale(csv_path.stem, histories)
+        if topas_2d_map_png(csv_path, png, scale):
             print(f"  wrote {png.relative_to(REPO_ROOT)}")
             manifest_outputs.setdefault("preview_image", []).append(png_name)
             wrote += 1
+
+    for csv_path in target_csvs:
+        mapped = TARGET_OUTPUTS.get(csv_path.stem)
+        if mapped is None:
+            continue
+        txt_name, _ = mapped
+        txt = results_dir / txt_name
+        scale = topas_output_scale(csv_path.stem, histories)
+        if topas_target_scalar(csv_path, txt, csv_path.stem, scale, histories):
+            print(f"  wrote {txt.relative_to(REPO_ROOT)}")
+            manifest_outputs.setdefault(csv_path.stem, []).append(txt_name)
+            wrote += 1
+
+    if wrote == 0:
+        return False
 
     version = topas_version(ref_csv)
     histories = requested_histories(plan)

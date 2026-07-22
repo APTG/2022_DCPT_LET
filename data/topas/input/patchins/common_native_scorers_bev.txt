@@ -261,6 +261,51 @@ s:Sc/mapXZ_D/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/mapXZ_D/PropagateToChildren = "True"
 s:Sc/mapXZ_D/OutputFile = outdir + "map_XZ.DOSE.all.mat"
 
+# ---------- Target scalar scorers ----------
+# Match detector_reference.md target scalar pages where native TOPAS scorers exist.
+# Dose is converted from TOPAS Gy sums to MeV/g/primary by postprocess_local.py.
+s:Sc/tD_all_mat/Quantity = "DoseToMedium"
+s:Sc/tD_all_mat/Component = "TargetBox"
+s:Sc/tD_all_mat/OutputType = "csv"
+s:Sc/tD_all_mat/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tD_all_mat/OutputFile = outdir + "target.DOSE.all.mat"
+
+s:Sc/tD_all_H2O/Quantity = "DoseToWater"
+s:Sc/tD_all_H2O/Component = "TargetBox"
+s:Sc/tD_all_H2O/OutputType = "csv"
+s:Sc/tD_all_H2O/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tD_all_H2O/OutputFile = outdir + "target.DOSE.all.H2O"
+
+s:Sc/tDLET_p/Quantity = "ProtonLET"
+s:Sc/tDLET_p/Component = "TargetBox"
+s:Sc/tDLET_p/OutputType = "csv"
+s:Sc/tDLET_p/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tDLET_p/WeightBy = "dose"
+s:Sc/tDLET_p/OutputFile = outdir + "target.DLET.protons.mat"
+
+s:Sc/tDLET_prim/Quantity = "ProtonLET"
+s:Sc/tDLET_prim/Component = "TargetBox"
+s:Sc/tDLET_prim/OutputType = "csv"
+s:Sc/tDLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tDLET_prim/WeightBy = "dose"
+s:Sc/tDLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/tDLET_prim/OutputFile = outdir + "target.DLET.primary.mat"
+
+s:Sc/tTLET_p/Quantity = "ProtonLET"
+s:Sc/tTLET_p/Component = "TargetBox"
+s:Sc/tTLET_p/OutputType = "csv"
+s:Sc/tTLET_p/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tTLET_p/WeightBy = "fluence"
+s:Sc/tTLET_p/OutputFile = outdir + "target.TLET.protons.mat"
+
+s:Sc/tTLET_prim/Quantity = "ProtonLET"
+s:Sc/tTLET_prim/Component = "TargetBox"
+s:Sc/tTLET_prim/OutputType = "csv"
+s:Sc/tTLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/tTLET_prim/WeightBy = "fluence"
+s:Sc/tTLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/tTLET_prim/OutputFile = outdir + "target.TLET.primary.mat"
+
 # ---------- Target differential fluence spectra vs ENUC ----------
 # TOPAS bins PreStep total kinetic energy. For species with mass number A,
 # postprocess maps E_total/A onto the shared SH12A ENUC grid (0.1..300 MeV/u)
