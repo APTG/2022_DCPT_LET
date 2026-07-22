@@ -2,6 +2,10 @@
 
 The simulation geometries can be combined with various plans. Here is a list of the geometries which we will use.
 
+> All `z` extents below are in the **native MC frame** (beam travels +Z, isocenter at
+> z = 0). For how this relates to the canonical DICOM/IEC patient frame and the derived
+> "depth" scalar, see [coordinates.md](coordinates.md).
+
 
 ## Simulation Geometries A, B, C, D:
 
@@ -39,6 +43,39 @@ So, specifically, measured relative to iso-center planes:
 - First slab solid water : `z = [-2.25, -0.25]`
 - PMMA detector plate : `z = [-0.25, +0.25]`
 - Second slab solid water : `z = [+0.25, +18.25]`
+
+
+## 2026 Simulation Geometries:
+
+For the 2026 measurement campaign, the same phantom setup is used (30 x 30 cm² slabs, 20.5 cm total), but the isocenter depth varies per plan, shifting the phantom surface position relative to the isocenter (z = 0).
+A 3 cm range shifter (LEXAN/polycarbonate) was used for the deliveries in plans 06 and 07. It is modelled explicitly in the simulation geometry as a 3 cm slab positioned upstream of the isocenter:
+- Plan 06: range shifter center at 13.59 cm from isocenter, `z = [-15.09, -12.09]`
+- Plan 07: range shifter center at 17.38 cm from isocenter, `z = [-18.88, -15.88]`
+
+Clinical to simulation name mapping:
+- SOBP 3d → plan05, geoE
+- SOBP 4d → plan06, geoF
+- SOBP 5d → plan07, geoG
+
+
+### Geometry E - Plan 05, SOBP, isocenter at 7.28 cm depth, detector at 9.42 cm depth
+- First slab solid water : `z = [-7.28, +1.89]`
+- PMMA detector plate : `z = [+1.89, +2.39]`
+- Second slab solid water : `z = [+2.39, +13.22]`
+
+
+### Geometry F - Plan 06, SOBP, isocenter at 4.37 cm depth, detector at 6.42 cm depth
+- First slab solid water : `z = [-4.37, +1.80]`
+- PMMA detector plate : `z = [+1.80, +2.30]`
+- Second slab solid water : `z = [+2.30, +16.13]`
+- Range shifter (LEXAN) : `z = [-15.09, -12.09]` (13.59 cm upstream of isocenter)
+
+
+### Geometry G - Plan 07, SOBP, isocenter at 8.25 cm depth, detector at 14.26 cm depth
+- First slab solid water : `z = [-8.25, +5.76]`
+- PMMA detector plate : `z = [+5.76, +6.26]`
+- Second slab solid water : `z = [+6.26, +12.25]`
+- Range shifter (LEXAN) : `z = [-18.88, -15.88]` (17.38 cm upstream of isocenter)
 
 
 Notice that the target scoring volume, must follow the detector plate, thus the scoring geometry will always be attached to the simulation geometry.

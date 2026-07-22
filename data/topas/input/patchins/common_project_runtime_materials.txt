@@ -1,0 +1,27 @@
+########################################
+# Project physics/runtime overrides
+########################################
+sv:Ph/Default/Modules = 6 "g4em-standard_opt3" "g4h-phy_QGSP_BIC_HP" "g4decay" "g4ion-binarycascade" "g4h-elastic_HP" "g4stopping"
+i:Ts/NumberOfThreads = 0
+b:Ts/PauseBeforeSequence = "F"
+i:Ts/ShowHistoryCountAtInterval = 1000
+b:Ts/ShowHistoryCountOnSingleLine = "FALSE"
+i:Tf/Verbosity = 0
+b:Ts/PauseBeforeQuit = "FALSE"
+
+########################################
+# Materials
+########################################
+sv:Ma/PMMA/Components = 3 "Carbon" "Hydrogen" "Oxygen"
+uv:Ma/PMMA/Fractions = 3  0.599848  0.080538  0.319614
+d:Ma/PMMA/Density = 1.190 g/cm3
+
+sv:Ma/Solid_Water/Components  = 6 "Hydrogen" "Carbon" "Nitrogen" "Oxygen" "Chlorine" "Calcium"
+uv:Ma/Solid_Water/Fractions   = 6 0.081 0.672 0.024 0.199 0.001 0.023
+d:Ma/Solid_Water/Density      = 1.039 g/cm3
+
+# Polycarbonate range shifter material used by plans 06/07. The geometry itself
+# is emitted by dicomexportplan when the RTPLAN contains a range shifter.
+sv:Ma/Lexan/Components = 3 "Carbon" "Hydrogen" "Oxygen"
+uv:Ma/Lexan/Fractions = 3 0.755751 0.055491 0.188758
+d:Ma/Lexan/Density = 1.200 g/cm3

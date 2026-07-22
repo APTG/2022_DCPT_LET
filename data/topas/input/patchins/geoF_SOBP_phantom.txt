@@ -1,0 +1,40 @@
+########################################
+# Geometry F (docs/geometry.md), isocenter-referenced z -> beam +Z
+#   slab1 z=[-4.37,1.80], pmma z=[1.80,2.30], slab3 z=[2.30,16.13]
+#   dicomexport emits the range shifter at z=[-15.09,-12.09]
+########################################
+d:Ge/scoringDepthHLZ = 10.25 cm
+d:Ge/scoringDepthTransZ = 5.88 cm
+d:Ge/targetDepthZ = 2.05 cm
+
+s:Ge/SolidWater_slab1/Parent      = "Gantry"
+s:Ge/SolidWater_slab1/Type        = "TsBox"
+s:Ge/SolidWater_slab1/Material    = "Solid_Water"
+d:Ge/SolidWater_slab1/HLX         = 15.0 cm
+d:Ge/SolidWater_slab1/HLY         = 15.0 cm
+d:Ge/SolidWater_slab1/HLZ         = 3.085 cm
+d:Ge/SolidWater_slab1/TransZ      = -1.285 cm
+d:Ge/SolidWater_slab1/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab1/Color       = "blue"
+
+s:Ge/pmma_slab/Parent      = "Gantry"
+s:Ge/pmma_slab/Type        = "TsBox"
+s:Ge/pmma_slab/Material    = "PMMA"
+d:Ge/pmma_slab/HLX         = 15.0 cm
+d:Ge/pmma_slab/HLY         = 15.0 cm
+d:Ge/pmma_slab/HLZ         = 0.25 cm
+d:Ge/pmma_slab/TransZ      = 2.05 cm
+d:Ge/pmma_slab/MaxStepSize = 0.5 mm
+s:Ge/pmma_slab/Color       = "yellow"
+
+s:Ge/SolidWater_slab3/Parent      = "Gantry"
+s:Ge/SolidWater_slab3/Type        = "TsBox"
+s:Ge/SolidWater_slab3/Material    = "Solid_Water"
+d:Ge/SolidWater_slab3/HLX         = 15.0 cm
+d:Ge/SolidWater_slab3/HLY         = 15.0 cm
+d:Ge/SolidWater_slab3/HLZ         = 6.915 cm
+d:Ge/SolidWater_slab3/TransZ      = 9.215 cm
+d:Ge/SolidWater_slab3/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab3/Color       = "red"
+
+s:outdir = "data/topas/results/output/plan06_field01_geoF_SOBP/"

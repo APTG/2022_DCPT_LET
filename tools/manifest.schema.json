@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/APTG/2022_DCPT_LET/tools/manifest.schema.json",
+  "title": "DCPT LET result manifest",
+  "description": "Per-plan, per-code result manifest. One file per data/<code>/results/<plan>/ directory. Plan directory names are the primary cross-code alignment key; filenames inside may differ between codes.",
+  "type": "object",
+  "required": ["schema_version", "plan", "code", "provenance", "statistics", "capabilities", "outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1",
+      "description": "Schema version. Bump when the format changes incompatibly."
+    },
+    "plan": {
+      "type": "string",
+      "description": "Plan directory name. Must match the parent directory of this manifest. Identical across all MC codes."
+    },
+    "code": {
+      "type": "object",
+      "required": ["name", "short", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full display name of the MC code."
+        },
+        "short": {
+          "type": "string",
+          "description": "Short identifier matching the data/<short>/ directory name."
+        },
+        "version": {
+          "type": "string",
+          "description": "Code version string used for these results."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-text notes about the code configuration or known limitations."
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+            {"type": "null"}
+          ],
+          "description": "ISO 8601 date (YYYY-MM-DD) when the simulation was run, or null if unknown."
+        },
+        "input_path": {
+          "type": "string",
+          "description": "Relative path to the input directory used, from the repository root."
+        },
+        "runner": {
+          "type": "string",
+          "description": "User or system identifier that ran the simulation."
+        },
+        "git_ref": {
+          "type": "string",
+          "description": "Git ref or commit hash of the input state used."
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "n_primaries": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Number of primary particles simulated. Strongly recommended; omit only when genuinely unknown."
+        },
+        "normalization": {
+          "type": "string",
+          "description": "Normalization convention for output quantities, e.g. 'per_primary'."
+        },
+        "runtime_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Total wallclock runtime in seconds, if known."
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "description": "Coordinate frame declaration for this code's results. Optional. Declares the code's native convention and the explicit transform to the canonical DICOM/IEC patient frame, replacing ad-hoc flips. See docs/coordinates.md.",
+      "additionalProperties": false,
+      "properties": {
+        "native": {
+          "type": "string",
+          "description": "The code's internal convention, e.g. 'mc+z' (source z=-50, travel +Z), 'mcpl-z' (source z=+50/+60, travel -Z), or 'topas-iec-y' (DICOM->IEC RotX=90, beam along world Y with RotZ 180 scoring)."
+        },
+        "to_patient": {
+          "type": "string",
+          "description": "Human-readable description (or reference) of the explicit rigid transform mapping this code's stored results into the canonical DICOM/IEC patient frame, and the derived-depth mapping for 1D profiles. Replaces undocumented np.flip / RotZ 180 hand-reversals."
+        },
+        "beam_model": {
+          "type": "string",
+          "description": "Beam model used for the source, e.g. 'v2' or 'v5'. Determines the upstream source-plane distance."
+        },
+        "source_plane_cm": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Upstream source-plane distance from isocenter in cm (50 for v2, 60 for v5)."
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Free-form summary of what this code can or cannot produce. Use 'notes' for a human-readable summary of limitations. Actual per-file availability is declared via output_type in outputs[*].files."
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Output entries grouped by native output block. Each file carries an output_type referencing data/output_catalog.json. Files without a catalog counterpart (raw outputs, preview images) omit output_type.",
+      "items": {
+        "type": "object",
+        "required": ["role", "files"],
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Human-readable label for this native output block."
+          },
+          "role": {
+            "type": "string",
+            "enum": ["primary_data", "derived", "raw_output", "preview_image"],
+            "description": "primary_data: direct simulation output. derived: post-processed from primary_data. raw_output: code-native format not yet page-extracted. preview_image: rendered visualization."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-text notes, e.g. how derived outputs were produced or known caveats."
+          },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Files in this output block, relative to the manifest directory.",
+            "items": {
+              "type": "object",
+              "required": ["path"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "File path relative to this manifest's directory."
+                },
+                "output_type": {
+                  "type": "string",
+                  "description": "Catalog key from data/output_catalog.json identifying the physical content of this file. Format: {geometry}.{QUANTITY}.{filter}.{medium}[.vs_{diff_axis}]."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# MCPN code
+# MCNP code
 
 ## Binary files with source particles
 
@@ -6,7 +6,7 @@ The MCNP code cannot use directly MCPL phasespace files as the source. The files
 
 The MCPL phase space files are described in [data/sh12a/phasespace](https://github.com/APTG/2022_DCPT_LET/tree/main/data/resources/phasespace)
 
-The gzipped binary files in the RSSA/SSW file format can be downloaded from the following locations. Each of the files is 2GB in size and contains roughly 10^8 particles. The files contain the list of particles scored at a plane close to the particle source (-49.9 cm upstream from the isocenter).
+The gzipped binary files in the RSSA/SSW file format can be downloaded from the following locations. Each of the files is 2GB in size and contains roughly 10^8 particles. The files contain the list of particles scored at a plane close to the particle source, ~50 cm upstream of the isocenter on the source side (the same plane as the MCPL phase-space files — see [data/resources/phasespace](../resources/phasespace) and [docs/coordinates.md](../../docs/coordinates.md) for the sign convention).
 
 
 ### Plan1:

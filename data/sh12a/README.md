@@ -6,7 +6,7 @@
 
 ## How to Run
 
-Requires SHIELD-HIT12A version `v1.0.0` or newer.
+Requires SHIELD-HIT12A version `v1.1.2` or newer.
 
 ### Standalone
 
@@ -16,20 +16,28 @@ From this directory you can simply run:
 Windows:
 `shieldhit.exe plan01_geoB_SOBP95`
 
+For local testing from this directory, use:
+
+`./run_local.sh plan01_field01_geoA_SOBPcent`
+
+With no arguments, `run_local.sh` runs all `input/plan*` directories. Set
+`SHIELDHIT_EXE=/path/to/shieldhit` to use a non-default executable, and pass
+additional SHIELD-HIT arguments after `--`.
+
 ### On ARES computing cluster
 
 using `ares.cyfronet.pl`:
 
 Start a interactive node, for compilation (if needed)
-`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc14-cpu --time=0:59:00 --pty /bin/bash -l`
+`$ srun -p plgrid-now -N 1 -n 1 -A plgccbmc15-cpu --time=0:59:00 --pty /bin/bash -l`
 `$ module load mcpartools shieldhit`
 
 From the directory of this README file, you can then
 
-`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc14-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
+`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc15-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]"  input/plan01_field01_geoA_SOBPcent/`
 
 Or use own compiled version:
-`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc14-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]" -m /net/people/plgrid/plgbassler/run_shieldhit.sh input/plan01_field01_geoA_SOBPcent/`
+`$ generatemc -j100 -p1000000 -s "[ -A plgccbmc15-cpu -p plgrid --time=0:59:00]" -e "[ -t 00:55:00]" -m /net/people/plgrid/plgbassler/run_shieldhit.sh input/plan01_field01_geoA_SOBPcent/`
 
 
 
@@ -42,10 +50,18 @@ and go into the plan01_geoB_SOBP95/ directory where there will be a new run* dir
 `$ ./submit.sh`
 
 and do this for every plan.
-Useful command: `$ find . -name "submit.sh" | sort > submit_all.sh` (needs sleep 1 inserted between the lines)
+Useful command to build a single submit-all script (the `awk` inserts a `sleep 1` after every submission so the scheduler is not hammered):
+`$ find . -name submit.sh | sort | awk '{print; print "sleep 1"}' > submit_all.sh`
+then run `$ bash submit_all.sh`
 
 100 hours is plenty for good statistics.
 
 ## Postprocess
 
-Run local script `./generate_results.sh` from same directory as this README file.
+Run local script `./postprocess.sh` from same directory as this README file. This will loop through all input files.
+To just postprocess one directory, run `./postprocess.sh input/plan5* input/plan6* input/plan7*` or similar.
+
+For local test runs, `./postprocess_local.sh` processes the latest
+`input/<plan>/run_*/output` directory and moves converted `.dat`, `.txt`, and
+inspection `.png` files into `results/<plan>/`. With no arguments it processes
+plans in parallel; set `THREADS=1` for serial postprocessing.

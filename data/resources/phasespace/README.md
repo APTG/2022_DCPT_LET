@@ -15,9 +15,9 @@ The following table lists the binary files containing particles scored at a plan
 
 ## Particle Source
 
-In these Monte Carlo (MC) simulations, we commonly use a particle source that emits particles from the plane at **Z = +50 cm**, directed traveling along Z-axis in negative direction. We use this coordinate to be consistent with the Treatment Planning System (TPS) settings.
+We used [DicomExport](https://github.com/nbassler/dicomexport) to simulate a proton beam according to the **DCPT beam model v2** and the DICOM plan files. The beam source is located **50 cm upstream from the iso-center** (v2; it would be 60 cm for v5 — see the [beam-model README](../dcpt_beam_model/README.md)).
 
-We used [DicomExport](https://github.com/nbassler/dicomexport) to simulate a proton beam according to the **DCPT beam model** and the DICOM plan files, with the beam source located at **Z = -50 cm**.
+In these files the coordinate system is chosen so that the **source plane is at z = +50 cm** and particles travel in the **−z direction** toward the iso-center at z = 0. This is the *MCPL phase-space frame*: note it is the mirror image (travel −z) of the native MC scoring frame used elsewhere in this repo (source at z = −50 cm, travel +z). "Upstream" always means the source side, independent of the sign convention. Scoring planes must be set up accordingly. See [docs/coordinates.md](../../../docs/coordinates.md) for the full frame contract.
 
 Three plans were simulated:
 

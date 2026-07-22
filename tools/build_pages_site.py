@@ -1,0 +1,1282 @@
+#!/usr/bin/env python3
+"""Build a static GitHub Pages site from manifest-driven comparison plots.
+
+Discovery flow:
+  data/*/code.yaml            → registered MC codes (name, colour, url)
+  data/output_catalog.json    → canonical output type labels and geometry
+  data/**/manifest.json       → per-code, per-plan output file index
+  {plots_dir}/{plan}/*.html   → interactive Plotly plots already generated
+                                by tools/generate_comparison_plots.py
+
+Site layout:
+  {out_dir}/
+    index.html                → landing page with code list and plan cards
+    plans/{plan}.html         → per-plan page with grouped plot cards
+    assets/site.css
+
+Usage:
+    python tools/build_pages_site.py
+    python tools/build_pages_site.py --out-dir pages-site --plots-dir pages-site/plots
+"""
+
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import math
+import shutil
+from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
+
+
+# ---------------------------------------------------------------------------
+# Data loading
+# ---------------------------------------------------------------------------
+
+
+def load_catalog(path: Path) -> dict:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "output_types": data.get("output_types", {}),
+        "geometry_classes": data.get("geometry_classes", {}),
+    }
+
+
+def load_result_notes(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("notes", [])
+
+
+def load_code_styles(data_root: Path) -> dict[str, dict]:
+    styles: dict[str, dict] = {}
+    for p in sorted(data_root.glob("*/code.yaml")):
+        info = yaml.safe_load(p.read_text(encoding="utf-8"))
+        styles[info["short"]] = info
+    return styles
+
+
+def load_manifests(data_root: Path) -> list[dict]:
+    manifests = []
+    for p in sorted(data_root.rglob("manifest.json")):
+        data = json.loads(p.read_text(encoding="utf-8"))
+        data["_dir"] = p.parent
+        manifests.append(data)
+    return manifests
+
+
+def load_code_versions(data_root: Path) -> dict[str, dict]:
+    """Summarise VERSION.txt provenance files by registered code."""
+    versions: dict[str, dict] = {}
+    for code_dir in sorted(data_root.iterdir()):
+        if not code_dir.is_dir():
+            continue
+        code_file = code_dir / "code.yaml"
+        results_dir = code_dir / "results"
+        if not code_file.exists() or not results_dir.exists():
+            continue
+        info = yaml.safe_load(code_file.read_text(encoding="utf-8"))
+        code_short = info["short"]
+        summary = {
+            "plans": 0,
+            "mc_code_version": set(),
+            "convertmc_version": set(),
+            "number_of_primaries": set(),
+            "filedate": set(),
+        }
+        for version_file in sorted(results_dir.glob("*/VERSION.txt")):
+            parsed: dict[str, str] = {}
+            for line in version_file.read_text(encoding="utf-8").splitlines():
+                if ":" not in line:
+                    continue
+                key, value = line.split(":", 1)
+                parsed[key.strip()] = value.strip()
+            if not parsed:
+                continue
+            summary["plans"] += 1
+            for key in ("mc_code_version", "convertmc_version", "number_of_primaries", "filedate"):
+                value = parsed.get(key)
+                if value:
+                    summary[key].add(value)
+        versions[code_short] = summary
+    return versions
+
+
+def load_detector_plates(data_root: Path) -> dict[str, tuple[float, float]]:
+    """Read PMMA detector plate z-bounds from SH12A reference geo.dat files."""
+    plates: dict[str, tuple[float, float]] = {}
+    for geo_path in sorted((data_root / "sh12a" / "input").glob("*/geo.dat")):
+        plan = geo_path.parent.name
+        for line in geo_path.read_text(encoding="utf-8").splitlines():
+            fields = line.split()
+            if len(fields) >= 8 and fields[0].upper() == "RPP" and fields[1] == "4":
+                try:
+                    z_min = float(fields[6])
+                    z_max = float(fields[7])
+                except ValueError:
+                    continue
+                plates[plan] = (min(z_min, z_max), max(z_min, z_max))
+                break
+    return plates
+
+
+def build_availability(
+    manifests: list[dict],
+) -> dict[str, dict[str, set[str]]]:
+    """
+    Returns {plan: {output_type: {code_short, ...}}}.
+    Only includes primary_data and derived entries with an output_type.
+    """
+    avail: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if ot:
+                    avail[plan][ot].add(code_short)
+    return {p: dict(d) for p, d in avail.items()}
+
+
+def codes_per_plan(manifests: list[dict]) -> dict[str, set[str]]:
+    """Which codes have any result for each plan."""
+    cpp: dict[str, set[str]] = defaultdict(set)
+    for m in manifests:
+        cpp[m["plan"]].add(m["code"]["short"])
+    return dict(cpp)
+
+
+def collect_preview_images(
+    manifests: list[dict],
+) -> dict[str, dict[str, list[Path]]]:
+    """
+    {plan: {code_short: [paths_to_preview_pngs, ...]}}.
+    Used to show 2D map previews on plan pages.
+    """
+    previews: dict[str, dict[str, list[Path]]] = defaultdict(lambda: defaultdict(list))
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        result_dir = m["_dir"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") != "preview_image":
+                continue
+            for f in entry.get("files", []):
+                path = result_dir / f["path"]
+                if path.exists():
+                    previews[plan][code_short].append(path)
+    return dict(previews)
+
+
+def build_download_index(
+    manifests: list[dict],
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Returns {(plan, output_type): [{code_short, src_path, filename}, ...]}.
+    Only primary_data and derived files that carry an output_type.
+    """
+    index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for m in manifests:
+        plan = m["plan"]
+        code_short = m["code"]["short"]
+        result_dir = m["_dir"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if not ot:
+                    continue
+                src = result_dir / f["path"]
+                if src.exists():
+                    index[(plan, ot)].append({
+                        "code_short": code_short,
+                        "src_path": src,
+                        "filename": src.name,
+                    })
+    return dict(index)
+
+
+def build_reference_order(
+    manifests: list[dict],
+    catalog: dict,
+    *,
+    reference_code: str = "sh12a",
+) -> dict[str, dict[str, list[dict]]]:
+    """
+    Return plan-page card ordering from the reference code's manifest.
+
+    The SH12A manifests are written in detector/output-page order, which is more
+    meaningful than alphabetical output_type sorting.  Each manifest output block
+    becomes a visual subgroup inside the matching geometry section.
+    """
+    output_types = catalog["output_types"]
+    order: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    seen: dict[tuple[str, str], set[str]] = defaultdict(set)
+
+    for m in manifests:
+        if m.get("code", {}).get("short") != reference_code:
+            continue
+        plan = m["plan"]
+        for entry in m.get("outputs", []):
+            if entry.get("role") not in ("primary_data", "derived"):
+                continue
+            by_geometry: dict[str, list[str]] = defaultdict(list)
+            for f in entry.get("files", []):
+                ot = f.get("output_type")
+                if not ot:
+                    continue
+                geom = output_types.get(ot, {}).get("geometry", ot.split(".")[0])
+                key = (plan, geom)
+                if ot in seen[key]:
+                    continue
+                seen[key].add(ot)
+                by_geometry[geom].append(ot)
+            for geom, ots in by_geometry.items():
+                if ots:
+                    order[plan][geom].append({
+                        "title": entry.get("description", ""),
+                        "output_types": ots,
+                    })
+
+    return {plan: dict(by_geom) for plan, by_geom in order.items()}
+
+
+def copy_data_files(
+    download_index: dict[tuple[str, str], list[dict]],
+    site_root: Path,
+) -> dict[tuple[str, str], list[dict]]:
+    """
+    Copy data files into {site_root}/data/{plan}/{code}/{filename}.
+    Returns the same index enriched with a 'dest_rel' key (relative to site_root).
+    """
+    enriched: dict[tuple[str, str], list[dict]] = {}
+    for (plan, ot), files in download_index.items():
+        enriched[(plan, ot)] = []
+        seen: set[Path] = set()
+        for item in files:
+            src = item["src_path"]
+            if src in seen:
+                continue
+            seen.add(src)
+            dest = site_root / "data" / plan / item["code_short"] / item["filename"]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+            enriched[(plan, ot)].append({
+                **item,
+                "dest_rel": f"data/{plan}/{item['code_short']}/{item['filename']}",
+            })
+    return enriched
+
+
+def copy_preview_images(
+    preview_images: dict[str, dict[str, list[Path]]],
+    site_root: Path,
+) -> dict[str, dict[str, list[str]]]:
+    """Copy preview PNGs into the site and return paths relative to plan pages."""
+    copied: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+    for plan, by_code in preview_images.items():
+        for code_short, paths in by_code.items():
+            seen: set[Path] = set()
+            for src in paths:
+                if src in seen:
+                    continue
+                seen.add(src)
+                dest = site_root / "previews" / plan / code_short / src.name
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dest)
+                copied[plan][code_short].append(f"../previews/{plan}/{code_short}/{src.name}")
+    return {plan: dict(by_code) for plan, by_code in copied.items()}
+
+
+def note_matches_output(note: dict, output_type: str, catalog_meta: dict, codes: set[str]) -> bool:
+    note_codes = set(note.get("codes") or [])
+    if note_codes and note_codes.isdisjoint(codes):
+        return False
+
+    match = note.get("match", {})
+    output_types = match.get("output_types")
+    if output_types is not None and output_type not in output_types:
+        return False
+    if match.get("output_type") is not None and output_type != match["output_type"]:
+        return False
+
+    for key in ("geometry", "quantity", "filter", "medium", "diff_axis", "render_as"):
+        expected = match.get(key)
+        if expected is None:
+            continue
+        if isinstance(expected, list):
+            if catalog_meta.get(key) not in expected:
+                return False
+        elif catalog_meta.get(key) != expected:
+            return False
+    return True
+
+
+def notes_for_output(
+    output_type: str,
+    catalog_meta: dict,
+    codes: set[str],
+    result_notes: list[dict],
+) -> list[dict]:
+    return [
+        note for note in result_notes
+        if note_matches_output(note, output_type, catalog_meta, codes)
+    ]
+
+
+
+
+# ---------------------------------------------------------------------------
+# HTML helpers
+# ---------------------------------------------------------------------------
+
+
+def text_on_bg(hex_color: str) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return "#ffffff" if (0.299 * r + 0.587 * g + 0.114 * b) < 140 else "#1b2226"
+
+
+def code_pill(code_short: str, code_styles: dict[str, dict], *, size: str = "normal") -> str:
+    style = code_styles.get(code_short, {})
+    color = style.get("display_color", "#888888")
+    fg = text_on_bg(color)
+    name = html.escape(style.get("name", code_short))
+    font_size = "0.75rem" if size == "small" else "0.85rem"
+    padding = "0.2rem 0.55rem" if size == "small" else "0.3rem 0.75rem"
+    return (
+        f'<span class="code-pill" '
+        f'style="background:{color};color:{fg};font-size:{font_size};padding:{padding};">'
+        f"{name}</span>"
+    )
+
+
+def write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def version_values(values: set[str], *, max_items: int = 2) -> str:
+    if not values:
+        return "not recorded"
+    ordered = sorted(values)
+    shown = ", ".join(html.escape(v) for v in ordered[:max_items])
+    if len(ordered) > max_items:
+        shown += f" +{len(ordered) - max_items} more"
+    return shown
+
+
+def load_xy_profile(path: Path) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        fields = line.split()
+        if len(fields) < 2:
+            continue
+        try:
+            points.append((float(fields[0]), float(fields[1])))
+        except ValueError:
+            continue
+    return points
+
+
+def profile_axis_value(value: float, *, log_scale: bool) -> float:
+    return math.log10(value) if log_scale else value
+
+
+def profile_polyline(
+    points: list[tuple[float, float]],
+    x_min: float,
+    x_max: float,
+    y_min: float,
+    y_max: float,
+    *,
+    log_x: bool = False,
+    log_y: bool = False,
+) -> str:
+    width = 170.0
+    height = 110.0
+    pad_x = 12.0
+    pad_y = 12.0
+    plot_w = width - 2.0 * pad_x
+    plot_h = height - 2.0 * pad_y
+    if x_max <= x_min or y_max <= y_min:
+        return ""
+    coords: list[str] = []
+    for x, y in points:
+        if (log_x and x <= 0.0) or (log_y and y <= 0.0):
+            continue
+        x_plot = profile_axis_value(x, log_scale=log_x)
+        y_plot = profile_axis_value(y if log_y else max(y, 0.0), log_scale=log_y)
+        sx = pad_x + ((x_plot - x_min) / (x_max - x_min)) * plot_w
+        sy = height - pad_y - ((y_plot - y_min) / (y_max - y_min)) * plot_h
+        coords.append(f"{sx:.1f},{sy:.1f}")
+    return " ".join(coords)
+
+
+def profile_plate_rect(detector_plate: tuple[float, float], x_min: float, x_max: float) -> str:
+    width = 170.0
+    height = 110.0
+    pad_x = 12.0
+    pad_y = 12.0
+    plot_w = width - 2.0 * pad_x
+    plot_h = height - 2.0 * pad_y
+    if x_max <= x_min:
+        return ""
+    z_min, z_max = detector_plate
+    left = max(min(z_min, z_max), x_min)
+    right = min(max(z_min, z_max), x_max)
+    if right <= left:
+        return ""
+    x0 = pad_x + ((left - x_min) / (x_max - x_min)) * plot_w
+    x1 = pad_x + ((right - x_min) / (x_max - x_min)) * plot_w
+    return (
+        f'<rect x="{x0:.1f}" y="{pad_y:.1f}" width="{x1 - x0:.1f}" '
+        f'height="{plot_h:.1f}" fill="#ee9b00" opacity="0.18" />'
+    )
+
+
+def render_profile_thumbnail(
+    files: list[dict],
+    code_styles: dict[str, dict],
+    *,
+    title: str = "Dose-to-water",
+    class_name: str = "hero-thumb",
+    detector_plate: tuple[float, float] | None = None,
+    log_x: bool = False,
+    log_y: bool = False,
+) -> str:
+    series: list[dict] = []
+    for item in sorted(files, key=lambda x: x["code_short"]):
+        points = load_xy_profile(item["src_path"])
+        if log_x:
+            points = [(x, y) for x, y in points if x > 0.0]
+        if log_y:
+            points = [(x, y) for x, y in points if y > 0.0]
+        if not points:
+            continue
+        series.append({
+            "code_short": item["code_short"],
+            "points": points,
+        })
+    if not series:
+        return ""
+
+    all_x = [profile_axis_value(x, log_scale=log_x) for s in series for x, _ in s["points"]]
+    all_y = [
+        profile_axis_value(y if log_y else max(y, 0.0), log_scale=log_y)
+        for s in series
+        for _, y in s["points"]
+    ]
+    if not all_x or not all_y:
+        return ""
+
+    x_min = min(all_x)
+    x_max = max(all_x)
+    y_min = min(all_y) if log_y else 0.0
+    y_max = max(all_y)
+    plate_rect = (
+        profile_plate_rect(detector_plate, x_min, x_max)
+        if detector_plate and not log_x else ""
+    )
+    lines: list[str] = []
+    for s in series:
+        code_short = s["code_short"]
+        style = code_styles.get(code_short, {})
+        color = html.escape(style.get("display_color", "#888888"))
+        points = profile_polyline(
+            s["points"], x_min, x_max, y_min, y_max,
+            log_x=log_x, log_y=log_y,
+        )
+        if not points:
+            continue
+        lines.append(
+            f'<polyline points="{points}" fill="none" stroke="{color}" '
+            f'stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />'
+        )
+
+    if not lines:
+        return ""
+
+    return f"""
+<aside class="{html.escape(class_name)}" aria-label="{html.escape(title)} profile thumbnail">
+  <svg viewBox="0 0 170 110" role="img" aria-label="{html.escape(title)} depth profile">
+    {plate_rect}
+    <line x1="12" y1="98" x2="158" y2="98" />
+    <line x1="12" y1="12" x2="12" y2="98" />
+    {"".join(lines)}
+  </svg>
+</aside>"""
+
+
+def site_footer(root_prefix: str) -> str:
+    repo_url = "https://github.com/APTG/2022_DCPT_LET"
+    contributors_url = f"{repo_url}/graphs/contributors"
+    license_url = f"{repo_url}/blob/main/LICENSE"
+    dcpt_url = "https://www.en.auh.dk/departments/the-danish-centre-for-particle-therapy/"
+    eurados_url = "https://eurados.sckcen.be/en/working-groups/wg9-radiation-dosimetry-radiotherapy"
+    return f"""
+<footer class="site-footer">
+  <div class="footer-main">
+    <div class="footer-brand-row">
+      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT</a>
+      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9</a>
+    </div>
+    <p>
+      Data and generated comparison pages are published under
+      <a href="{license_url}" target="_blank">Creative Commons Attribution 4.0 International</a>.
+    </p>
+  </div>
+  <nav class="footer-links" aria-label="Project links">
+    <a href="{repo_url}" target="_blank">GitHub repository</a>
+    <a href="{contributors_url}" target="_blank">Contributors</a>
+    <a href="{root_prefix}/index.html">Home</a>
+  </nav>
+</footer>"""
+
+
+def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
+    escaped = html.escape(title)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escaped}</title>
+  <link rel="stylesheet" href="{root_prefix}/assets/site.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="{root_prefix}/index.html">Home</a>
+      <nav class="nav">
+        <a href="{root_prefix}/index.html#plans">Plans</a>
+        <a href="{root_prefix}/index.html#codes">Codes</a>
+        <a href="https://github.com/APTG/2022_DCPT_LET" target="_blank">GitHub</a>
+      </nav>
+    </header>
+    {body}
+    {site_footer(root_prefix)}
+  </div>
+</body>
+</html>
+"""
+
+
+def css_text() -> str:
+    return """\
+:root {
+  color-scheme: light;
+  --bg: #f6f4ef;
+  --panel: #fffdf8;
+  --panel-strong: #ffffff;
+  --text: #1b2226;
+  --muted: #58656d;
+  --border: #d8d2c6;
+  --accent: #005f73;
+  --accent-soft: #d8eef1;
+  --shadow: 0 14px 34px rgba(27,34,38,.08);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(238,155,0,.12), transparent 28rem),
+    linear-gradient(180deg, #fbfaf6 0%, var(--bg) 100%);
+}
+a { color: var(--accent); }
+.shell {
+  width: min(1200px, calc(100vw - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+}
+.topbar {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+  margin-bottom: 2rem;
+}
+.brand {
+  display: inline-flex; align-items: center;
+  font-size: .98rem; font-weight: 700; text-decoration: none; color: var(--text);
+}
+.nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+.nav a { text-decoration: none; }
+
+.hero, .panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 20px; box-shadow: var(--shadow);
+}
+.hero { padding: 2rem; margin-bottom: 2rem; }
+.hero-plan {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 190px);
+  gap: 1rem; align-items: center;
+}
+.hero h1 { margin: 0 0 .75rem; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.05; }
+.panel { padding: 1.4rem; margin-bottom: 1.6rem; }
+.section-title { margin: 0 0 .3rem; font-size: 1.4rem; }
+.section-desc { color: var(--muted); margin: 0 0 1rem; font-size: .95rem; }
+
+.hero p, .panel p, .plan-meta, .eyebrow, .empty-state, .footer-note { color: var(--muted); }
+
+/* stat strip */
+.hero-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-top: 1.5rem; }
+.stat { background: var(--panel-strong); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; }
+.stat strong { display: block; font-size: 1.5rem; color: var(--text); }
+.stat span { font-size: .85rem; color: var(--muted); }
+.hero-thumb {
+  justify-self: end; width: 100%; max-width: 190px;
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 10px; padding: .45rem;
+}
+.hero-thumb svg { display: block; width: 100%; height: auto; }
+.hero-thumb svg line { stroke: var(--border); stroke-width: 1; }
+.plan-thumb {
+  width: 100%; max-width: 190px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: .35rem; margin-top: .75rem;
+}
+.plan-thumb svg { display: block; width: 100%; height: auto; }
+.plan-thumb svg line { stroke: var(--border); stroke-width: 1; }
+.plot-thumb {
+  width: 100%; max-width: 220px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: .3rem; margin: .1rem 0;
+}
+.plot-thumb svg { display: block; width: 100%; height: auto; }
+.plot-thumb svg line { stroke: var(--border); stroke-width: 1; }
+
+/* code pill */
+.code-pill {
+  display: inline-flex; align-items: center;
+  border-radius: 999px; font-weight: 600;
+  padding: .3rem .75rem; font-size: .85rem;
+}
+.pill-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+
+/* plan grid */
+.plan-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 1rem; }
+.plan-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 18px; padding: 1rem;
+}
+.plan-card h3 { margin: 0 0 .5rem; }
+.plan-card h3 a { overflow-wrap: anywhere; }
+.plan-card .plan-meta { font-size: .85rem; }
+
+/* code registry cards */
+.code-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 1rem; }
+.code-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1rem;
+  border-top: 4px solid var(--accent);
+}
+.code-card h3 { margin: 0 0 .3rem; font-size: 1rem; }
+.code-card .muted { color: var(--muted); font-size: .85rem; }
+.version-list { margin: .7rem 0 0; display: grid; gap: .25rem; }
+.version-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: .5rem; font-size: .8rem; }
+.version-row dt { color: var(--muted); }
+.version-row dd { margin: 0; overflow-wrap: anywhere; }
+
+/* plot card grid */
+.plot-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.plot-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 14px; padding: .9rem 1rem;
+  display: flex; flex-direction: column; gap: .6rem;
+}
+.plot-card h3 { margin: 0; font-size: .95rem; font-weight: 600; }
+.plot-card .plot-link {
+  display: inline-flex; align-items: center; gap: .35rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .3rem .8rem; font-size: .85rem;
+  color: var(--accent); text-decoration: none; background: #fff;
+  width: fit-content;
+}
+.plot-card .plot-link:hover { background: var(--accent-soft); }
+.plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
+.result-notes {
+  position: relative;
+  margin: .1rem 0 0; padding: .55rem .75rem .55rem 2.1rem;
+  border: 1px solid #ead7a0; border-radius: 8px;
+  background: #fff8e6; color: #5d4a13;
+  list-style: none;
+  font-size: .8rem; line-height: 1.35;
+}
+.result-notes::before {
+  content: "!";
+  position: absolute; left: .7rem; top: .58rem;
+  display: grid; place-items: center;
+  width: .95rem; height: .95rem; border-radius: 50%;
+  background: #d08a00; color: white;
+  font-size: .68rem; font-weight: 800; line-height: 1;
+}
+.result-notes li + li { margin-top: .35rem; }
+.plot-subsection { margin-top: 1rem; }
+.plot-subsection:first-child { margin-top: 0; }
+.plot-subsection-title {
+  margin: 0 0 .7rem; padding-left: .65rem;
+  border-left: 4px solid var(--accent);
+  font-size: 1rem; font-weight: 700;
+  color: var(--text);
+}
+
+/* PDF download button */
+.btn-pdf {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--accent); color: #fff; border-radius: 6px;
+  padding: .45rem 1rem; font-size: .9rem; font-weight: 600;
+  text-decoration: none; margin-top: 1rem;
+}
+.btn-pdf:hover { opacity: .85; }
+
+/* download links */
+.dl-row { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .1rem; }
+.dl-label { font-size: .75rem; color: var(--muted); margin-right: .2rem; white-space: nowrap; }
+.dl-link {
+  display: inline-flex; align-items: center; gap: .2rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .15rem .55rem; font-size: .75rem;
+  color: var(--muted); text-decoration: none; background: #fff;
+  white-space: nowrap;
+}
+.dl-link:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+/* back link */
+.back-link {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: .3rem .8rem; font-size: .85rem;
+  color: var(--text); text-decoration: none; background: #fff;
+  margin-bottom: 1rem;
+}
+
+/* preview images (2D maps) */
+.preview-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.preview-card {
+  background: var(--panel-strong); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.preview-card img { display: block; width: 100%; object-fit: cover; background: #f1f1f1; }
+.preview-card .preview-label {
+  padding: .5rem .8rem; display: flex; align-items: center;
+  gap: .45rem; flex-wrap: wrap;
+}
+.preview-card .preview-file { font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
+
+.footer-note { margin-top: 2rem; font-size: .9rem; }
+.site-footer {
+  margin-top: 2rem; padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 1rem; color: var(--muted); font-size: .86rem;
+}
+.footer-main { display: grid; gap: .65rem; }
+.footer-main p { margin: 0; max-width: 42rem; }
+.footer-brand-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.footer-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 2rem; border: 1px solid var(--border); border-radius: 7px;
+  padding: .35rem .7rem; background: var(--panel-strong);
+  color: var(--text); text-decoration: none; font-weight: 800;
+  letter-spacing: 0; line-height: 1;
+}
+.footer-mark-dcpt { border-left: 5px solid #006b54; }
+.footer-mark-eurados { border-left: 5px solid #d83933; }
+.footer-links { display: flex; gap: .85rem; flex-wrap: wrap; justify-content: flex-end; }
+.footer-links a { color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .shell { width: min(100vw - 1rem, 100%); }
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .hero, .panel { padding: 1rem; }
+  .hero-plan { grid-template-columns: 1fr; }
+  .hero-thumb { justify-self: stretch; max-width: none; }
+  .site-footer { flex-direction: column; align-items: flex-start; }
+  .footer-links { justify-content: flex-start; }
+}
+"""
+
+
+# ---------------------------------------------------------------------------
+# Page renderers
+# ---------------------------------------------------------------------------
+
+# Ordered sections: (geometry class, section title, description)
+GEOMETRY_SECTIONS = [
+    (
+        "depth_Z",
+        "Depth profiles",
+        "1D profiles along the beam (Z) axis, narrow lateral acceptance. "
+        "One plot per quantity × medium × particle filter. All available codes overlaid.",
+    ),
+    (
+        "spectrum_target",
+        "Target spectra",
+        "Differential LET and kinetic-energy spectra in the target volume. "
+        "Log-log scale with stair-step bins.",
+    ),
+    (
+        "target",
+        "Target scalars",
+        "Single integrated values in the target detector volume (5×5×2 mm³). "
+        "Shown as a grouped bar chart per code.",
+    ),
+    (
+        "map_XZ",
+        "Longitudinal dose maps (XZ)",
+        "2D dose maps in the longitudinal plane. Preview images only.",
+    ),
+    (
+        "map_XY",
+        "Transverse dose maps (XY)",
+        "2D dose maps in the transverse plane. Preview images only.",
+    ),
+]
+
+
+def render_plot_card(
+    output_type: str,
+    codes: set[str],
+    code_styles: dict[str, dict],
+    plot_rel: str,
+    plot_exists: bool,
+    catalog_meta: dict,
+    download_files: list[dict],
+    notes: list[dict],
+    detector_plate: tuple[float, float] | None = None,
+) -> str:
+    label = html.escape(catalog_meta.get("label", output_type))
+    thumb = ""
+    if catalog_meta.get("render_as") in ("line_plot", "spectrum_plot"):
+        is_spectrum = catalog_meta.get("geometry") == "spectrum_target"
+        is_depth_fluence = (
+            catalog_meta.get("geometry") == "depth_Z"
+            and catalog_meta.get("quantity") == "FLUENCE"
+        )
+        thumb = render_profile_thumbnail(
+            download_files,
+            code_styles,
+            title=catalog_meta.get("label", output_type),
+            class_name="plot-thumb",
+            detector_plate=detector_plate if catalog_meta.get("geometry") == "depth_Z" else None,
+            log_x=is_spectrum,
+            log_y=is_spectrum or is_depth_fluence,
+        )
+    pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
+    if plot_exists:
+        link_html = (
+            f'<a class="plot-link" href="{html.escape(plot_rel)}" target="_blank">'
+            f"Open interactive plot ↗</a>"
+        )
+    else:
+        link_html = '<span class="missing">Plot not yet generated</span>'
+
+    dl_html = ""
+    if download_files:
+        links: list[str] = []
+        for item in download_files:
+            cs = code_styles.get(item["code_short"], {})
+            code_name = html.escape(cs.get("name", item["code_short"]))
+            fname = html.escape(item["filename"])
+            dest = html.escape(f"../{item['dest_rel']}")
+            links.append(
+                f'<a class="dl-link" href="{dest}" download title="{code_name}">'
+                f"↓ {code_name} · {fname}</a>"
+            )
+        dl_html = (
+            '<div class="dl-row"><span class="dl-label">Data:</span>'
+            + "".join(links)
+            + "</div>"
+        )
+
+    notes_html = ""
+    if notes:
+        items: list[str] = []
+        for note in notes:
+            title = note.get("title")
+            text = html.escape(note.get("text", ""))
+            if title:
+                items.append(f'<li><strong>{html.escape(title)}:</strong> {text}</li>')
+            else:
+                items.append(f"<li>{text}</li>")
+        notes_html = f'<ul class="result-notes">{"".join(items)}</ul>'
+
+    return f"""
+<article class="plot-card">
+  <h3>{label}</h3>
+  {thumb}
+  <div class="pill-row">{pills}</div>
+  {link_html}
+  {dl_html}
+  {notes_html}
+</article>"""
+
+
+def render_plan_page(
+    plan: str,
+    plan_codes: set[str],
+    availability: dict[str, set[str]],
+    catalog: dict,
+    code_styles: dict[str, dict],
+    reference_order: dict[str, list[dict]],
+    plots_rel_from_plan: str,
+    plots_dir: Path,
+    preview_images: dict[str, list[str]],
+    download_index: dict[tuple[str, str], list[dict]],
+    result_notes: list[dict],
+    detector_plate: tuple[float, float] | None,
+) -> str:
+    output_types = catalog["output_types"]
+    pills = " ".join(code_pill(c, code_styles) for c in sorted(plan_codes))
+    hero_thumb = render_profile_thumbnail(
+        download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
+        code_styles,
+        detector_plate=detector_plate,
+    )
+
+    # Group available output types by geometry class
+    by_geometry: dict[str, dict[str, set[str]]] = defaultdict(dict)
+    for ot, codes in sorted(availability.items()):
+        meta = output_types.get(ot, {})
+        geom = meta.get("geometry", ot.split(".")[0])
+        by_geometry[geom][ot] = codes
+
+    sections_html: list[str] = []
+    for geom_class, title, desc in GEOMETRY_SECTIONS:
+        if geom_class in ("map_XZ", "map_XY"):
+            # Show preview images instead of plot links
+            imgs: list[str] = []
+            for code_short, paths in preview_images.items():
+                for img_path in paths:
+                    img_name = Path(img_path).name
+                    # Only show maps that match this geometry
+                    if geom_class == "map_XZ" and "XZ" not in img_name:
+                        continue
+                    if geom_class == "map_XY" and "XY" not in img_name:
+                        continue
+                    cs = code_styles.get(code_short, {})
+                    code_name = html.escape(cs.get("name", code_short))
+                    alt = html.escape(f"{code_name} – {img_name}")
+                    pill = code_pill(code_short, code_styles, size="small")
+                    imgs.append(
+                        f'<div class="preview-card">'
+                        f'<img loading="lazy" src="{html.escape(img_path)}" alt="{alt}">'
+                        f'<div class="preview-label">{pill}'
+                        f'<span class="preview-file">{html.escape(img_name)}</span></div>'
+                        f'</div>'
+                    )
+            if not imgs:
+                continue
+            inner = f'<div class="preview-grid">{"".join(imgs)}</div>'
+        else:
+            ots = by_geometry.get(geom_class, {})
+            if not ots:
+                continue
+            groups: list[dict] = []
+            used: set[str] = set()
+            for group in reference_order.get(geom_class, []):
+                group_ots = [ot for ot in group["output_types"] if ot in ots]
+                if not group_ots:
+                    continue
+                used.update(group_ots)
+                groups.append({
+                    "title": group.get("title", ""),
+                    "output_types": group_ots,
+                })
+            remaining = [ot for ot in sorted(ots) if ot not in used]
+            if remaining:
+                groups.append({"title": "Other outputs", "output_types": remaining})
+
+            subsections: list[str] = []
+            for group in groups:
+                cards: list[str] = []
+                for ot in group["output_types"]:
+                    codes = ots[ot]
+                    meta = output_types.get(ot, {})
+                    plot_file = plots_dir / plan / f"{ot}.html"
+                    plot_rel = f"{plots_rel_from_plan}/{plan}/{ot}.html"
+                    cards.append(
+                        render_plot_card(
+                            ot, codes, code_styles,
+                            plot_rel, plot_file.exists(),
+                            meta,
+                            download_index.get((plan, ot), []),
+                            notes_for_output(ot, meta, codes, result_notes),
+                            detector_plate=detector_plate,
+                        )
+                    )
+                title_html = ""
+                if group.get("title"):
+                    title_html = f'<h3 class="plot-subsection-title">{html.escape(group["title"])}</h3>'
+                subsections.append(
+                    f'<div class="plot-subsection">{title_html}<div class="plot-grid">{"".join(cards)}</div></div>'
+                )
+            inner = "".join(subsections)
+
+        sections_html.append(f"""
+<section class="panel">
+  <h2 class="section-title">{html.escape(title)}</h2>
+  <p class="section-desc">{html.escape(desc)}</p>
+  {inner}
+</section>""")
+
+    body = f"""
+<main>
+  <a class="back-link" href="../index.html">← Back to overview</a>
+  <section class="hero hero-plan">
+    <div>
+      <p class="eyebrow">Plan browser</p>
+      <h1>{html.escape(plan)}</h1>
+      <div class="pill-row" style="margin-top:.8rem">{pills}</div>
+      <a class="btn-pdf" href="{html.escape(plan)}.pdf" download>⬇ Download PDF (all plots for this plan)</a>
+    </div>
+    {hero_thumb}
+  </section>
+  {"".join(sections_html)}
+</main>"""
+    return html_page(plan, body, root_prefix="..")
+
+
+def render_index(
+    plans: list[str],
+    plan_codes: dict[str, set[str]],
+    plan_availability: dict[str, dict[str, set[str]]],
+    code_styles: dict[str, dict],
+    code_versions: dict[str, dict],
+    catalog: dict,
+    download_index: dict[tuple[str, str], list[dict]],
+    detector_plates: dict[str, tuple[float, float]],
+    generated_at: str,
+) -> str:
+    total_plots = sum(len(ots) for ots in plan_availability.values())
+
+    plan_cards: list[str] = []
+    for plan in plans:
+        codes = plan_codes.get(plan, set())
+        pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
+        n_ots = len(plan_availability.get(plan, {}))
+        thumb = render_profile_thumbnail(
+            download_index.get((plan, "depth_Z.DOSE.all.H2O"), []),
+            code_styles,
+            class_name="plan-thumb",
+            detector_plate=detector_plates.get(plan),
+        )
+        plan_cards.append(f"""
+<article class="plan-card">
+  <div class="pill-row" style="margin-bottom:.5rem">{pills}</div>
+  <h3><a href="plans/{html.escape(plan)}.html">{html.escape(plan)}</a></h3>
+  <p class="plan-meta">{n_ots} output type(s) catalogued</p>
+  {thumb}
+</article>""")
+
+    code_cards: list[str] = []
+    for short, info in sorted(code_styles.items(), key=lambda x: x[1].get("name", x[0])):
+        color = info.get("display_color", "#888")
+        name = html.escape(info.get("name", short))
+        url = info.get("url", "")
+        link = f'<a href="{html.escape(url)}" target="_blank">{name}</a>' if url else name
+        version = code_versions.get(short, {})
+        if version.get("plans", 0):
+            version_html = f"""
+  <dl class="version-list">
+    <div class="version-row"><dt>MC version</dt><dd>{version_values(version["mc_code_version"])}</dd></div>
+    <div class="version-row"><dt>convertmc</dt><dd>{version_values(version["convertmc_version"])}</dd></div>
+    <div class="version-row"><dt>primaries</dt><dd>{version_values(version["number_of_primaries"])}</dd></div>
+    <div class="version-row"><dt>VERSION files</dt><dd>{version["plans"]} plan(s)</dd></div>
+  </dl>"""
+        else:
+            version_html = '<p class="muted">No <code>VERSION.txt</code> files found.</p>'
+        code_cards.append(f"""
+<article class="code-card" style="border-top-color:{color}">
+  <h3>{link}</h3>
+  <p class="muted">short: <code>{html.escape(short)}</code></p>
+  {version_html}
+</article>""")
+
+    body = f"""
+<main>
+  <section class="hero">
+    <p class="eyebrow">Interactive MC code comparison gallery · built {generated_at}</p>
+    <h1>DCPT Monte Carlo LET Benchmark</h1>
+    <p>
+      Comparison of Monte Carlo codes for LET-weighted quantities in an ongoing
+      <a href="https://www.en.auh.dk/departments/the-danish-centre-for-particle-therapy/" target="_blank">DCPT</a>-anchored
+      measurement campaign, with related activity in
+      <a href="https://eurados.sckcen.be/en/working-groups/wg9-radiation-dosimetry-radiotherapy" target="_blank">EURADOS WG9</a>.
+      Each plot overlays all available codes for a given scorer, quantity,
+      medium, and particle filter.
+      <strong>Click any plot to open an interactive view</strong> — hover for exact values,
+      click the legend to toggle codes.
+    </p>
+    <div class="hero-grid">
+      <div class="stat"><strong>{len(plans)}</strong><span>plans</span></div>
+      <div class="stat"><strong>{len(code_styles)}</strong><span>MC codes</span></div>
+      <div class="stat"><strong>{total_plots}</strong><span>comparison plots</span></div>
+    </div>
+  </section>
+
+  <section class="panel" id="plans">
+    <h2 class="section-title">Plans</h2>
+    <p>Select a plan to browse all available comparison plots.</p>
+    <div class="plan-grid">{"".join(plan_cards)}</div>
+  </section>
+
+  <section class="panel" id="codes">
+    <h2 class="section-title">Registered codes</h2>
+    <div class="code-grid">{"".join(code_cards)}</div>
+  </section>
+
+  <p class="footer-note">
+    Data lives in the repository under <code>data/</code>. This site is regenerated in CI
+    from <code>data/**/manifest.json</code> and <code>data/output_catalog.json</code>.
+  </p>
+</main>"""
+    return html_page("2022 DCPT LET – MC code comparison gallery", body, root_prefix=".")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--data-root", type=Path, default=Path("data"),
+        help="Root directory containing code.yaml files and manifest.json files (default: data).",
+    )
+    parser.add_argument(
+        "--catalog", type=Path, default=Path("data/output_catalog.json"),
+        help="Path to output_catalog.json (default: data/output_catalog.json).",
+    )
+    parser.add_argument(
+        "--notes", type=Path, default=Path("data/result_notes.json"),
+        help="Path to result_notes.json (default: data/result_notes.json).",
+    )
+    parser.add_argument(
+        "--plots-dir", type=Path, default=Path("_pages/plots"),
+        help="Directory where generate_comparison_plots.py wrote HTML files (default: _pages/plots).",
+    )
+    parser.add_argument(
+        "--out-dir", type=Path, default=Path("_pages"),
+        help="Output directory for the generated site (default: _pages).",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    site_root = args.out_dir.resolve()
+    plots_dir = args.plots_dir.resolve()
+
+    catalog = load_catalog(args.catalog)
+    result_notes = load_result_notes(args.notes)
+    code_styles = load_code_styles(args.data_root)
+    manifests = load_manifests(args.data_root)
+    code_versions = load_code_versions(args.data_root)
+    availability = build_availability(manifests)
+    reference_order = build_reference_order(manifests, catalog)
+    plan_codes = codes_per_plan(manifests)
+    preview_images = collect_preview_images(manifests)
+    raw_download_index = build_download_index(manifests)
+    detector_plates = load_detector_plates(args.data_root)
+
+    plans = sorted(availability)
+    print(
+        f"Codes: {len(code_styles)}  |  Plans: {len(plans)}  |  "
+        f"Output type groups: {sum(len(v) for v in availability.values())}"
+    )
+
+    # Re-create site root (except plots dir if it lives inside)
+    if site_root.exists():
+        for child in site_root.iterdir():
+            if child.resolve() == plots_dir:
+                continue  # don't wipe plots we just generated
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    site_root.mkdir(parents=True, exist_ok=True)
+
+    download_index = copy_data_files(raw_download_index, site_root)
+    site_preview_images = copy_preview_images(preview_images, site_root)
+
+    write_text(site_root / ".nojekyll", "")
+    write_text(site_root / "assets/site.css", css_text())
+
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    # Index page
+    write_text(
+        site_root / "index.html",
+        render_index(
+            plans,
+            plan_codes,
+            availability,
+            code_styles,
+            code_versions,
+            catalog,
+            download_index,
+            detector_plates,
+            generated_at,
+        ),
+    )
+
+    # Relative path from a plan page (plans/{plan}.html) back to the plots dir
+    # If plots_dir is at site_root/plots, this is "../plots"
+    try:
+        plots_rel = plots_dir.relative_to(site_root)
+        plots_rel_from_plan = f"../{plots_rel.as_posix()}"
+    except ValueError:
+        # plots_dir is outside site_root — use absolute path (won't work on Pages)
+        plots_rel_from_plan = str(plots_dir)
+
+    # Per-plan pages
+    for plan in plans:
+        write_text(
+            site_root / f"plans/{plan}.html",
+            render_plan_page(
+                plan=plan,
+                plan_codes=plan_codes.get(plan, set()),
+                availability=availability.get(plan, {}),
+                catalog=catalog,
+                code_styles=code_styles,
+                reference_order=reference_order.get(plan, {}),
+                plots_rel_from_plan=plots_rel_from_plan,
+                plots_dir=plots_dir,
+                preview_images=site_preview_images.get(plan, {}),
+                download_index=download_index,
+                result_notes=result_notes,
+                detector_plate=detector_plates.get(plan),
+            ),
+        )
+        print(f"  wrote plans/{plan}.html")
+
+    print(f"\nSite written to: {site_root}")
+
+    # Generate per-plan PDF reports (parallel) so the download links work
+    print("\nGenerating per-plan PDF reports...")
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent))
+    from generate_pdf_report import generate as _gen_pdf
+    _gen_pdf(args.data_root, args.catalog, site_root / "plans")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

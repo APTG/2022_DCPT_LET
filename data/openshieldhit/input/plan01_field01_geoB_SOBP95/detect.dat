@@ -1,0 +1,239 @@
+# -------- Setup basic scoring geometries ------------
+
+Geometry Mesh
+        Name XZ_map             # Longitudinal map
+        X -15.  15.   300
+        Y  -1.   1.   1
+        Z  -10.25 10.25    205
+
+Geometry Mesh
+        Name XY_map             # Lateral map
+        X -15.  15.   300
+        Y -15.  15.   300
+        Z -0.25 0.25  1
+
+Geometry Mesh
+        Name Z_narrow           # Narrow scoring along Z (lat. equib)
+        X  -1.  1.     1
+        Y  -1.  1.     1
+        Z  -10.25 10.25  205
+
+Geometry Mesh
+        Name Z_wide             # wide scoring along Z (no lat. equib)
+        X  -15.  15.     1
+        Y  -15.  15.     1
+        Z  -10.25 10.25    205
+
+
+Geometry Mesh
+        Name TARGET             # Sensitive volume (target)
+        X -2.5   2.5  1
+        Y -2.5   2.5  1
+        Z  4.9   5.1  1
+
+# ------- Define a few useful filters ----------
+Filter
+        Name Primary    # Only primary protons
+        GEN = 0
+        Z = 1
+        A = 1
+
+Filter
+        Name Protons    # Primary and secondary protons
+        Z = 1
+        A = 1
+
+Filter
+        Name Deuterons  # H-2
+        Z = 1
+        A = 2
+
+Filter
+        Name Tritons    # H-3
+        Z = 1
+        A = 3
+
+Filter
+        Name He3
+        Z = 2
+        A = 3
+
+Filter
+        Name Alphas     # He-4
+        Z = 2
+        A = 4
+
+Filter
+        Name HeavyRec   # heavy recoils / fragments, Z >= 3 (C, O, ...)
+        Z > 2
+
+# ------- Select for scoring using water stopping power ----------
+Settings
+        Name in_Water
+        Material Water
+
+Settings
+        Name in_Si
+        Material Si
+
+# -------- Select what to score and output files ------------
+Output
+        Filename NB_XZ_map.bdo
+        Geo XZ_map
+        Quantity Dose
+        Quantity DirtyDose
+
+Output
+        Filename NB_XY.bdo
+        Geo XY_map
+        Quantity Dose
+        Quantity DirtyDose
+
+Output
+        Filename NB_Z_narrow_dose.bdo           # each quantity will be written to its own files
+                                                # with a page index in the file name, as indicated below...
+        Geo Z_narrow
+        Quantity Dose                           # __p1 All particles
+        Quantity Dose Primary                   # __p2
+        Quantity Dose Protons                   # __p3
+        Quantity Dose Deuterons                 # __p4
+        Quantity Dose Tritons                   # __p5
+        Quantity Dose He3                       # __p6
+        Quantity Dose Alphas                    # __p7
+        Quantity Dose HeavyRec                  # __p8
+
+# ---------------------------------------------
+# Depth-fluence curves per particle
+# ---------------------------------------------
+Output
+        Filename NB_Z_narrow_fluence.bdo
+        Geo Z_narrow
+        Quantity Fluence                        # __p1  All particles
+        Quantity Fluence Primary                # __p2
+        Quantity Fluence Protons                # __p3
+        Quantity Fluence Deuterons              # __p4
+        Quantity Fluence Tritons                # __p5
+        Quantity Fluence He3                    # __p6
+        Quantity Fluence Alphas                 # __p7
+        Quantity Fluence HeavyRec               # __p8
+
+Output
+        Filename NB_Z_narrow_dose_water.bdo
+        Geo Z_narrow
+        Quantity Dose in_Water                  # __p1
+        Quantity Dose Primary in_Water          # __p2
+        Quantity Dose Protons in_Water          # __p3
+        Quantity DirtyDose in_Water             # __p4
+
+Output
+        Filename NB_Z_narrow_LET.bdo
+        Geo Z_narrow
+        Quantity DLET                           # __p1
+        Quantity DLET Primary
+        Quantity DLET Protons
+        Quantity TLET                           # __p4
+        Quantity TLET Primary
+        Quantity TLET Protons
+
+Output
+        Filename NB_Z_narrow_LET_water.bdo
+        Geo Z_narrow
+        Quantity DLET in_Water                  # __p1
+        Quantity DLET Primary in_Water
+        Quantity DLET Protons in_Water
+        Quantity TLET in_Water                  # __p4
+        Quantity TLET Primary in_Water
+        Quantity TLET Protons in_Water
+
+Output
+        Filename NB_Z_narrow_QEFF.bdo
+        Geo Z_narrow
+        Quantity DQEFF                          # __p1
+        Quantity DQEFF Primary
+        Quantity DQEFF Protons
+        Quantity TQEFF                          # __p4
+        Quantity TQEFF Primary
+        Quantity TQEFF Protons
+
+
+Output
+        Filename NB_target.bdo
+        Geo TARGET
+        Quantity DOSE                           # __p1
+        Quantity DLET                           # __p2
+        Quantity DLET Primary
+        Quantity DLET Protons
+        Quantity TLET                           # __p5
+        Quantity TLET Primary
+        Quantity TLET Protons
+        Quantity DQEFF                          # __p8
+        Quantity DQEFF Primary
+        Quantity DQEFF Protons
+        Quantity TQEFF                          # __p11
+        Quantity TQEFF Primary
+        Quantity TQEFF Protons
+
+
+
+Output
+        Filename NB_target_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE                        # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX
+        Quantity FLUENCE Primary                # __p2
+        Diff1     0 2000 1000
+        Diff1Type LET
+        Quantity FLUENCE                        # __p3
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Si
+        Quantity FLUENCE Primary                # __p4
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Si
+        # ---------------------------------------------
+        # Fluence energy spectra per particle
+        # ---------------------------------------------
+        Quantity Fluence                        # __p5
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence Protons                # __p6
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence Deuterons              # __p7
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence Tritons                # __p8
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence He3                    # __p9
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence Alphas                 # __p10
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+        Quantity Fluence HeavyRec               # __p11
+        Diff1     0.1  300.0  150  LOG
+        Diff1Type ENUC
+
+Output
+        Filename NB_target_water.bdo
+        Geo TARGET
+        Quantity DOSE in_Water                  # __p1
+        Quantity DirtyDose in_Water             # __p2
+        Quantity DLET in_Water                  # __p3
+        Quantity DLET Primary in_Water
+        Quantity DLET Protons in_Water
+        Quantity TLET in_Water                  # __p6
+        Quantity TLET Primary in_Water
+        Quantity TLET Protons in_Water
+
+
+Output
+        Filename NB_target_water_diff.bdo
+        Geo TARGET
+        Quantity FLUENCE                        # __p1
+        Diff1     0 2000 1000
+        Diff1Type DEDX in_Water
+        Quantity FLUENCE Primary                # __p2
+        Diff1     0 2000 1000
+        Diff1Type LET in_Water
