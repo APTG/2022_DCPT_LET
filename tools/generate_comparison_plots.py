@@ -92,6 +92,29 @@ def build_index(
     return dict(index)
 
 
+def load_detector_plates(data_root: Path) -> dict[str, tuple[float, float]]:
+    """
+    Read PMMA detector plate z-bounds from the SH12A reference geometries.
+
+    In the benchmark geometries the detector plate is RPP 4.  The final two
+    numeric fields are z_min/z_max in cm, matching the depth-profile x-axis.
+    """
+    plates: dict[str, tuple[float, float]] = {}
+    for geo_path in sorted((data_root / "sh12a" / "input").glob("*/geo.dat")):
+        plan = geo_path.parent.name
+        for line in geo_path.read_text(encoding="utf-8").splitlines():
+            fields = line.split()
+            if len(fields) >= 8 and fields[0].upper() == "RPP" and fields[1] == "4":
+                try:
+                    z_min = float(fields[6])
+                    z_max = float(fields[7])
+                except ValueError:
+                    continue
+                plates[plan] = (min(z_min, z_max), max(z_min, z_max))
+                break
+    return plates
+
+
 # ---------------------------------------------------------------------------
 # Data readers
 # ---------------------------------------------------------------------------
@@ -153,10 +176,37 @@ def _axis_label(meta: dict, axis: str) -> str:
     return f"{quant} [{unit}]" if unit else quant
 
 
+def centers_to_edges(x: np.ndarray, *, log_spacing: bool) -> np.ndarray:
+    """Infer bin edges from bin centers for stair rendering."""
+    if x.size == 1:
+        half_width = x[0] * 0.5 if log_spacing and x[0] > 0 else 0.5
+        return np.array([x[0] - half_width, x[0] + half_width])
+
+    if log_spacing and np.all(x > 0):
+        edges = np.empty(x.size + 1, dtype=float)
+        edges[1:-1] = np.sqrt(x[:-1] * x[1:])
+        edges[0] = x[0] ** 2 / edges[1]
+        edges[-1] = x[-1] ** 2 / edges[-2]
+        return edges
+
+    midpoints = (x[:-1] + x[1:]) / 2.0
+    edges = np.empty(x.size + 1, dtype=float)
+    edges[1:-1] = midpoints
+    edges[0] = x[0] - (midpoints[0] - x[0])
+    edges[-1] = x[-1] + (x[-1] - midpoints[-1])
+    return edges
+
+
+def stairs_xy(x: np.ndarray, y: np.ndarray, *, log_spacing: bool) -> tuple[np.ndarray, np.ndarray]:
+    edges = centers_to_edges(x, log_spacing=log_spacing)
+    return np.repeat(edges, 2)[1:-1], np.repeat(y, 2)
+
+
 def make_profile_figure(
     meta: dict,
     traces: list[dict],
     code_styles: dict[str, dict],
+    detector_plate: tuple[float, float] | None = None,
 ) -> go.Figure:
     """
     One Scatter trace per file.  Files from the same code share a legend group
@@ -174,6 +224,11 @@ def make_profile_figure(
             seen.add(p)
 
     is_spectrum = meta.get("geometry") == "spectrum_target"
+    is_depth_fluence = (
+        meta.get("geometry") == "depth_Z"
+        and meta.get("quantity") == "FLUENCE"
+    )
+    log_y = is_spectrum or is_depth_fluence
     fig = go.Figure()
 
     for code_short, paths in by_code.items():
@@ -188,6 +243,28 @@ def make_profile_figure(
                 print(f"  WARNING: cannot read {path}: {exc}")
                 continue
 
+            if is_spectrum:
+                positive_x = x > 0
+                x = x[positive_x]
+                y = y[positive_x]
+                if yerr is not None:
+                    yerr = yerr[positive_x]
+                if x.size == 0:
+                    print(f"  WARNING: cannot plot {path}: no positive bins for log-log spectrum")
+                    continue
+
+            if log_y:
+                positive_y = y > 0
+                if not np.any(positive_y):
+                    print(f"  WARNING: cannot plot {path}: no positive y values for log-y plot")
+                    continue
+                y = np.where(positive_y, y, np.nan)
+                if yerr is not None:
+                    yerr = np.where(positive_y, yerr, np.nan)
+
+            x_plot, y_plot = stairs_xy(x, y, log_spacing=is_spectrum)
+            yerr_plot = np.repeat(yerr, 2) if yerr is not None else None
+
             if len(paths) == 1:
                 name = code_name
                 show_legend = True
@@ -197,8 +274,8 @@ def make_profile_figure(
                 show_legend = True
 
             kw: dict[str, Any] = {
-                "x": x,
-                "y": y,
+                "x": x_plot,
+                "y": y_plot,
                 "mode": "lines",
                 "name": name,
                 "legendgroup": code_short,
@@ -207,17 +284,16 @@ def make_profile_figure(
                     "color": color,
                     "dash": _DASH_STYLES[file_idx % len(_DASH_STYLES)],
                     "width": 1.5,
-                    **({"shape": "hv"} if is_spectrum else {}),
                 },
                 "hovertemplate": (
                     f"<b>{name}</b><br>"
                     "x=%{x:.4g}<br>y=%{y:.4g}<extra></extra>"
                 ),
             }
-            if yerr is not None:
+            if yerr_plot is not None:
                 kw["error_y"] = {
                     "type": "data",
-                    "array": yerr,
+                    "array": yerr_plot,
                     "visible": True,
                     "color": color,
                     "thickness": 0.8,
@@ -246,7 +322,23 @@ def make_profile_figure(
     fig.update_xaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
                      type="log" if is_spectrum else "linear")
     fig.update_yaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
-                     type="log" if is_spectrum else "linear")
+                     type="log" if log_y else "linear",
+                     exponentformat="power" if log_y else "e",
+                     showexponent="all" if log_y else "first")
+    if detector_plate and meta.get("geometry") == "depth_Z":
+        z_min, z_max = detector_plate
+        fig.add_vrect(
+            x0=z_min,
+            x1=z_max,
+            fillcolor="#ee9b00",
+            opacity=0.16,
+            line_width=0,
+            layer="below",
+            annotation_text="PMMA detector plate",
+            annotation_position="top left",
+            annotation_font_size=10,
+            annotation_font_color="#7a4f00",
+        )
     return fig
 
 
@@ -363,6 +455,7 @@ def main() -> int:
     code_styles = load_code_styles(args.data_root)
     manifests = collect_manifests(args.data_root)
     index = build_index(manifests)
+    detector_plates = load_detector_plates(args.data_root)
 
     print(
         f"Catalog: {len(catalog)} output types  |  "
@@ -387,7 +480,12 @@ def main() -> int:
 
         try:
             if geometry in ("depth_Z", "spectrum_target"):
-                fig = make_profile_figure(meta, traces, code_styles)
+                fig = make_profile_figure(
+                    meta,
+                    traces,
+                    code_styles,
+                    detector_plate=detector_plates.get(plan),
+                )
             elif geometry == "target":
                 fig = make_scalar_figure(meta, traces, code_styles)
             else:

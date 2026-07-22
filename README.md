@@ -30,6 +30,7 @@ We here always assume beam transport along the positive Z-axis, as is convention
 - Simulation geometry: [docs/geometry.md](docs/geometry.md)
 - Irradiation Plans: [data/resources/plans/](data/resources/plans/)
 - Scoring geometry: [docs/scoring.md](docs/scoring.md)
+- Detector reference (`detect.dat` layout): [docs/detector_reference.md](docs/detector_reference.md)
 - **Interactive plot browser**: [aptg.github.io/2022_DCPT_LET](https://aptg.github.io/2022_DCPT_LET/) — comparison plots across MC codes, built automatically from tracked result files via [`.github/workflows/pages-gallery.yml`](.github/workflows/pages-gallery.yml)
 
 

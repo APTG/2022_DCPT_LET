@@ -33,7 +33,7 @@ PAGE_SIZE = (11.69, 8.27)  # A4 landscape, inches
 
 GEOMETRY_SECTIONS = [
     ("depth_Z",         "Depth profiles"),
-    ("spectrum_target", "LET / dE⁠/⁠dx spectra"),
+    ("spectrum_target", "Target spectra"),
     ("target",          "Target volume scalars"),
     ("map_XZ",          "2D longitudinal maps (XZ)"),
     ("map_XY",          "2D transverse maps (XY)"),
@@ -138,8 +138,40 @@ def _axis_label(meta: dict, axis: str) -> str:
     return f"{quant} [{unit}]" if unit else quant
 
 
+def centers_to_edges(x: np.ndarray, *, log_spacing: bool) -> np.ndarray:
+    """Infer bin edges from bin centers for stair rendering."""
+    if x.size == 1:
+        half_width = x[0] * 0.5 if log_spacing and x[0] > 0 else 0.5
+        return np.array([x[0] - half_width, x[0] + half_width])
+
+    if log_spacing and np.all(x > 0):
+        edges = np.empty(x.size + 1, dtype=float)
+        edges[1:-1] = np.sqrt(x[:-1] * x[1:])
+        edges[0] = x[0] ** 2 / edges[1]
+        edges[-1] = x[-1] ** 2 / edges[-2]
+        return edges
+
+    midpoints = (x[:-1] + x[1:]) / 2.0
+    edges = np.empty(x.size + 1, dtype=float)
+    edges[1:-1] = midpoints
+    edges[0] = x[0] - (midpoints[0] - x[0])
+    edges[-1] = x[-1] + (x[-1] - midpoints[-1])
+    return edges
+
+
+def stairs_xy(x: np.ndarray, y: np.ndarray, *, log_spacing: bool) -> tuple[np.ndarray, np.ndarray]:
+    edges = centers_to_edges(x, log_spacing=log_spacing)
+    return np.repeat(edges, 2)[1:-1], np.repeat(y, 2)
+
+
 def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
                  meta: dict, is_spectrum: bool) -> None:
+    is_depth_fluence = (
+        meta.get("geometry") == "depth_Z"
+        and meta.get("quantity") == "FLUENCE"
+    )
+    log_y = is_spectrum or is_depth_fluence
+
     for t in traces:
         style = code_styles.get(t["code_short"], {})
         color = style.get("display_color", "#888888")
@@ -149,18 +181,41 @@ def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
         except Exception as exc:
             print(f"  WARNING: cannot read {t['path']}: {exc}")
             continue
-        kw: dict = dict(color=color, label=name, linewidth=1.2)
+
         if is_spectrum:
-            kw["drawstyle"] = "steps-post"
-        ax.plot(x, y, **kw)
-        if yerr is not None and not is_spectrum:
-            ax.fill_between(x, y - yerr, y + yerr, alpha=0.15, color=color)
+            positive_x = x > 0
+            x = x[positive_x]
+            y = y[positive_x]
+            if yerr is not None:
+                yerr = yerr[positive_x]
+            if x.size == 0:
+                print(f"  WARNING: cannot plot {t['path']}: no positive bins for log-log spectrum")
+                continue
+
+        if log_y:
+            positive_y = y > 0
+            if not np.any(positive_y):
+                print(f"  WARNING: cannot plot {t['path']}: no positive y values for log-y plot")
+                continue
+            y = np.where(positive_y, y, np.nan)
+            if yerr is not None:
+                yerr = np.where(positive_y, yerr, np.nan)
+
+        x_plot, y_plot = stairs_xy(x, y, log_spacing=is_spectrum)
+        yerr_plot = np.repeat(yerr, 2) if yerr is not None else None
+
+        kw: dict = dict(color=color, label=name, linewidth=1.2)
+        ax.plot(x_plot, y_plot, **kw)
+        if yerr_plot is not None and not is_spectrum:
+            ax.fill_between(x_plot, y_plot - yerr_plot, y_plot + yerr_plot,
+                            alpha=0.15, color=color)
     ax.set_xlabel(_axis_label(meta, "axis_x"), fontsize=8)
     ax.set_ylabel(_axis_label(meta, "axis_y"), fontsize=8)
     ax.tick_params(labelsize=7)
     ax.grid(True, alpha=0.3)
     if is_spectrum:
         ax.set_xscale("log")
+    if log_y:
         ax.set_yscale("log")
     ax.legend(fontsize=7, loc="best")
 

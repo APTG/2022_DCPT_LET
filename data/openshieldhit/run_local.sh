@@ -1,7 +1,16 @@
 #!/bin/bash
 
-EXE="openshieldhit"
-STAT="1000000"
+# run_local.sh is only for local sanity checks (does the plan run, is the output
+# reasonable). Production statistics are meant to be run on the HPC.
+#
+# TEMPORARY: OpenShieldHIT has no HPC submission script yet (it will rely on
+# pymchelper's `generatemc`). Until then we override the beam.dat NSTAT (100k)
+# with 1M primaries below, just so a local run yields halfway decent statistics.
+# The sh12a run_local.sh does NOT override, so it runs beam.dat's 100k -- expect
+# the two codes' local results to differ in primary count until the OSH HPC path
+# exists. Once it does, drop the -n override and let beam.dat drive the count.
+EXE="openshieldhit -v"
+STAT="1000000"   # local-only override of beam.dat NSTAT (see note above)
 INPUT_DIR="input"
 THREADS=20
 

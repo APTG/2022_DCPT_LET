@@ -112,6 +112,11 @@ cover/
 # Generated comparison outputs and reports
 data/comparisons/
 
+# Generated result preview images. Keep 2D map previews tracked for the site.
+data/**/results/**/*.png
+!data/**/results/**/NB_XY*.png
+!data/**/results/**/NB_XZ_map*.png
+
 # Translations
 *.mo
 *.pot
