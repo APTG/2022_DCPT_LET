@@ -1,6 +1,10 @@
 ## Scoring volumes
 We suggest to adhere to the list of scoring quantities and scoring volumes described below. This will allow to compare the results obtained using different MC codes.
 
+> Scoring volumes below are given in the **native MC frame** (beam +Z, isocenter at
+> z = 0). The 1D depth profile's axis is the derived **depth** scalar; 2D maps are
+> reconciled into the DICOM/IEC patient frame. See [coordinates.md](coordinates.md).
+
 > 📋 For the concrete detector layout (output files, quantities, filters and page
 > indices as implemented in `detect.dat`), see the
 > **[Detector reference](detector_reference.md)**.

@@ -1,0 +1,65 @@
+# TOPAS beam's-eye-view (BEV) coordinate frame.
+#
+# Based on dicomexport 1.4.4 (dicomexport/topas_text.py: world_setup, geometry_couch,
+# geometry_dcm_to_iec, geometry_gantry) -- the same, placement-fixed frame. See
+# data/topas/README.md for the toolchain.
+#
+# Local workaround: the RTPLAN beam include defines gantryAngle/couchAngle as DIMENSIONED
+# (`d:Ge/couchAngle = 0.00 deg`). Under TOPAS 4.2.p3 that value can neither take an
+# appended unit (`... deg`) nor be used in arithmetic with an inferred unit -- both abort.
+# All current DCPT plans have gantry = couch = 0, so Gantry/Couch RotY are hardcoded to
+# 0 deg here. Once dicomexport emits UNITLESS angle vars (nbassler/dicomexport#68),
+# restore the gantry-aware forms: `d:Ge/Gantry/RotY = Ge/gantryAngle deg` and
+# `d:Ge/Couch/RotY = -1.0 * Ge/couchAngle deg`.
+#
+# Chain: World -> Couch(RotY=-couchAngle) -> DCM_to_IEC(RotX=90) -> Gantry(RotY=gantryAngle).
+# The beam include (beam/plan<NN>_<model>_field0N.txt) defines gantryAngle/couchAngle,
+# the isocenter, and BeamPosition (parent "Gantry"), emitting along +Z toward isocenter.
+# Parent the phantom and all scoring to "Gantry": depth = beam +Z, origin = isocenter,
+# rotated with the gantry. No world-Y, no RotZ 180, no flips anywhere.
+
+##############################################
+###         W O R L D    S E T U P         ###
+##############################################
+s:Ge/World/Type            = "TsBox"
+s:Ge/World/Material        = "Air"
+d:Ge/World/HLX             = 1000.00 mm
+d:Ge/World/HLY             = 1000.00 mm
+d:Ge/World/HLZ             = 1000.00 mm
+b:Ge/World/Invisible       = "True"
+
+##############################################
+###      G E O M E T R Y    C O U C H      ###
+##############################################
+s:Ge/Couch/Parent                  = "World"
+s:Ge/Couch/Type                    = "Group"
+d:Ge/Couch/RotX                    = 0. deg
+d:Ge/Couch/RotY                    = 0. deg
+d:Ge/Couch/RotZ                    = 0. deg
+d:Ge/Couch/TransX                  = 0.0 mm
+d:Ge/Couch/TransY                  = 0.0 mm
+d:Ge/Couch/TransZ                  = 0.0 mm
+
+##############################################
+###      G E O M E T R Y    DCM_to_IEC     ###
+##############################################
+s:Ge/DCM_to_IEC/Parent               = "Couch"
+s:Ge/DCM_to_IEC/Type                 = "Group"
+d:Ge/DCM_to_IEC/TransX               = 0.0 mm
+d:Ge/DCM_to_IEC/TransY               = 0.0 mm
+d:Ge/DCM_to_IEC/TransZ               = 0.0 mm
+d:Ge/DCM_to_IEC/RotX                 = 90.00 deg
+d:Ge/DCM_to_IEC/RotY                 = 0.0 deg
+d:Ge/DCM_to_IEC/RotZ                 = 0.0 deg
+
+##############################################
+###     G E O M E T R Y   G A N T R Y      ###
+##############################################
+s:Ge/Gantry/Parent                   = "DCM_to_IEC"
+s:Ge/Gantry/Type                     = "Group"
+d:Ge/Gantry/TransX                   = 0.00 mm
+d:Ge/Gantry/TransY                   = 0.00 mm
+d:Ge/Gantry/TransZ                   = 0.00 mm
+d:Ge/Gantry/RotX                     = 0.00 deg
+d:Ge/Gantry/RotY                     = 0.00 deg
+d:Ge/Gantry/RotZ                     = 0.00 deg

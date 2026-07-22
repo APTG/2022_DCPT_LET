@@ -57,3 +57,11 @@ google-chrome pages-site/index.html   # or: xdg-open / open on macOS
 | `build_pages_site.py` | Discover codes/plans from manifests, generate `index.html` and per-plan pages |
 | `bootstrap_manifests.py` | Generate stub manifests for plan directories that have data but no manifest yet |
 | `manifest.schema.json` | JSON Schema (draft-07) for manifest validation |
+
+### Result notes
+
+Plan-page result tiles can show centralized caveats from
+`data/result_notes.json`. Notes are selected by catalog metadata such as
+`geometry`, `quantity`, `filter`, `medium`, `diff_axis`, and optionally by
+`codes`, so one note can cover all matching scorers without editing manifests or
+individual plot pages.

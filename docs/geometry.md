@@ -2,6 +2,10 @@
 
 The simulation geometries can be combined with various plans. Here is a list of the geometries which we will use.
 
+> All `z` extents below are in the **native MC frame** (beam travels +Z, isocenter at
+> z = 0). For how this relates to the canonical DICOM/IEC patient frame and the derived
+> "depth" scalar, see [coordinates.md](coordinates.md).
+
 
 ## Simulation Geometries A, B, C, D:
 

@@ -6,6 +6,12 @@
     "short": "sh12a",
     "version": "v1.0.0"
   },
+  "frame": {
+    "native": "mc+z",
+    "to_patient": "Native MC frame (source z=-50 cm, beam travels +Z). depth_Z profiles use the derived depth scalar directly (already increasing along travel). 2D maps relate to the DICOM/IEC patient frame by a 180 deg rotation about a lateral axis for a 0/0 field. See docs/coordinates.md.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
   "provenance": {
     "date": "2026-02-13",
     "input_path": "data/sh12a/input/plan01_field01_geoA_SOBPcent"
@@ -286,31 +292,31 @@
         },
         {
           "path": "NB_target_diff_p05.dat",
-          "output_type": "spectrum_target.FLUENCE.all.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p06.dat",
-          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p07.dat",
-          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p08.dat",
-          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p09.dat",
-          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p10.dat",
-          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_ENUC"
         },
         {
           "path": "NB_target_diff_p11.dat",
-          "output_type": "spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN"
+          "output_type": "spectrum_target.FLUENCE.heavy_recoils.mat.vs_ENUC"
         }
       ]
     },

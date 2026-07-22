@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import math
 import shutil
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -43,6 +44,13 @@ def load_catalog(path: Path) -> dict:
         "output_types": data.get("output_types", {}),
         "geometry_classes": data.get("geometry_classes", {}),
     }
+
+
+def load_result_notes(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("notes", [])
 
 
 def load_code_styles(data_root: Path) -> dict[str, dict]:
@@ -289,6 +297,42 @@ def copy_preview_images(
     return {plan: dict(by_code) for plan, by_code in copied.items()}
 
 
+def note_matches_output(note: dict, output_type: str, catalog_meta: dict, codes: set[str]) -> bool:
+    note_codes = set(note.get("codes") or [])
+    if note_codes and note_codes.isdisjoint(codes):
+        return False
+
+    match = note.get("match", {})
+    output_types = match.get("output_types")
+    if output_types is not None and output_type not in output_types:
+        return False
+    if match.get("output_type") is not None and output_type != match["output_type"]:
+        return False
+
+    for key in ("geometry", "quantity", "filter", "medium", "diff_axis", "render_as"):
+        expected = match.get(key)
+        if expected is None:
+            continue
+        if isinstance(expected, list):
+            if catalog_meta.get(key) not in expected:
+                return False
+        elif catalog_meta.get(key) != expected:
+            return False
+    return True
+
+
+def notes_for_output(
+    output_type: str,
+    catalog_meta: dict,
+    codes: set[str],
+    result_notes: list[dict],
+) -> list[dict]:
+    return [
+        note for note in result_notes
+        if note_matches_output(note, output_type, catalog_meta, codes)
+    ]
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -347,19 +391,36 @@ def load_xy_profile(path: Path) -> list[tuple[float, float]]:
     return points
 
 
-def profile_polyline(points: list[tuple[float, float]], x_min: float, x_max: float, y_max: float) -> str:
+def profile_axis_value(value: float, *, log_scale: bool) -> float:
+    return math.log10(value) if log_scale else value
+
+
+def profile_polyline(
+    points: list[tuple[float, float]],
+    x_min: float,
+    x_max: float,
+    y_min: float,
+    y_max: float,
+    *,
+    log_x: bool = False,
+    log_y: bool = False,
+) -> str:
     width = 170.0
     height = 110.0
     pad_x = 12.0
     pad_y = 12.0
     plot_w = width - 2.0 * pad_x
     plot_h = height - 2.0 * pad_y
-    if x_max <= x_min or y_max <= 0.0:
+    if x_max <= x_min or y_max <= y_min:
         return ""
     coords: list[str] = []
     for x, y in points:
-        sx = pad_x + ((x - x_min) / (x_max - x_min)) * plot_w
-        sy = height - pad_y - (max(y, 0.0) / y_max) * plot_h
+        if (log_x and x <= 0.0) or (log_y and y <= 0.0):
+            continue
+        x_plot = profile_axis_value(x, log_scale=log_x)
+        y_plot = profile_axis_value(y if log_y else max(y, 0.0), log_scale=log_y)
+        sx = pad_x + ((x_plot - x_min) / (x_max - x_min)) * plot_w
+        sy = height - pad_y - ((y_plot - y_min) / (y_max - y_min)) * plot_h
         coords.append(f"{sx:.1f},{sy:.1f}")
     return " ".join(coords)
 
@@ -393,10 +454,16 @@ def render_profile_thumbnail(
     title: str = "Dose-to-water",
     class_name: str = "hero-thumb",
     detector_plate: tuple[float, float] | None = None,
+    log_x: bool = False,
+    log_y: bool = False,
 ) -> str:
     series: list[dict] = []
     for item in sorted(files, key=lambda x: x["code_short"]):
         points = load_xy_profile(item["src_path"])
+        if log_x:
+            points = [(x, y) for x, y in points if x > 0.0]
+        if log_y:
+            points = [(x, y) for x, y in points if y > 0.0]
         if not points:
             continue
         series.append({
@@ -406,21 +473,32 @@ def render_profile_thumbnail(
     if not series:
         return ""
 
-    all_x = [x for s in series for x, _ in s["points"]]
-    all_y = [y for s in series for _, y in s["points"] if y >= 0.0]
+    all_x = [profile_axis_value(x, log_scale=log_x) for s in series for x, _ in s["points"]]
+    all_y = [
+        profile_axis_value(y if log_y else max(y, 0.0), log_scale=log_y)
+        for s in series
+        for _, y in s["points"]
+    ]
     if not all_x or not all_y:
         return ""
 
     x_min = min(all_x)
     x_max = max(all_x)
+    y_min = min(all_y) if log_y else 0.0
     y_max = max(all_y)
-    plate_rect = profile_plate_rect(detector_plate, x_min, x_max) if detector_plate else ""
+    plate_rect = (
+        profile_plate_rect(detector_plate, x_min, x_max)
+        if detector_plate and not log_x else ""
+    )
     lines: list[str] = []
     for s in series:
         code_short = s["code_short"]
         style = code_styles.get(code_short, {})
         color = html.escape(style.get("display_color", "#888888"))
-        points = profile_polyline(s["points"], x_min, x_max, y_max)
+        points = profile_polyline(
+            s["points"], x_min, x_max, y_min, y_max,
+            log_x=log_x, log_y=log_y,
+        )
         if not points:
             continue
         lines.append(
@@ -442,6 +520,32 @@ def render_profile_thumbnail(
 </aside>"""
 
 
+def site_footer(root_prefix: str) -> str:
+    repo_url = "https://github.com/APTG/2022_DCPT_LET"
+    contributors_url = f"{repo_url}/graphs/contributors"
+    license_url = f"{repo_url}/blob/main/LICENSE"
+    dcpt_url = "https://www.en.auh.dk/departments/the-danish-centre-for-particle-therapy/"
+    eurados_url = "https://eurados.sckcen.be/en/working-groups/wg9-radiation-dosimetry-radiotherapy"
+    return f"""
+<footer class="site-footer">
+  <div class="footer-main">
+    <div class="footer-brand-row">
+      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT</a>
+      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9</a>
+    </div>
+    <p>
+      Data and generated comparison pages are published under
+      <a href="{license_url}" target="_blank">Creative Commons Attribution 4.0 International</a>.
+    </p>
+  </div>
+  <nav class="footer-links" aria-label="Project links">
+    <a href="{repo_url}" target="_blank">GitHub repository</a>
+    <a href="{contributors_url}" target="_blank">Contributors</a>
+    <a href="{root_prefix}/index.html">Home</a>
+  </nav>
+</footer>"""
+
+
 def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
     escaped = html.escape(title)
     return f"""<!DOCTYPE html>
@@ -455,13 +559,15 @@ def html_page(title: str, body: str, *, root_prefix: str = ".") -> str:
 <body>
   <div class="shell">
     <header class="topbar">
-      <a class="brand" href="{root_prefix}/index.html">2022 DCPT LET</a>
+      <a class="brand" href="{root_prefix}/index.html">Home</a>
       <nav class="nav">
         <a href="{root_prefix}/index.html#plans">Plans</a>
         <a href="{root_prefix}/index.html#codes">Codes</a>
+        <a href="https://github.com/APTG/2022_DCPT_LET" target="_blank">GitHub</a>
       </nav>
     </header>
     {body}
+    {site_footer(root_prefix)}
   </div>
 </body>
 </html>
@@ -502,7 +608,10 @@ a { color: var(--accent); }
   justify-content: space-between; gap: 1rem;
   margin-bottom: 2rem;
 }
-.brand { font-size: 1.15rem; font-weight: 700; text-decoration: none; color: var(--text); }
+.brand {
+  display: inline-flex; align-items: center;
+  font-size: .98rem; font-weight: 700; text-decoration: none; color: var(--text);
+}
 .nav { display: flex; flex-wrap: wrap; gap: 1rem; }
 .nav a { text-decoration: none; }
 
@@ -598,6 +707,23 @@ a { color: var(--accent); }
 }
 .plot-card .plot-link:hover { background: var(--accent-soft); }
 .plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
+.result-notes {
+  position: relative;
+  margin: .1rem 0 0; padding: .55rem .75rem .55rem 2.1rem;
+  border: 1px solid #ead7a0; border-radius: 8px;
+  background: #fff8e6; color: #5d4a13;
+  list-style: none;
+  font-size: .8rem; line-height: 1.35;
+}
+.result-notes::before {
+  content: "!";
+  position: absolute; left: .7rem; top: .58rem;
+  display: grid; place-items: center;
+  width: .95rem; height: .95rem; border-radius: 50%;
+  background: #d08a00; color: white;
+  font-size: .68rem; font-weight: 800; line-height: 1;
+}
+.result-notes li + li { margin-top: .35rem; }
 .plot-subsection { margin-top: 1rem; }
 .plot-subsection:first-child { margin-top: 0; }
 .plot-subsection-title {
@@ -644,9 +770,34 @@ a { color: var(--accent); }
   border-radius: 14px; overflow: hidden;
 }
 .preview-card img { display: block; width: 100%; object-fit: cover; background: #f1f1f1; }
-.preview-card .preview-label { padding: .5rem .8rem; font-size: .85rem; color: var(--muted); }
+.preview-card .preview-label {
+  padding: .5rem .8rem; display: flex; align-items: center;
+  gap: .45rem; flex-wrap: wrap;
+}
+.preview-card .preview-file { font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
 
 .footer-note { margin-top: 2rem; font-size: .9rem; }
+.site-footer {
+  margin-top: 2rem; padding: 1rem 0 0;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 1rem; color: var(--muted); font-size: .86rem;
+}
+.footer-main { display: grid; gap: .65rem; }
+.footer-main p { margin: 0; max-width: 42rem; }
+.footer-brand-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.footer-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 2rem; border: 1px solid var(--border); border-radius: 7px;
+  padding: .35rem .7rem; background: var(--panel-strong);
+  color: var(--text); text-decoration: none; font-weight: 800;
+  letter-spacing: 0; line-height: 1;
+}
+.footer-mark-dcpt { border-left: 5px solid #006b54; }
+.footer-mark-eurados { border-left: 5px solid #d83933; }
+.footer-links { display: flex; gap: .85rem; flex-wrap: wrap; justify-content: flex-end; }
+.footer-links a { color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--accent); }
 
 @media (max-width: 640px) {
   .shell { width: min(100vw - 1rem, 100%); }
@@ -654,6 +805,8 @@ a { color: var(--accent); }
   .hero, .panel { padding: 1rem; }
   .hero-plan { grid-template-columns: 1fr; }
   .hero-thumb { justify-self: stretch; max-width: none; }
+  .site-footer { flex-direction: column; align-items: flex-start; }
+  .footer-links { justify-content: flex-start; }
 }
 """
 
@@ -673,7 +826,7 @@ GEOMETRY_SECTIONS = [
     (
         "spectrum_target",
         "Target spectra",
-        "Differential LET, dE/dx, and kinetic-energy spectra in the target volume. "
+        "Differential LET and kinetic-energy spectra in the target volume. "
         "Log-log scale with stair-step bins.",
     ),
     (
@@ -703,17 +856,25 @@ def render_plot_card(
     plot_exists: bool,
     catalog_meta: dict,
     download_files: list[dict],
+    notes: list[dict],
     detector_plate: tuple[float, float] | None = None,
 ) -> str:
     label = html.escape(catalog_meta.get("label", output_type))
     thumb = ""
     if catalog_meta.get("render_as") in ("line_plot", "spectrum_plot"):
+        is_spectrum = catalog_meta.get("geometry") == "spectrum_target"
+        is_depth_fluence = (
+            catalog_meta.get("geometry") == "depth_Z"
+            and catalog_meta.get("quantity") == "FLUENCE"
+        )
         thumb = render_profile_thumbnail(
             download_files,
             code_styles,
             title=catalog_meta.get("label", output_type),
             class_name="plot-thumb",
             detector_plate=detector_plate if catalog_meta.get("geometry") == "depth_Z" else None,
+            log_x=is_spectrum,
+            log_y=is_spectrum or is_depth_fluence,
         )
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
     if plot_exists:
@@ -742,6 +903,18 @@ def render_plot_card(
             + "</div>"
         )
 
+    notes_html = ""
+    if notes:
+        items: list[str] = []
+        for note in notes:
+            title = note.get("title")
+            text = html.escape(note.get("text", ""))
+            if title:
+                items.append(f'<li><strong>{html.escape(title)}:</strong> {text}</li>')
+            else:
+                items.append(f"<li>{text}</li>")
+        notes_html = f'<ul class="result-notes">{"".join(items)}</ul>'
+
     return f"""
 <article class="plot-card">
   <h3>{label}</h3>
@@ -749,6 +922,7 @@ def render_plot_card(
   <div class="pill-row">{pills}</div>
   {link_html}
   {dl_html}
+  {notes_html}
 </article>"""
 
 
@@ -763,6 +937,7 @@ def render_plan_page(
     plots_dir: Path,
     preview_images: dict[str, list[str]],
     download_index: dict[tuple[str, str], list[dict]],
+    result_notes: list[dict],
     detector_plate: tuple[float, float] | None,
 ) -> str:
     output_types = catalog["output_types"]
@@ -796,10 +971,12 @@ def render_plan_page(
                     cs = code_styles.get(code_short, {})
                     code_name = html.escape(cs.get("name", code_short))
                     alt = html.escape(f"{code_name} – {img_name}")
+                    pill = code_pill(code_short, code_styles, size="small")
                     imgs.append(
                         f'<div class="preview-card">'
                         f'<img loading="lazy" src="{html.escape(img_path)}" alt="{alt}">'
-                        f'<div class="preview-label">{code_name} – {html.escape(img_name)}</div>'
+                        f'<div class="preview-label">{pill}'
+                        f'<span class="preview-file">{html.escape(img_name)}</span></div>'
                         f'</div>'
                     )
             if not imgs:
@@ -829,14 +1006,16 @@ def render_plan_page(
                 cards: list[str] = []
                 for ot in group["output_types"]:
                     codes = ots[ot]
+                    meta = output_types.get(ot, {})
                     plot_file = plots_dir / plan / f"{ot}.html"
                     plot_rel = f"{plots_rel_from_plan}/{plan}/{ot}.html"
                     cards.append(
                         render_plot_card(
                             ot, codes, code_styles,
                             plot_rel, plot_file.exists(),
-                            output_types.get(ot, {}),
+                            meta,
                             download_index.get((plan, ot), []),
+                            notes_for_output(ot, meta, codes, result_notes),
                             detector_plate=detector_plate,
                         )
                     )
@@ -932,11 +1111,14 @@ def render_index(
 <main>
   <section class="hero">
     <p class="eyebrow">Interactive MC code comparison gallery · built {generated_at}</p>
-    <h1>2022 DCPT LET benchmark</h1>
+    <h1>DCPT Monte Carlo LET Benchmark</h1>
     <p>
-      Comparison of Monte Carlo codes for LET-weighted quantities in a silicon
-      detector benchmark at DCPT. Each plot overlays all available codes for a
-      given scorer, quantity, medium, and particle filter.
+      Comparison of Monte Carlo codes for LET-weighted quantities in an ongoing
+      <a href="https://www.en.auh.dk/departments/the-danish-centre-for-particle-therapy/" target="_blank">DCPT</a>-anchored
+      measurement campaign, with related activity in
+      <a href="https://eurados.sckcen.be/en/working-groups/wg9-radiation-dosimetry-radiotherapy" target="_blank">EURADOS WG9</a>.
+      Each plot overlays all available codes for a given scorer, quantity,
+      medium, and particle filter.
       <strong>Click any plot to open an interactive view</strong> — hover for exact values,
       click the legend to toggle codes.
     </p>
@@ -982,6 +1164,10 @@ def parse_args() -> argparse.Namespace:
         help="Path to output_catalog.json (default: data/output_catalog.json).",
     )
     parser.add_argument(
+        "--notes", type=Path, default=Path("data/result_notes.json"),
+        help="Path to result_notes.json (default: data/result_notes.json).",
+    )
+    parser.add_argument(
         "--plots-dir", type=Path, default=Path("_pages/plots"),
         help="Directory where generate_comparison_plots.py wrote HTML files (default: _pages/plots).",
     )
@@ -998,6 +1184,7 @@ def main() -> int:
     plots_dir = args.plots_dir.resolve()
 
     catalog = load_catalog(args.catalog)
+    result_notes = load_result_notes(args.notes)
     code_styles = load_code_styles(args.data_root)
     manifests = load_manifests(args.data_root)
     code_versions = load_code_versions(args.data_root)
@@ -1073,6 +1260,7 @@ def main() -> int:
                 plots_dir=plots_dir,
                 preview_images=site_preview_images.get(plan, {}),
                 download_index=download_index,
+                result_notes=result_notes,
                 detector_plate=detector_plates.get(plan),
             ),
         )

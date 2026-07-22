@@ -1,0 +1,4 @@
+filedate: Thu, 23 Jul 2026 00:40:05 +0200
+mc_code_version: 4.2.p3
+number_of_primaries: 1000000
+normalization: per_primary
