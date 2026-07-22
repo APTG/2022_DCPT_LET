@@ -37,7 +37,7 @@ recovered at post-processing time, not by ad-hoc flips. See
 
 3. **Post-process** the TOPAS CSV output into the shared `.dat` depth-profile
    format (applies the Y→depth readback onto the common isocenter-referenced grid)
-   and write `VERSION.txt`:
+   write inspection PNGs for 2D maps, and write `VERSION.txt`:
 
    ```bash
    data/topas/postprocess_local.sh [plan...]

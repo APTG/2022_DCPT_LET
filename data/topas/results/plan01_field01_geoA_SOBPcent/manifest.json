@@ -1,0 +1,152 @@
+{
+  "schema_version": "1",
+  "plan": "plan01_field01_geoA_SOBPcent",
+  "code": {
+    "name": "TOPAS",
+    "short": "topas",
+    "version": "4.2.p3"
+  },
+  "frame": {
+    "native": "topas-y",
+    "to_patient": "TOPAS slab geometry scores depth along world Y. postprocess_local.py applies the documented Y->depth readback before writing NB_Z_narrow*.dat.",
+    "beam_model": "v2"
+  },
+  "provenance": {
+    "date": "2026-07-22",
+    "input_path": "data/topas/input/plan01_field01_geoA_SOBPcent"
+  },
+  "statistics": {
+    "normalization": "per_primary",
+    "n_primaries": 1000000
+  },
+  "capabilities": {
+    "notes": "Native TOPAS smoke-test outputs. Qeff, heavy recoils, and corrected LET spectra are not yet produced."
+  },
+  "outputs": [
+    {
+      "description": "Depth profiles - dose in material (Z_narrow)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_dose_p1.dat",
+          "output_type": "depth_Z.DOSE.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p2.dat",
+          "output_type": "depth_Z.DOSE.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p4.dat",
+          "output_type": "depth_Z.DOSE.deuterons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p5.dat",
+          "output_type": "depth_Z.DOSE.tritons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p6.dat",
+          "output_type": "depth_Z.DOSE.he3.mat"
+        },
+        {
+          "path": "NB_Z_narrow_dose_p7.dat",
+          "output_type": "depth_Z.DOSE.alphas.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - fluence in material (Z_narrow)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_fluence_p1.dat",
+          "output_type": "depth_Z.FLUENCE.all.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p2.dat",
+          "output_type": "depth_Z.FLUENCE.primary.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p3.dat",
+          "output_type": "depth_Z.FLUENCE.protons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p4.dat",
+          "output_type": "depth_Z.FLUENCE.deuterons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p5.dat",
+          "output_type": "depth_Z.FLUENCE.tritons.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p6.dat",
+          "output_type": "depth_Z.FLUENCE.he3.mat"
+        },
+        {
+          "path": "NB_Z_narrow_fluence_p7.dat",
+          "output_type": "depth_Z.FLUENCE.alphas.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - dose in water (Z_narrow)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "NB_Z_narrow_dose_water_p1.dat",
+          "output_type": "depth_Z.DOSE.all.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p2.dat",
+          "output_type": "depth_Z.DOSE.primary.H2O"
+        },
+        {
+          "path": "NB_Z_narrow_dose_water_p3.dat",
+          "output_type": "depth_Z.DOSE.protons.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Differential fluence spectra in target (material)",
+      "role": "derived",
+      "files": [
+        {
+          "path": "NB_target_diff_p05.dat",
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p06.dat",
+          "output_type": "spectrum_target.FLUENCE.protons.mat.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p07.dat",
+          "output_type": "spectrum_target.FLUENCE.deuterons.mat.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p08.dat",
+          "output_type": "spectrum_target.FLUENCE.tritons.mat.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p09.dat",
+          "output_type": "spectrum_target.FLUENCE.he3.mat.vs_EKIN"
+        },
+        {
+          "path": "NB_target_diff_p10.dat",
+          "output_type": "spectrum_target.FLUENCE.alphas.mat.vs_EKIN"
+        }
+      ]
+    },
+    {
+      "description": "2D dose map PNG previews",
+      "role": "preview_image",
+      "files": [
+        {
+          "path": "NB_XY_p1.png"
+        }
+      ]
+    }
+  ]
+}
