@@ -1,63 +1,48 @@
-# Include beam information
-
-########################################
-# Beam & Geometry
-########################################
+# TOPAS main for plan01 field01 geoA (SOBP centre).
+#
+# Toolchain (see data/topas/README.md):
+#   1. beam include  -> dicomexport RTPLAN export (make_topas.sh): source + spots.
+#   2. frame include -> dicomexport BEV frame (World/Couch/DCM_to_IEC/Gantry).
+#   3. this file      -> slab phantom + native scorers, all parented to "Gantry".
+# Everything is scored in beam coordinates: depth = +Z downstream, origin = isocenter,
+# rotated with the gantry. No world-Y, no RotZ 180, no np.flip anywhere.
 
 includeFile = data/topas/input/beam/plan01_v2_field01.txt
+includeFile = data/topas/input/topas_frame.txt
 
-# The generated beam include emits along BeamPosition +Z. Rotate the local
-# beam/nozzle frame so the slab-only TOPAS geometry transports along world -Y,
-# matching the hand-written Y-depth scoring below.
-s:Ge/Gantry/Parent = "World"
-s:Ge/Gantry/Type   = "Group"
-d:Ge/Gantry/RotX   = 90. deg
+########################################
+# Geometry A (docs/geometry.md), isocenter-referenced z -> beam +Z
+#   slab1 z=[-10.25,-0.25], pmma z=[-0.25,0.25], slab3 z=[0.25,10.25]
+########################################
+s:Ge/SolidWater_slab1/Parent      = "Gantry"
+s:Ge/SolidWater_slab1/Type        = "TsBox"
+s:Ge/SolidWater_slab1/Material    = "Solid_Water"
+d:Ge/SolidWater_slab1/HLX         = 15.0 cm
+d:Ge/SolidWater_slab1/HLY         = 15.0 cm
+d:Ge/SolidWater_slab1/HLZ         = 5.0 cm
+d:Ge/SolidWater_slab1/TransZ      = -5.25 cm
+d:Ge/SolidWater_slab1/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab1/Color       = "blue"
 
-# Geometry A: PMMA detector plate centered at isocenter, slabs along beam +Y.
-s:Ge/SolidWater_slab1/Parent 		= "World"
-s:Ge/SolidWater_slab1/Type   		= "TsBox"
-s:Ge/SolidWater_slab1/Material		= "G4_WATER"
-d:Ge/SolidWater_slab1/HLX 			= 15.0 cm
-d:Ge/SolidWater_slab1/HLY 			= 5.0 cm
-d:Ge/SolidWater_slab1/HLZ 			= 15.0 cm
-d:Ge/SolidWater_slab1/TransX		= 0.0 cm
-d:Ge/SolidWater_slab1/TransY		= -5.25 cm
-d:Ge/SolidWater_slab1/TransZ		= 0.0 cm
-d:Ge/SolidWater_slab1/RotX			= 0. deg
-d:Ge/SolidWater_slab1/RotY			= 0. deg
-d:Ge/SolidWater_slab1/RotZ			= 0. deg
-d:Ge/SolidWater_slab1/MaxStepSize 	= 0.5 mm
-s:Ge/SolidWater_slab1/Color      = "blue"
+s:Ge/pmma_slab/Parent      = "Gantry"
+s:Ge/pmma_slab/Type        = "TsBox"
+s:Ge/pmma_slab/Material    = "PMMA"
+d:Ge/pmma_slab/HLX         = 15.0 cm
+d:Ge/pmma_slab/HLY         = 15.0 cm
+d:Ge/pmma_slab/HLZ         = 0.25 cm
+d:Ge/pmma_slab/TransZ      = 0.0 cm
+d:Ge/pmma_slab/MaxStepSize = 0.5 mm
+s:Ge/pmma_slab/Color       = "yellow"
 
-s:Ge/pmma_slab/Parent 		= "World"
-s:Ge/pmma_slab/Type   		= "TsBox"
-s:Ge/pmma_slab/Material		= "PMMA"
-d:Ge/pmma_slab/HLX 			= 15.0 cm
-d:Ge/pmma_slab/HLZ 			= 15.0 cm
-d:Ge/pmma_slab/HLY 			= 2.5 mm
-d:Ge/pmma_slab/TransX		= 0.0 cm
-d:Ge/pmma_slab/TransY		= 0.0 cm
-d:Ge/pmma_slab/TransZ		= 0.0 cm
-d:Ge/pmma_slab/RotX			= 0. deg
-d:Ge/pmma_slab/RotY			= 0. deg
-d:Ge/pmma_slab/RotZ			= 0. deg
-d:Ge/pmma_slab/MaxStepSize 	= 0.5 mm
-s:Ge/pmma_slab/Color      = "yellow"
-
-s:Ge/SolidWater_slab3/Parent 		= "World"
-s:Ge/SolidWater_slab3/Type   		= "TsBox"
-s:Ge/SolidWater_slab3/Material		= "Solid_Water"
-d:Ge/SolidWater_slab3/HLX 			= 15.0 cm
-d:Ge/SolidWater_slab3/HLZ 			= 15.0 cm
-d:Ge/SolidWater_slab3/HLY 			= 5.0 cm
-d:Ge/SolidWater_slab3/TransX		= 0.0 cm
-d:Ge/SolidWater_slab3/TransY		= 5.25 cm
-d:Ge/SolidWater_slab3/TransZ		= 0.0 cm
-d:Ge/SolidWater_slab3/RotX			= 0. deg
-d:Ge/SolidWater_slab3/RotY			= 0. deg
-d:Ge/SolidWater_slab3/RotZ			= 0. deg
-d:Ge/SolidWater_slab3/MaxStepSize 	= 0.5 mm
-s:Ge/SolidWater_slab3/Color      = "red"
+s:Ge/SolidWater_slab3/Parent      = "Gantry"
+s:Ge/SolidWater_slab3/Type        = "TsBox"
+s:Ge/SolidWater_slab3/Material    = "Solid_Water"
+d:Ge/SolidWater_slab3/HLX         = 15.0 cm
+d:Ge/SolidWater_slab3/HLY         = 15.0 cm
+d:Ge/SolidWater_slab3/HLZ         = 5.0 cm
+d:Ge/SolidWater_slab3/TransZ      = 5.25 cm
+d:Ge/SolidWater_slab3/MaxStepSize = 0.5 mm
+s:Ge/SolidWater_slab3/Color       = "red"
 
 
 s:outdir = "data/topas/results/output/plan01_field01_geoA_SOBPcent/"
@@ -70,142 +55,98 @@ i:Ts/NumberOfThreads = 0
 # Sequence control
 ########################################
 b:Ts/PauseBeforeSequence = "F"
-i:Ts/ShowHistoryCountAtInterval = 1000 # how often to print history count to the console
-# If set to 0, history count will never be printed
-b:Ts/ShowHistoryCountOnSingleLine = "FALSE" # Make count reuse a single line of console
+i:Ts/ShowHistoryCountAtInterval = 1000
+b:Ts/ShowHistoryCountOnSingleLine = "FALSE"
 i:Tf/Verbosity = 0
+b:Ts/PauseBeforeQuit = "FALSE"
 
 ########################################
 # Materials
 ########################################
-
 sv:Ma/PMMA/Components = 3 "Carbon" "Hydrogen" "Oxygen"
 uv:Ma/PMMA/Fractions = 3  0.599848  0.080538  0.319614
-d:Ma/PMMA/Density = 1.190 g/cm3  #1.190 g/cm3
+d:Ma/PMMA/Density = 1.190 g/cm3
 
 sv:Ma/Solid_Water/Components  = 6 "Hydrogen" "Carbon" "Nitrogen" "Oxygen" "Chlorine" "Calcium"
 uv:Ma/Solid_Water/Fractions   = 6 0.081 0.672 0.024 0.199 0.001 0.023
 d:Ma/Solid_Water/Density      = 1.039 g/cm3
 
-
 ########################################
-# Graphics
+# Scoring Geometry (parent "Gantry"; depth = +Z, isocenter Z=0)
 ########################################
-# Keep local/cluster smoke tests headless. Defining an OpenGL view can make
-# TOPAS activate Qt even when the view is inactive, which aborts without DISPLAY.
-# Uncomment this block only for interactive geometry debugging.
-# s:Gr/ViewA/Type             = "OpenGL"
-# i:Gr/ViewA/WindowSizeX      = 1024
-# i:Gr/ViewA/WindowSizeY      = 768
-# b:Gr/ViewA/IncludeAxes      = "True"
-# d:Gr/ViewA/AxesSize = 3. m
-# d:Gr/ViewA/Theta            = 0 deg
-# d:Gr/ViewA/Phi              = 0 deg
-# s:Gr/ViewA/Projection       = "Perspective"
-# d:Gr/ViewA/PerspectiveAngle = 0 deg
-# u:Gr/ViewA/Zoom             = 6
-# s:Gr/ViewA/CenterOn = "pmma_slab"
-# s:Gr/ViewA/RefreshEvery = "History"
-# b:Gr/ViewA/Active = "False"
-b:Ts/PauseBeforeQuit = "FALSE"
+# Depth profile: 2x2 cm2 lateral acceptance, 205 x 1 mm bins along Z. Matches the
+# SH12A Z_narrow mesh exactly, so postprocess resampling is essentially identity.
+s:Ge/ScoringZBox/Parent     = "Gantry"
+s:Ge/ScoringZBox/Type       = "TsBox"
+b:Ge/ScoringZBox/IsParallel = "TRUE"
+d:Ge/ScoringZBox/HLX        = 1 cm
+d:Ge/ScoringZBox/HLY        = 1 cm
+d:Ge/ScoringZBox/HLZ        = 10.25 cm
+i:Ge/ScoringZBox/XBins      = 1
+i:Ge/ScoringZBox/YBins      = 1
+i:Ge/ScoringZBox/ZBins      = 205
+d:Ge/ScoringZBox/TransZ     = 0.0 cm
+s:Ge/ScoringZBox/Color      = "green"
 
+# Longitudinal map (map_XZ): X vs depth Z, 2 cm thick in Y.
+s:Ge/ScoringXZBox/Parent     = "Gantry"
+s:Ge/ScoringXZBox/Type       = "TsBox"
+b:Ge/ScoringXZBox/IsParallel = "TRUE"
+d:Ge/ScoringXZBox/HLX        = 15 cm
+d:Ge/ScoringXZBox/HLY        = 1 cm
+d:Ge/ScoringXZBox/HLZ        = 10.25 cm
+i:Ge/ScoringXZBox/XBins      = 300
+i:Ge/ScoringXZBox/YBins      = 1
+i:Ge/ScoringXZBox/ZBins      = 205
+d:Ge/ScoringXZBox/TransZ     = 0.0 cm
+s:Ge/ScoringXZBox/Color      = "green"
 
-
-########################################
-# Scoring Geometry
-########################################
-
-s:Ge/ScoringYBox/Parent     = "World"
-s:Ge/ScoringYBox/Type       = "TsBox"
-b:Ge/ScoringYBox/IsParallel = "TRUE"
-d:Ge/ScoringYBox/HLX        = 1 cm
-d:Ge/ScoringYBox/HLY        = 10.25 cm
-d:Ge/ScoringYBox/HLZ        = 1 cm
-s:Ge/ScoringYBox/Color      = "green"
-i:Ge/ScoringYBox/XBins      = 1
-i:Ge/ScoringYBox/YBins      = 205
-i:Ge/ScoringYBox/ZBins      = 1
-d:Ge/ScoringYBox/TransY    =  0.0 cm
-d:Ge/ScoringYBox/RotZ=180. deg
-
-s:Ge/ScoringZXBox/Parent     = "World"
-s:Ge/ScoringZXBox/Type       = "TsBox"
-#s:Ge/ScoringZXBox/Material   = "G4_WATER"
-b:Ge/ScoringZXBox/IsParallel = "TRUE"
-d:Ge/ScoringZXBox/HLX        = 10 cm
-d:Ge/ScoringZXBox/HLY        = Ge/ScoringYBox/HLY cm
-d:Ge/ScoringZXBox/HLZ        = 10 cm
-s:Ge/ScoringZXBox/Color      = "green"
-i:Ge/ScoringZXBox/XBins      = 300
-i:Ge/ScoringZXBox/YBins      = 1
-i:Ge/ScoringZXBox/ZBins      = 300
-d:Ge/ScoringZXBox/TransY    = 0.0 cm
-d:Ge/ScoringZXBox/RotZ=180. deg
-
-s:Ge/ScoringXYBox/Parent     = "World"
+# Transverse map (map_XY): X vs Y at isocenter, 5 mm thick in Z.
+s:Ge/ScoringXYBox/Parent     = "Gantry"
 s:Ge/ScoringXYBox/Type       = "TsBox"
 b:Ge/ScoringXYBox/IsParallel = "TRUE"
-d:Ge/ScoringXYBox/HLX        = 10 cm
-d:Ge/ScoringXYBox/HLY        = 10.25 cm
-d:Ge/ScoringXYBox/HLZ        = 1 cm
-s:Ge/ScoringXYBox/Color      = "green"
+d:Ge/ScoringXYBox/HLX        = 15 cm
+d:Ge/ScoringXYBox/HLY        = 15 cm
+d:Ge/ScoringXYBox/HLZ        = 0.25 cm
 i:Ge/ScoringXYBox/XBins      = 300
 i:Ge/ScoringXYBox/YBins      = 300
 i:Ge/ScoringXYBox/ZBins      = 1
-d:Ge/ScoringXYBox/TransY    = 0.0 cm
-d:Ge/ScoringXYBox/RotZ=180. deg
+d:Ge/ScoringXYBox/TransZ     = 0.0 cm
+s:Ge/ScoringXYBox/Color      = "green"
 
-# Target detector volume (5 x 5 x 0.2 cm^3) at the PMMA-plate centre, for the
-# differential fluence spectra. Single bin (spectra are binned in energy, not space).
-s:Ge/TargetBox/Parent     = "World"
+# Target detector volume (5 x 5 x 0.2 cm3) at isocenter (pmma centre), for spectra.
+s:Ge/TargetBox/Parent     = "Gantry"
 s:Ge/TargetBox/Type       = "TsBox"
 b:Ge/TargetBox/IsParallel = "TRUE"
 d:Ge/TargetBox/HLX        = 2.5 cm
-d:Ge/TargetBox/HLY        = 0.1 cm
-d:Ge/TargetBox/HLZ        = 2.5 cm
+d:Ge/TargetBox/HLY        = 2.5 cm
+d:Ge/TargetBox/HLZ        = 0.1 cm
 i:Ge/TargetBox/XBins      = 1
 i:Ge/TargetBox/YBins      = 1
 i:Ge/TargetBox/ZBins      = 1
-d:Ge/TargetBox/TransY     = Ge/pmma_slab/TransY cm
+d:Ge/TargetBox/TransZ     = 0.0 cm
 s:Ge/TargetBox/Color      = "magenta"
-
-
-# s:Ge/ScoringBox/Parent     = "World"
-# s:Ge/ScoringBox/Type       = "TsBox"
-# b:Ge/ScoringBox/IsParallel = "TRUE"
-# d:Ge/ScoringBox/HLX        = 10 cm
-# d:Ge/ScoringBox/HLY        = 10 cm
-# d:Ge/ScoringBox/HLZ        = 10 cm
-# s:Ge/ScoringBox/Color      = "green"
-# i:Ge/ScoringBox/XBins      = 300
-# i:Ge/ScoringBox/YBins      = 300
-# i:Ge/ScoringBox/ZBins      = 300
-# d:Ge/ScoringBox/TransY    =  Ge/ScoringYBox/HLY - Ge/SolidWater_slab1/HLY cm
-# d:Ge/ScoringBox/RotZ=180. deg
-
-
 
 ########################################
 # Scoring
 ########################################
 # All scorers below are NATIVE OpenTOPAS (no extension). OutputFile == the
 # data/output_catalog.json key, so postprocess_local.py maps each CSV to its
-# output_type by filename. Depth scorers bin along world Y (ScoringYBox); the
-# Y->depth readback onto the shared isocenter grid is applied in postprocess.
-# Particle filters: OnlyIncludeParticlesNamed (proton/deuteron/triton/He3/alpha),
-# OnlyIncludeParticlesOfGeneration="Primary" (primary protons). heavy_recoils
-# (Z>=3) is deferred (native atomic-number filter is exact-Z only).
+# output_type by filename. Depth scorers bin along beam +Z (ScoringZBox) = the
+# derived depth; no readback/flip needed. Particle filters: OnlyIncludeParticlesNamed
+# (proton/deuteron/triton/He3/alpha), OnlyIncludeParticlesOfGeneration="Primary".
+# heavy_recoils (Z>=3) is deferred (native atomic-number filter is exact-Z only).
 
 # ---------- Depth dose to medium (mat) : DoseToMedium ----------
 s:Sc/dD_all_mat/Quantity = "DoseToMedium"
-s:Sc/dD_all_mat/Component = "ScoringYBox"
+s:Sc/dD_all_mat/Component = "ScoringZBox"
 s:Sc/dD_all_mat/OutputType = "csv"
 s:Sc/dD_all_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_all_mat/PropagateToChildren = "True"
 s:Sc/dD_all_mat/OutputFile = outdir + "depth_Z.DOSE.all.mat"
 
 s:Sc/dD_prim_mat/Quantity = "DoseToMedium"
-s:Sc/dD_prim_mat/Component = "ScoringYBox"
+s:Sc/dD_prim_mat/Component = "ScoringZBox"
 s:Sc/dD_prim_mat/OutputType = "csv"
 s:Sc/dD_prim_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_prim_mat/PropagateToChildren = "True"
@@ -214,7 +155,7 @@ s:Sc/dD_prim_mat/OnlyIncludeParticlesOfGeneration = "Primary"
 s:Sc/dD_prim_mat/OutputFile = outdir + "depth_Z.DOSE.primary.mat"
 
 s:Sc/dD_p_mat/Quantity = "DoseToMedium"
-s:Sc/dD_p_mat/Component = "ScoringYBox"
+s:Sc/dD_p_mat/Component = "ScoringZBox"
 s:Sc/dD_p_mat/OutputType = "csv"
 s:Sc/dD_p_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_p_mat/PropagateToChildren = "True"
@@ -222,7 +163,7 @@ sv:Sc/dD_p_mat/OnlyIncludeParticlesNamed = 1 "proton"
 s:Sc/dD_p_mat/OutputFile = outdir + "depth_Z.DOSE.protons.mat"
 
 s:Sc/dD_d_mat/Quantity = "DoseToMedium"
-s:Sc/dD_d_mat/Component = "ScoringYBox"
+s:Sc/dD_d_mat/Component = "ScoringZBox"
 s:Sc/dD_d_mat/OutputType = "csv"
 s:Sc/dD_d_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_d_mat/PropagateToChildren = "True"
@@ -230,7 +171,7 @@ sv:Sc/dD_d_mat/OnlyIncludeParticlesNamed = 1 "deuteron"
 s:Sc/dD_d_mat/OutputFile = outdir + "depth_Z.DOSE.deuterons.mat"
 
 s:Sc/dD_t_mat/Quantity = "DoseToMedium"
-s:Sc/dD_t_mat/Component = "ScoringYBox"
+s:Sc/dD_t_mat/Component = "ScoringZBox"
 s:Sc/dD_t_mat/OutputType = "csv"
 s:Sc/dD_t_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_t_mat/PropagateToChildren = "True"
@@ -238,7 +179,7 @@ sv:Sc/dD_t_mat/OnlyIncludeParticlesNamed = 1 "triton"
 s:Sc/dD_t_mat/OutputFile = outdir + "depth_Z.DOSE.tritons.mat"
 
 s:Sc/dD_he3_mat/Quantity = "DoseToMedium"
-s:Sc/dD_he3_mat/Component = "ScoringYBox"
+s:Sc/dD_he3_mat/Component = "ScoringZBox"
 s:Sc/dD_he3_mat/OutputType = "csv"
 s:Sc/dD_he3_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_he3_mat/PropagateToChildren = "True"
@@ -246,7 +187,7 @@ sv:Sc/dD_he3_mat/OnlyIncludeParticlesNamed = 1 "He3"
 s:Sc/dD_he3_mat/OutputFile = outdir + "depth_Z.DOSE.he3.mat"
 
 s:Sc/dD_a_mat/Quantity = "DoseToMedium"
-s:Sc/dD_a_mat/Component = "ScoringYBox"
+s:Sc/dD_a_mat/Component = "ScoringZBox"
 s:Sc/dD_a_mat/OutputType = "csv"
 s:Sc/dD_a_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_a_mat/PropagateToChildren = "True"
@@ -255,14 +196,14 @@ s:Sc/dD_a_mat/OutputFile = outdir + "depth_Z.DOSE.alphas.mat"
 
 # ---------- Depth dose to water (H2O) : DoseToWater ----------
 s:Sc/dD_all_H2O/Quantity = "DoseToWater"
-s:Sc/dD_all_H2O/Component = "ScoringYBox"
+s:Sc/dD_all_H2O/Component = "ScoringZBox"
 s:Sc/dD_all_H2O/OutputType = "csv"
 s:Sc/dD_all_H2O/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_all_H2O/PropagateToChildren = "True"
 s:Sc/dD_all_H2O/OutputFile = outdir + "depth_Z.DOSE.all.H2O"
 
 s:Sc/dD_prim_H2O/Quantity = "DoseToWater"
-s:Sc/dD_prim_H2O/Component = "ScoringYBox"
+s:Sc/dD_prim_H2O/Component = "ScoringZBox"
 s:Sc/dD_prim_H2O/OutputType = "csv"
 s:Sc/dD_prim_H2O/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_prim_H2O/PropagateToChildren = "True"
@@ -271,7 +212,7 @@ s:Sc/dD_prim_H2O/OnlyIncludeParticlesOfGeneration = "Primary"
 s:Sc/dD_prim_H2O/OutputFile = outdir + "depth_Z.DOSE.primary.H2O"
 
 s:Sc/dD_p_H2O/Quantity = "DoseToWater"
-s:Sc/dD_p_H2O/Component = "ScoringYBox"
+s:Sc/dD_p_H2O/Component = "ScoringZBox"
 s:Sc/dD_p_H2O/OutputType = "csv"
 s:Sc/dD_p_H2O/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dD_p_H2O/PropagateToChildren = "True"
@@ -280,14 +221,14 @@ s:Sc/dD_p_H2O/OutputFile = outdir + "depth_Z.DOSE.protons.H2O"
 
 # ---------- Depth fluence : Fluence (medium-independent) ----------
 s:Sc/dF_all_mat/Quantity = "Fluence"
-s:Sc/dF_all_mat/Component = "ScoringYBox"
+s:Sc/dF_all_mat/Component = "ScoringZBox"
 s:Sc/dF_all_mat/OutputType = "csv"
 s:Sc/dF_all_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_all_mat/PropagateToChildren = "True"
 s:Sc/dF_all_mat/OutputFile = outdir + "depth_Z.FLUENCE.all.mat"
 
 s:Sc/dF_prim_mat/Quantity = "Fluence"
-s:Sc/dF_prim_mat/Component = "ScoringYBox"
+s:Sc/dF_prim_mat/Component = "ScoringZBox"
 s:Sc/dF_prim_mat/OutputType = "csv"
 s:Sc/dF_prim_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_prim_mat/PropagateToChildren = "True"
@@ -296,7 +237,7 @@ s:Sc/dF_prim_mat/OnlyIncludeParticlesOfGeneration = "Primary"
 s:Sc/dF_prim_mat/OutputFile = outdir + "depth_Z.FLUENCE.primary.mat"
 
 s:Sc/dF_p_mat/Quantity = "Fluence"
-s:Sc/dF_p_mat/Component = "ScoringYBox"
+s:Sc/dF_p_mat/Component = "ScoringZBox"
 s:Sc/dF_p_mat/OutputType = "csv"
 s:Sc/dF_p_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_p_mat/PropagateToChildren = "True"
@@ -304,7 +245,7 @@ sv:Sc/dF_p_mat/OnlyIncludeParticlesNamed = 1 "proton"
 s:Sc/dF_p_mat/OutputFile = outdir + "depth_Z.FLUENCE.protons.mat"
 
 s:Sc/dF_d_mat/Quantity = "Fluence"
-s:Sc/dF_d_mat/Component = "ScoringYBox"
+s:Sc/dF_d_mat/Component = "ScoringZBox"
 s:Sc/dF_d_mat/OutputType = "csv"
 s:Sc/dF_d_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_d_mat/PropagateToChildren = "True"
@@ -312,7 +253,7 @@ sv:Sc/dF_d_mat/OnlyIncludeParticlesNamed = 1 "deuteron"
 s:Sc/dF_d_mat/OutputFile = outdir + "depth_Z.FLUENCE.deuterons.mat"
 
 s:Sc/dF_t_mat/Quantity = "Fluence"
-s:Sc/dF_t_mat/Component = "ScoringYBox"
+s:Sc/dF_t_mat/Component = "ScoringZBox"
 s:Sc/dF_t_mat/OutputType = "csv"
 s:Sc/dF_t_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_t_mat/PropagateToChildren = "True"
@@ -320,7 +261,7 @@ sv:Sc/dF_t_mat/OnlyIncludeParticlesNamed = 1 "triton"
 s:Sc/dF_t_mat/OutputFile = outdir + "depth_Z.FLUENCE.tritons.mat"
 
 s:Sc/dF_he3_mat/Quantity = "Fluence"
-s:Sc/dF_he3_mat/Component = "ScoringYBox"
+s:Sc/dF_he3_mat/Component = "ScoringZBox"
 s:Sc/dF_he3_mat/OutputType = "csv"
 s:Sc/dF_he3_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_he3_mat/PropagateToChildren = "True"
@@ -328,25 +269,57 @@ sv:Sc/dF_he3_mat/OnlyIncludeParticlesNamed = 1 "He3"
 s:Sc/dF_he3_mat/OutputFile = outdir + "depth_Z.FLUENCE.he3.mat"
 
 s:Sc/dF_a_mat/Quantity = "Fluence"
-s:Sc/dF_a_mat/Component = "ScoringYBox"
+s:Sc/dF_a_mat/Component = "ScoringZBox"
 s:Sc/dF_a_mat/OutputType = "csv"
 s:Sc/dF_a_mat/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/dF_a_mat/PropagateToChildren = "True"
 sv:Sc/dF_a_mat/OnlyIncludeParticlesNamed = 1 "alpha"
 s:Sc/dF_a_mat/OutputFile = outdir + "depth_Z.FLUENCE.alphas.mat"
 
-# ---------- Native ProtonLET (depth) ----------
-# NOTE: native ProtonLET estimates LET from each step's INITIAL energy (not the
-# initial/final average), so it is biased where dE/dx changes fast (distal edge).
-# Kept as a provisional native LET; the corrected/averaged LET is issue #153.
-s:Sc/dPLET_p/Quantity = "ProtonLET"
-s:Sc/dPLET_p/Component = "ScoringYBox"
-s:Sc/dPLET_p/OutputType = "csv"
-s:Sc/dPLET_p/IfOutputFileAlreadyExists = "Overwrite"
-b:Sc/dPLET_p/PropagateToChildren = "True"
-s:Sc/dPLET_p/OutputFile = outdir + "depth_Z.PLET.protons.mat"
+# ---------- Native ProtonLET (depth): dose- and track-averaged ----------
+# TOPAS's native ProtonLET with DEFAULT settings, so we can see how the native
+# scorer behaves. WeightBy selects dose- (DLET) vs fluence/track-averaged (TLET).
+# CAVEAT: by default it looks up LET at each step's INITIAL energy
+# (UsePreStepLookup), so it is biased where dE/dx changes fast (distal edge). The
+# corrected/averaged, particle-filtered, LET-to-water version is issue #153.
+s:Sc/dDLET_p/Quantity = "ProtonLET"
+s:Sc/dDLET_p/Component = "ScoringZBox"
+s:Sc/dDLET_p/OutputType = "csv"
+s:Sc/dDLET_p/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dDLET_p/PropagateToChildren = "True"
+s:Sc/dDLET_p/WeightBy = "dose"
+s:Sc/dDLET_p/OutputFile = outdir + "depth_Z.DLET.protons.mat"
 
-# ---------- 2D longitudinal dose map (XY box) ----------
+s:Sc/dTLET_p/Quantity = "ProtonLET"
+s:Sc/dTLET_p/Component = "ScoringZBox"
+s:Sc/dTLET_p/OutputType = "csv"
+s:Sc/dTLET_p/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dTLET_p/PropagateToChildren = "True"
+s:Sc/dTLET_p/WeightBy = "fluence"
+s:Sc/dTLET_p/OutputFile = outdir + "depth_Z.TLET.protons.mat"
+
+# Primary protons only (Generation filter). ProtonLET is proton-only, so there is
+# no native all-charged LET (depth_Z.*LET.all.* stays with the #153 custom scorer).
+s:Sc/dDLET_prim/Quantity = "ProtonLET"
+s:Sc/dDLET_prim/Component = "ScoringZBox"
+s:Sc/dDLET_prim/OutputType = "csv"
+s:Sc/dDLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dDLET_prim/PropagateToChildren = "True"
+s:Sc/dDLET_prim/WeightBy = "dose"
+s:Sc/dDLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dDLET_prim/OutputFile = outdir + "depth_Z.DLET.primary.mat"
+
+s:Sc/dTLET_prim/Quantity = "ProtonLET"
+s:Sc/dTLET_prim/Component = "ScoringZBox"
+s:Sc/dTLET_prim/OutputType = "csv"
+s:Sc/dTLET_prim/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/dTLET_prim/PropagateToChildren = "True"
+s:Sc/dTLET_prim/WeightBy = "fluence"
+s:Sc/dTLET_prim/OnlyIncludeParticlesOfGeneration = "Primary"
+s:Sc/dTLET_prim/OutputFile = outdir + "depth_Z.TLET.primary.mat"
+
+# ---------- 2D dose maps (beam frame) ----------
+# Transverse (X-Y at isocenter) and longitudinal (X-Z) dose maps.
 s:Sc/mapXY_D/Quantity = "DoseToMedium"
 s:Sc/mapXY_D/Component = "ScoringXYBox"
 s:Sc/mapXY_D/OutputType = "csv"
@@ -354,11 +327,17 @@ s:Sc/mapXY_D/IfOutputFileAlreadyExists = "Overwrite"
 b:Sc/mapXY_D/PropagateToChildren = "True"
 s:Sc/mapXY_D/OutputFile = outdir + "map_XY.DOSE.all.mat"
 
+s:Sc/mapXZ_D/Quantity = "DoseToMedium"
+s:Sc/mapXZ_D/Component = "ScoringXZBox"
+s:Sc/mapXZ_D/OutputType = "csv"
+s:Sc/mapXZ_D/IfOutputFileAlreadyExists = "Overwrite"
+b:Sc/mapXZ_D/PropagateToChildren = "True"
+s:Sc/mapXZ_D/OutputFile = outdir + "map_XZ.DOSE.all.mat"
+
 # ---------- Target differential fluence spectra vs ENUC ----------
 # TOPAS bins PreStep total kinetic energy. For species with mass number A,
 # postprocess maps E_total/A onto the shared SH12A ENUC grid (0.1..300 MeV/u)
 # and sums the species spectra to produce the all-particles page.
-
 s:Sc/sp_p/Quantity = "Fluence"
 s:Sc/sp_p/Component = "TargetBox"
 s:Sc/sp_p/OutputType = "csv"
@@ -418,7 +397,7 @@ s:Sc/sp_a/OutputFile = outdir + "spectrum_target.FLUENCE.alphas.mat.vs_ENUC"
 # Uncomment once your TOPAS is compiled with the Qeff scorer extension. Left
 # disabled so the no-extension smoke test does not abort on an unknown Quantity.
 # s:Sc/Qeff/Quantity = "Qeff"
-# s:Sc/Qeff/Component = "ScoringYBox"
+# s:Sc/Qeff/Component = "ScoringZBox"
 # s:Sc/Qeff/OutputType = "csv"
 # s:Sc/Qeff/IfOutputFileAlreadyExists = "Overwrite"
 # sv:Sc/Qeff/includeparticles = 1 "protons"

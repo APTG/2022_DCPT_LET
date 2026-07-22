@@ -6,21 +6,14 @@ native TOPAS CSV scorer output into the repository's 3-column depth-profile
 `.dat` files (depth[cm], value, rel_err), and writes inspection PNGs for 2D
 maps plus a VERSION.txt into data/topas/results/<plan>/.
 
-Coordinate readback (the reason this lives in one place)
--------------------------------------------------------
-TOPAS scores dose/LET along its world **Y** axis. The generated source is
-rotated so the beam travels world -Y. With the scorer rotation used here, the
-local-Y bin index is mirrored relative to the SH12A depth axis.
-This script applies the declared Y -> depth readback exactly once:
-
-  1. read the TOPAS local-Y bin centres and map depth = -localY,
-  2. read the shared isocenter-referenced depth grid from the plan's
-     SHIELD-HIT12A `detect.dat` (`Z_narrow` mesh), and
-  3. resample onto that 205-bin grid so the TOPAS profile is directly
-     comparable to sh12a / OSH / FLUKA.
-
-instead of the scattered `np.flip` that used to sit in the (now removed)
-notebooks/topas_plan*.py.
+Coordinate handling (no flip)
+-----------------------------
+TOPAS scores in BEAM coordinates: the phantom + scoring are parented to
+dicomexport's "Gantry" frame, so depth = beam +Z (downstream), isocenter Z=0,
+rotated with the gantry. That is the SAME sense as the SH12A grid, so there is no
+flip -- depth = +Z directly. We only resample onto the shared isocenter-referenced
+grid read from the plan's SHIELD-HIT12A `detect.dat` (`Z_narrow` mesh) so the TOPAS
+profile lines up bin-for-bin with sh12a / OSH / FLUKA. See docs/coordinates.md.
 
 Requires: numpy.
 
@@ -45,7 +38,7 @@ TOPAS_ROOT = REPO_ROOT / "data" / "topas"
 MEV_PER_G_TO_GY = 1.602176634e-10
 
 # Scorer OutputFile names in main.txt are the data/output_catalog.json keys, so a
-# CSV's stem IS its output_type. Depth profiles (depth_Z.*) get the Y->depth readback;
+# CSV's stem IS its output_type. Depth profiles (depth_Z.*) are read as depth = +Z;
 # target spectra (spectrum_target.*.vs_ENUC) get total kinetic E -> ENUC per species.
 #
 DEPTH_OUTPUTS = {
@@ -163,48 +156,46 @@ def topas_depth_profile(
     target_centres: np.ndarray,
     scale: float,
 ) -> np.ndarray | None:
-    """Read a Y-binned TOPAS scorer and return [value, rel_err] resampled onto
-    target_centres, after the documented Y -> depth readback."""
-    y_bins: int | None = None
-    y_width_cm: float | None = None
+    """Read a Z-binned TOPAS scorer (beam +Z = depth) and return
+    [depth, value, rel_err] resampled onto target_centres. No flip: TOPAS scores in
+    beam coordinates, so depth = +Z directly (see docs/coordinates.md)."""
+    z_bins: int | None = None
+    z_width_cm: float | None = None
     rows: list[tuple[int, float]] = []
     for line in csv_path.read_text(errors="ignore").splitlines():
         s = line.strip()
         if not s:
             continue
         if s.startswith("#"):
-            m = re.match(r"#\s*Y\s+in\s+(\d+)\s+bins\s+of\s+([-0-9.eE]+)\s+cm", s)
+            m = re.match(r"#\s*Z\s+in\s+(\d+)\s+bins\s+of\s+([-0-9.eE]+)\s+cm", s)
             if m:
-                y_bins = int(m[1])
-                y_width_cm = float(m[2])
+                z_bins = int(m[1])
+                z_width_cm = float(m[2])
             continue
         cols = [c.strip() for c in s.split(",")]
         if len(cols) < 4:
             continue
         try:
-            rows.append((int(cols[1]), float(cols[3])))
+            rows.append((int(cols[2]), float(cols[3])))  # cols = x,y,z,value; z index
         except ValueError:
             continue
 
-    if y_bins is None or y_width_cm is None or not rows:
+    if z_bins is None or z_width_cm is None or not rows:
         print(f"  warning: could not parse TOPAS depth CSV {csv_path}", file=sys.stderr)
         return None
 
-    values_by_y = np.zeros(y_bins, dtype=float)
-    for y_idx, value in rows:
-        if 0 <= y_idx < y_bins:
-            values_by_y[y_idx] = value
+    values_by_z = np.zeros(z_bins, dtype=float)
+    for z_idx, value in rows:
+        if 0 <= z_idx < z_bins:
+            values_by_z[z_idx] = value
 
-    y_centres = (np.arange(y_bins, dtype=float) + 0.5) * y_width_cm
-    y_centres -= 0.5 * y_bins * y_width_cm
-    values = values_by_y
+    z_centres = (np.arange(z_bins, dtype=float) + 0.5) * z_width_cm
+    z_centres -= 0.5 * z_bins * z_width_cm
+    values = values_by_z * scale
 
-    values = values_by_y * scale
-
-    # ---- Y -> depth readback (see module docstring / docs/coordinates.md) ----
-    # Geometry A is centered at isocenter; TOPAS local-Y is opposite to the
-    # shared SH12A Z_narrow depth axis.
-    depth = -y_centres
+    # Beam coordinates: depth = +Z directly, no negation/flip. The box is centered
+    # at isocenter (TransZ=0), so z_centres already run entrance(-) -> exit(+).
+    depth = z_centres
 
     # Native CSV output currently contains only Sum, so statistical errors are
     # unavailable here.
@@ -212,7 +203,7 @@ def topas_depth_profile(
 
     order = np.argsort(depth)
     val_i = np.interp(target_centres, depth[order], values[order], left=0.0, right=0.0)
-    rel_i = np.interp(target_centres, depth, rel, left=0.0, right=0.0)
+    rel_i = np.interp(target_centres, depth[order], rel[order], left=0.0, right=0.0)
     return np.column_stack([target_centres, val_i, rel_i])
 
 
@@ -423,10 +414,12 @@ def write_manifest(plan: str, results_dir: Path, version: str, outputs: dict[str
         "plan": plan,
         "code": {"name": "TOPAS", "short": "topas", "version": version},
         "frame": {
-            "native": "topas-y",
+            "native": "topas-bev",
             "to_patient": (
-                "TOPAS slab geometry scores depth along world Y. postprocess_local.py "
-                "applies the documented Y->depth readback before writing NB_Z_narrow*.dat."
+                "TOPAS scores in beam coordinates (depth = +Z downstream, isocenter Z=0, "
+                "phantom + scoring parented to dicomexport's Gantry frame). depth = +Z "
+                "directly, no flip; postprocess_local.py only resamples onto the SH12A "
+                "Z_narrow grid."
             ),
             "beam_model": "v2" if plan.startswith(("plan01", "plan02", "plan03", "plan04")) else "v5",
         },
