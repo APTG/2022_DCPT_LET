@@ -22,5 +22,13 @@ Suggested naming:
 - `geo*.txt` for geometry-specific slab phantoms and scenario output directory
   definitions.
 
+Current geometry snippets:
+
+- `geoA_SOBPcent_phantom.txt`: plan01 centre of SOBP, target at `z=0.0 cm`.
+- `geoB_SOBP95_phantom.txt`: plan01 distal 95%, target at `z=5.0 cm`.
+- `geoC_SOBP74_phantom.txt`: plan01 distal 74%, target at `z=5.2 cm`.
+- `geoD_mono_phantom.txt`: plan02 160 MeV mono, target at `z=0.0 cm`, depth
+  scoring shifted to `z=[-2.25,18.25] cm`.
+
 Keep snippets self-contained and explicit. They are concatenated into the generated
 `main.txt`; they should not contain `includeFile` lines.

@@ -1,18 +1,19 @@
 ########################################
 # Scoring Geometry (parent "Gantry"; depth = +Z, isocenter Z=0)
 ########################################
-# Depth profile: 2x2 cm2 lateral acceptance, 205 x 1 mm bins along Z. Matches the
-# SH12A Z_narrow mesh exactly, so postprocess resampling is essentially identity.
+# Depth profile: 2x2 cm2 lateral acceptance, 205 x 1 mm bins along Z. The
+# geometry patch-in defines Ge/scoringDepthHLZ and Ge/scoringDepthTransZ so this
+# matches the plan's SH12A Z_narrow mesh.
 s:Ge/ScoringZBox/Parent     = "Gantry"
 s:Ge/ScoringZBox/Type       = "TsBox"
 b:Ge/ScoringZBox/IsParallel = "TRUE"
 d:Ge/ScoringZBox/HLX        = 1 cm
 d:Ge/ScoringZBox/HLY        = 1 cm
-d:Ge/ScoringZBox/HLZ        = 10.25 cm
+d:Ge/ScoringZBox/HLZ        = Ge/scoringDepthHLZ cm
 i:Ge/ScoringZBox/XBins      = 1
 i:Ge/ScoringZBox/YBins      = 1
 i:Ge/ScoringZBox/ZBins      = 205
-d:Ge/ScoringZBox/TransZ     = 0.0 cm
+d:Ge/ScoringZBox/TransZ     = Ge/scoringDepthTransZ cm
 s:Ge/ScoringZBox/Color      = "green"
 
 # Longitudinal map (map_XZ): X vs depth Z, 2 cm thick in Y.
@@ -21,11 +22,11 @@ s:Ge/ScoringXZBox/Type       = "TsBox"
 b:Ge/ScoringXZBox/IsParallel = "TRUE"
 d:Ge/ScoringXZBox/HLX        = 15 cm
 d:Ge/ScoringXZBox/HLY        = 1 cm
-d:Ge/ScoringXZBox/HLZ        = 10.25 cm
+d:Ge/ScoringXZBox/HLZ        = Ge/scoringDepthHLZ cm
 i:Ge/ScoringXZBox/XBins      = 300
 i:Ge/ScoringXZBox/YBins      = 1
 i:Ge/ScoringXZBox/ZBins      = 205
-d:Ge/ScoringXZBox/TransZ     = 0.0 cm
+d:Ge/ScoringXZBox/TransZ     = Ge/scoringDepthTransZ cm
 s:Ge/ScoringXZBox/Color      = "green"
 
 # Transverse map (map_XY): X vs Y at isocenter, 5 mm thick in Z.
@@ -41,7 +42,7 @@ i:Ge/ScoringXYBox/ZBins      = 1
 d:Ge/ScoringXYBox/TransZ     = 0.0 cm
 s:Ge/ScoringXYBox/Color      = "green"
 
-# Target detector volume (5 x 5 x 0.2 cm3) at isocenter (pmma centre), for spectra.
+# Target detector volume (5 x 5 x 0.2 cm3) at the geometry's detector depth.
 s:Ge/TargetBox/Parent     = "Gantry"
 s:Ge/TargetBox/Type       = "TsBox"
 b:Ge/TargetBox/IsParallel = "TRUE"
@@ -51,7 +52,7 @@ d:Ge/TargetBox/HLZ        = 0.1 cm
 i:Ge/TargetBox/XBins      = 1
 i:Ge/TargetBox/YBins      = 1
 i:Ge/TargetBox/ZBins      = 1
-d:Ge/TargetBox/TransZ     = 0.0 cm
+d:Ge/TargetBox/TransZ     = Ge/targetDepthZ cm
 s:Ge/TargetBox/Color      = "magenta"
 
 ########################################
