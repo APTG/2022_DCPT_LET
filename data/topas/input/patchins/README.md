@@ -29,6 +29,22 @@ Current geometry snippets:
 - `geoC_SOBP74_phantom.txt`: plan01 distal 74%, target at `z=5.2 cm`.
 - `geoD_mono_phantom.txt`: plan02 160 MeV mono, target at `z=0.0 cm`, depth
   scoring shifted to `z=[-2.25,18.25] cm`.
+- `geoA_rampFull_field01_phantom.txt` / `geoA_rampFull_field02_phantom.txt`:
+  plan03 geometry A, one output directory per field.
+- `geoA_rampMiddle_field01_phantom.txt` / `geoA_rampMiddle_field02_phantom.txt`:
+  plan04 geometry A, one output directory per field.
+- `geoE_SOBP_phantom.txt`: plan05 SOBP 3d, target at `z=2.14 cm`, depth
+  scoring shifted to `z=[-7.28,13.22] cm`.
+- `geoF_SOBP_phantom.txt`: plan06 SOBP 4d, target at `z=2.05 cm`, depth
+  scoring shifted to `z=[-4.37,16.13] cm`.
+- `geoG_SOBP_phantom.txt`: plan07 SOBP 5d, target at `z=6.01 cm`, depth
+  scoring shifted to `z=[-8.25,12.25] cm`.
+
+Plans 06/07 contain range shifters in the RTPLAN. dicomexport emits the
+`Ge/RangeShifter` block directly. Per DICOM `(300A,0364)`, the RTPLAN distance is
+to the downstream edge of the range shifter; this differs from the current SH12A
+`geo.dat` interpretation for F/G, which appears to use the same value as the slab
+center.
 
 Keep snippets self-contained and explicit. They are concatenated into the generated
 `main.txt`; they should not contain `includeFile` lines.

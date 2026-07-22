@@ -85,6 +85,10 @@ tools/patch_topas_testmode.py \
 The `common_*.txt` files hold reusable project definitions such as physics,
 materials, scoring boxes, and native scorers. The `geo*.txt` files hold
 geometry-specific slab phantom definitions and the scenario output directory.
+For plan06/07 range-shifter runs, dicomexport emits the `Ge/RangeShifter` block
+from the RTPLAN. DICOM defines `(300A,0364) IsocenterToRangeShifterDistance` as
+the distance to the downstream edge of the range shifter, so the TOPAS range
+shifter position follows that RTPLAN/DICOM convention.
 
 ### 3. Phantom + scorers — `<plan_field_geo>/main.txt`
 
