@@ -530,8 +530,8 @@ def site_footer(root_prefix: str) -> str:
 <footer class="site-footer">
   <div class="footer-main">
     <div class="footer-brand-row">
-      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT</a>
-      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9</a>
+      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT <span aria-hidden="true">↗</span></a>
+      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9 <span aria-hidden="true">↗</span></a>
     </div>
     <p>
       Data and generated comparison pages are published under
@@ -708,20 +708,22 @@ a { color: var(--accent); }
 .plot-card .plot-link:hover { background: var(--accent-soft); }
 .plot-card .missing { color: var(--muted); font-size: .8rem; font-style: italic; }
 .result-notes {
-  position: relative;
-  margin: .1rem 0 0; padding: .55rem .75rem .55rem 2.1rem;
+  margin: .1rem 0 0; padding: .55rem .75rem;
   border: 1px solid #ead7a0; border-radius: 8px;
   background: #fff8e6; color: #5d4a13;
   list-style: none;
   font-size: .8rem; line-height: 1.35;
 }
-.result-notes::before {
-  content: "!";
-  position: absolute; left: .7rem; top: .58rem;
+.result-notes li {
+  display: grid; grid-template-columns: .95rem 1fr;
+  gap: .45rem; align-items: start;
+}
+.result-note-icon {
   display: grid; place-items: center;
   width: .95rem; height: .95rem; border-radius: 50%;
   background: #d08a00; color: white;
   font-size: .68rem; font-weight: 800; line-height: 1;
+  margin-top: .08rem;
 }
 .result-notes li + li { margin-top: .35rem; }
 .plot-subsection { margin-top: 1rem; }
@@ -788,11 +790,13 @@ a { color: var(--accent); }
 .footer-brand-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
 .footer-mark {
   display: inline-flex; align-items: center; justify-content: center;
+  gap: .3rem;
   min-height: 2rem; border: 1px solid var(--border); border-radius: 7px;
   padding: .35rem .7rem; background: var(--panel-strong);
   color: var(--text); text-decoration: none; font-weight: 800;
   letter-spacing: 0; line-height: 1;
 }
+.footer-mark:hover { border-color: var(--accent); color: var(--accent); }
 .footer-mark-dcpt { border-left: 5px solid #006b54; }
 .footer-mark-eurados { border-left: 5px solid #d83933; }
 .footer-links { display: flex; gap: .85rem; flex-wrap: wrap; justify-content: flex-end; }
@@ -909,10 +913,13 @@ def render_plot_card(
         for note in notes:
             title = note.get("title")
             text = html.escape(note.get("text", ""))
+            icon = '<span class="result-note-icon" aria-hidden="true">!</span>'
             if title:
-                items.append(f'<li><strong>{html.escape(title)}:</strong> {text}</li>')
+                items.append(
+                    f'<li>{icon}<span><strong>{html.escape(title)}:</strong> {text}</span></li>'
+                )
             else:
-                items.append(f"<li>{text}</li>")
+                items.append(f"<li>{icon}<span>{text}</span></li>")
         notes_html = f'<ul class="result-notes">{"".join(items)}</ul>'
 
     return f"""
