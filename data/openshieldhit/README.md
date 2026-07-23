@@ -15,11 +15,8 @@ not expected to be physics-complete yet.
 
 Important caveats:
 
-- The calculations use Gaussian straggling instead of Vavilov straggling.
-- Secondary particles are not generated yet, so these simulations are primary
-  particle only.
-- Differential scoring outputs are disabled because OpenShieldHIT does not
-  currently support that workflow.
+- Secondary particles are generated from incomplete nuclear fragmentation
+  models. This is still work in progress.
 
 Despite these limitations, the code is already very fast, and primary-particle
 results are becoming useful for development comparisons.
@@ -33,8 +30,8 @@ use `1e8` primary particles.
 - `input/plan*/` contains self-contained OpenShieldHIT input directories.
 - `results/plan*/` contains postprocessed output files for the matching input
   directory.
-- `postprocess_local.sh` converts local `.bdo` output files to PNG images and
-  ASCII plot data.
+- `postprocess_local.sh` converts local `.bdo` output files to PNG images,
+  ASCII plot data, target text output, and rendered differential spectrum plots.
 
 The input directories deliberately duplicate a few shared material data files,
 such as `Air.txt`, `Water.txt`, `Lucite.txt`, and `Polycarb.txt`, instead of
@@ -80,16 +77,24 @@ To postprocess selected plans only, pass one or more plan names or input paths:
 ./postprocess_local.sh input/plan01_field01_geoA_SOBPcent input/plan02_field01_geoD_mono
 ```
 
-The script runs `convertmc` in each selected input directory:
+The script runs `convertmc` and the differential-spectrum renderer in each
+selected input directory:
 
 ```bash
 convertmc image --many "*.bdo"
-convertmc plotdata --many <non-2D .bdo files>
+convertmc plotdata --many <non-2D, non-target .bdo files>
+convertmc txt NB_target.bdo
+convertmc txt NB_target_water.bdo
+python3 ../../tools/render_diff_results.py --results-dir results/<plan> --input-root input
 ```
 
 The 2D map files `NB_XY*.bdo` and `NB_XZ_map*.bdo` are converted to images but
 are intentionally excluded from ASCII plot data conversion, since those files
-would become excessively large.
+would become excessively large. The target scorer files `NB_target.bdo` and
+`NB_target_water.bdo` are extracted with `convertmc txt` for scalar comparisons;
+their differential `.dat` spectra are rendered as binned stair plots by
+`tools/render_diff_results.py`.
 
-Generated `NB*.png` and `NB*.dat` files are moved into the corresponding
-`results/<plan>/` directory.
+Generated `NB*.png`, `NB*.dat`, `NB_target_p*.txt`,
+`NB_target_water_p*.txt`, and `VERSION.txt` files are moved or written into the
+corresponding `results/<plan>/` directory.

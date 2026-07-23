@@ -1,11 +1,12 @@
-1) Base plans where made in Raystation.
-2) Base plans where then imported and exported in Eclipse, without any recalculation. 
-3) Those Eclipse plans where then additionally edited with [DicomFix](https://github.com/nbassler/dicomfix), for irradiation.
+1) Base plans were made in RayStation.
+2) Base plans were then imported and exported in Eclipse, without any recalculation.
+3) Those Eclipse plans were then additionally edited with [DicomFix](https://github.com/nbassler/dicomfix), for irradiation.
 
-In the github repo, the final RTPLAN file is available, and RTDOSE (RD\*.dcm) and RTSTRUCT (RS\*.dcm) are taken from the Raystation Baseplan.
+In the GitHub repo, the final RTPLAN file is available, and RTDOSE (RD\*.dcm) and RTSTRUCT (RS\*.dcm) are taken from the RayStation base plan.
 
-Full datasets:
-- Base files from Raystation [TODO LESZEK](https://)
-- Eclipse exported files [TODO LESZEK](https://)
-
-
+Available DICOM files:
+- `ramped_2Gy_ver1_middel.dcm` - final edited RTPLAN used for irradiation
+- `RD1.2.752.243.1.1.20250522124652830.4000.14613.dcm` - RayStation dose distribution
+- `RD1.2.752.243.1.1.20250522124652830.5000.68878.dcm` - RayStation dose distribution
+- `RD1.2.752.243.1.1.20250522124652830.6000.18286.dcm` - RayStation dose distribution
+- `RS1.2.752.243.1.1.20250522124652761.2000.43711.dcm` - RayStation structure set
