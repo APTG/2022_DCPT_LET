@@ -4,7 +4,7 @@
   "code": {
     "name": "MCNP",
     "short": "mcnp",
-    "version": "unknown",
+    "version": "MCNP6.3.0 (ld=01/26/23, release/6.3-55762725c4)",
     "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
   },
   "frame": {
