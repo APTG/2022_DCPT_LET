@@ -1,0 +1,69 @@
+{
+  "schema_version": "1",
+  "plan": "plan02_field01_geoD_mono",
+  "code": {
+    "name": "FLUKA CERN",
+    "short": "fluka.cern",
+    "version": "4-5.1",
+    "notes": "Custom FLUKA source sampler and LET/dose user routine. Browser depth profiles exported from validated PRDOJTRACK_10x1M post-processed CSVs."
+  },
+  "provenance": {
+    "date": null,
+    "input_path": "data/fluka.cern/input/plan02_field01_geoD_mono",
+    "runner": "dewh",
+    "git_ref": "PRDOJTRACK_10x1M production workflow"
+  },
+  "statistics": {
+    "n_primaries": 10000000,
+    "normalization": "per_primary"
+  },
+  "frame": {
+    "native": "mc+z",
+    "to_patient": "Depth profiles are exported on the shared isocenter-referenced Z_narrow depth grid in cm, increasing downstream along the beam.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
+  "capabilities": {
+    "notes": "Initial browser export includes validated 1D Z_narrow dose and fluence depth profiles for all particles, all protons, and primary protons. Relative-error column is present but set to zero because the current post-processed FLUKA CSV does not carry per-bin statistical uncertainties. DirtyDose is not included because its SHIELD-HIT definition is not yet repository-defined."
+  },
+  "outputs": [
+    {
+      "description": "Depth profiles - dose in material (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA PRDOJTRACK_10x1M post-processed CSV. Values are MeV/g/primary.",
+      "files": [
+        {
+          "path": "depth_Z.DOSE.all.mat",
+          "output_type": "depth_Z.DOSE.all.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.protons.mat",
+          "output_type": "depth_Z.DOSE.protons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.primary.mat",
+          "output_type": "depth_Z.DOSE.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - fluence in material (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA PRDOJTRACK_10x1M post-processed CSV. Values are 1/cm^2/primary.",
+      "files": [
+        {
+          "path": "depth_Z.FLUENCE.all.mat",
+          "output_type": "depth_Z.FLUENCE.all.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.protons.mat",
+          "output_type": "depth_Z.FLUENCE.protons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.primary.mat",
+          "output_type": "depth_Z.FLUENCE.primary.mat"
+        }
+      ]
+    }
+  ]
+}
