@@ -53,6 +53,9 @@ authors:
     family-names: Jensen
     affiliation: 'Paul Scherrer Institute: Villligen PSI, CH'
     orcid: 'https://orcid.org/0000-0001-9534-9034'
+  - given-names: Daniel Emil Waldstrøm
+    family-names: Henriksen
+    affiliation: 'Dept. of Physics and Astronomy, Aarhus University: Aarhus, DK'
 identifiers:
   - type: doi
     value: 10.5281/zenodo.10641085
