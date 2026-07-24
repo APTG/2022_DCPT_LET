@@ -39,6 +39,17 @@ using a common directory. This keeps each plan self-contained and easy to copy
 or run locally. This may need to be revisited for larger cluster workflows,
 especially if these cases are later driven through `pymchelper` tooling.
 
+## Beam Spotlists
+
+Each input directory uses a copied c11 spotlist from `data/resources/plans/`.
+The `USECBEAM` card in `beam.dat` must match the spotlist beam model position:
+
+- Plans 01-04 use `spotlist_BMv2_c11_field*.dat` with `BEAMPOS 0.0 0.0 -50.0`
+  because beam model v2 is defined 50 cm upstream of isocenter.
+- Plans 05-07 use `spotlist_BMv5_c11_field01.dat` with
+  `BEAMPOS 0.0 0.0 -60.0` because beam model v5 is defined 60 cm upstream of
+  isocenter.
+
 ## Running Simulations
 
 These cases are useful for anyone who wants to try OpenShieldHIT on realistic
