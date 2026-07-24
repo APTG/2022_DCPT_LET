@@ -3,7 +3,7 @@
   "plan": "plan02_field01_geoD_mono",
   "code": {
     "name": "FLUKA",
-    "short": "fluka.cern",
+    "short": "FLUKA.cern",
     "version": null
   },
   "provenance": {
