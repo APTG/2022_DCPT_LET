@@ -1,4 +1,4 @@
-filedate: Thu, 23 Jul 2026 20:53:40 +0200
+filedate: Fri, 24 Jul 2026 23:41:15 +0200
 mc_code_version: v0.0.8-44-g36aa632
-number_of_primaries: 1000000
-convertmc_version: 2.9.5.post9+gc932b42f2
+number_of_primaries: 100000000
+convertmc_version: 2.9.6
