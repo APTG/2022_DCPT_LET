@@ -10,6 +10,39 @@
         "filter": "all"
       },
       "text": "includes electrons"
+    },
+    {
+      "id": "mcnp-postprocessed-derived",
+      "title": "MCNP",
+      "codes": ["mcnp"],
+      "match": {
+        "output_types": [
+          "depth_Z.DOSE.protons.H2O",
+          "depth_Z.DOSE.primary.H2O",
+          "depth_Z.DLET.protons.H2O",
+          "depth_Z.DLET.primary.H2O",
+          "depth_Z.TLET.protons.H2O",
+          "depth_Z.TLET.primary.H2O",
+          "depth_Z.DQEFF.all.mat",
+          "depth_Z.DQEFF.protons.mat",
+          "depth_Z.DQEFF.primary.mat",
+          "depth_Z.TQEFF.all.mat",
+          "depth_Z.TQEFF.protons.mat",
+          "depth_Z.TQEFF.primary.mat",
+          "target.DLET.protons.H2O",
+          "target.DLET.primary.H2O",
+          "target.TLET.protons.H2O",
+          "target.TLET.primary.H2O",
+          "target.DQEFF.all.mat",
+          "target.DQEFF.protons.mat",
+          "target.DQEFF.primary.mat",
+          "target.TQEFF.all.mat",
+          "target.TQEFF.protons.mat",
+          "target.TQEFF.primary.mat",
+          "spectrum_target.FLUENCE.primary.Si.vs_DEDX"
+        ]
+      },
+      "text": "not a native MCNP tally"
     }
   ]
 }

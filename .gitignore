@@ -116,6 +116,8 @@ data/comparisons/
 data/**/results/**/*.png
 !data/**/results/**/NB_XY*.png
 !data/**/results/**/NB_XZ_map*.png
+!data/**/results/**/xy_map_XY.png
+!data/**/results/**/xz_map_XZ.png
 
 # Translations
 *.mo
