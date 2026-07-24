@@ -3,7 +3,7 @@
   "plan": "plan03_field01_geoA_rampFull",
   "code": {
     "name": "FLUKA",
-    "short": "fluka.cern",
+    "short": "FLUKA.cern",
     "version": null
   },
   "provenance": {

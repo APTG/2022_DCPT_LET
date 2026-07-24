@@ -2,8 +2,8 @@
   "schema_version": "1",
   "plan": "plan02_field01_geoD_mono",
   "code": {
-    "name": "FLUKA CERN",
-    "short": "fluka.cern",
+    "name": "FLUKA.cern",
+    "short": "FLUKA.cern",
     "version": "4-5.1",
     "notes": "Custom FLUKA source sampler and LET/dose user routine. Browser depth profiles exported from validated PRDOJTRACK_10x1M post-processed CSVs."
   },

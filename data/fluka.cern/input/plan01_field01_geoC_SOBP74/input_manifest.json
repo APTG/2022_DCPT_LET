@@ -3,7 +3,7 @@
   "plan": "plan01_field01_geoC_SOBP74",
   "code": {
     "name": "FLUKA",
-    "short": "fluka.cern",
+    "short": "FLUKA.cern",
     "version": null
   },
   "provenance": {
