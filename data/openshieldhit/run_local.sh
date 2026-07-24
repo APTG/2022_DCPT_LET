@@ -10,7 +10,7 @@
 # the two codes' local results to differ in primary count until the OSH HPC path
 # exists. Once it does, drop the -n override and let beam.dat drive the count.
 EXE="openshieldhit -v"
-STAT="1000000"   # local-only override of beam.dat NSTAT (see note above)
+STAT="${STAT:-1000000}"   # local-only override of beam.dat NSTAT (see note above)
 INPUT_DIR="input"
 THREADS=20
 

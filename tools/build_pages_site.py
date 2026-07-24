@@ -530,8 +530,8 @@ def site_footer(root_prefix: str) -> str:
 <footer class="site-footer">
   <div class="footer-main">
     <div class="footer-brand-row">
-      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT</a>
-      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9</a>
+      <a class="footer-mark footer-mark-dcpt" href="{dcpt_url}" target="_blank" aria-label="Danish Centre for Particle Therapy">DCPT <span aria-hidden="true">↗</span></a>
+      <a class="footer-mark footer-mark-eurados" href="{eurados_url}" target="_blank" aria-label="EURADOS Working Group 9">EURADOS WG9 <span aria-hidden="true">↗</span></a>
     </div>
     <p>
       Data and generated comparison pages are published under
@@ -723,6 +723,7 @@ a { color: var(--accent); }
   background: #d08a00; color: white;
   font-size: .68rem; font-weight: 800; line-height: 1;
 }
+.result-note-icon { display: none; }
 .result-notes li + li { margin-top: .35rem; }
 .plot-subsection { margin-top: 1rem; }
 .plot-subsection:first-child { margin-top: 0; }
@@ -788,11 +789,13 @@ a { color: var(--accent); }
 .footer-brand-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
 .footer-mark {
   display: inline-flex; align-items: center; justify-content: center;
+  gap: .3rem;
   min-height: 2rem; border: 1px solid var(--border); border-radius: 7px;
   padding: .35rem .7rem; background: var(--panel-strong);
   color: var(--text); text-decoration: none; font-weight: 800;
   letter-spacing: 0; line-height: 1;
 }
+.footer-mark:hover { border-color: var(--accent); color: var(--accent); }
 .footer-mark-dcpt { border-left: 5px solid #006b54; }
 .footer-mark-eurados { border-left: 5px solid #d83933; }
 .footer-links { display: flex; gap: .85rem; flex-wrap: wrap; justify-content: flex-end; }

@@ -4,50 +4,355 @@
   "code": {
     "name": "MCNP",
     "short": "mcnp",
-    "version": "unknown",
-    "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux estimate; F6 tally = dose. LET values derived from stopping power via a separate spreadsheet (LET_Calculation.ods)."
+    "version": "MCNP6.3.0 (ld=01/26/23, release/6.3-55762725c4)",
+    "notes": "Results contributed by Hrvoje Brkic. F4 tally = track-length flux; F6 tally = dose. DLET/TLET/DQEFF/TQEFF (native medium) derived from LET spectra via ICRP-60 Q(L) weighting. DOSE/DLET/TLET .H2O depth variants and DLET/TLET .H2O target variants derived via Bragg-Gray water-equivalent conversion (protons/primary only). Depth DQEFF/TQEFF .H2O are also produced but not yet declared in output_catalog.json (see raw_output block below)."
   },
   "provenance": {
-    "date": "2023-01-01",
+    "date": null,
     "input_path": "data/mcnp/input/plan02_field01_geoD_mono"
   },
   "statistics": {
     "normalization": "per_source_particle"
   },
   "capabilities": {
-    "notes": "Same scope as plan01: proton-only LET, depth dose/fluence, and target scalars. No water profiles, no spectra, no Qeff. Note: the simulation input for this plan may use a monoenergetic beam rather than the SOBP defined in the benchmark — verify against sh12a/osh before drawing conclusions."
+    "notes": "Depth DOSE, FLUENCE, DLET, TLET, DQEFF, TQEFF available with species breakdown (all/primary/protons/deuterons/tritons/he3) and water-converter (H2O) variants for DOSE/DLET/TLET (DQEFF/TQEFF-in-water produced but not yet in the output catalog). Target DLET/TLET/DQEFF/TQEFF (native medium) and DLET/TLET only in water (target DOSE/DQEFF/TQEFF-in-water not produced). No heavy-recoil breakdown. Target differential fluence spectra: all.mat.vs_DEDX, primary.mat.vs_LET, primary.Si.vs_DEDX, protons.mat.vs_EKIN available; all.Si.vs_DEDX, all.mat.vs_EKIN, and deuterons/tritons/he3/alphas/heavy_recoils.mat.vs_EKIN are not (see compute_differential_spectra.py for why)."
   },
   "outputs": [
     {
-      "description": "Depth LET profiles in silicon (Z_narrow) – DLET and TLET for all protons",
+      "description": "Depth dose profiles, silicon and water",
       "role": "primary_data",
-      "notes": "Page numbering intentionally matches SHIELD-HIT12A convention (p3=DLET protons, p6=TLET protons).",
       "files": [
-        {"path": "HB_Z_narrow_LET_p3.dat",  "output_type": "depth_Z.DLET.protons.mat"},
-        {"path": "HB_Z_narrow_LET__p6.dat", "output_type": "depth_Z.TLET.protons.mat"}
+        {
+          "path": "depth_Z.DOSE.all.mat",
+          "output_type": "depth_Z.DOSE.all.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.protons.mat",
+          "output_type": "depth_Z.DOSE.protons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.deuterons.mat",
+          "output_type": "depth_Z.DOSE.deuterons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.tritons.mat",
+          "output_type": "depth_Z.DOSE.tritons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.he3.mat",
+          "output_type": "depth_Z.DOSE.he3.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.alphas.mat",
+          "output_type": "depth_Z.DOSE.alphas.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.primary.mat",
+          "output_type": "depth_Z.DOSE.primary.mat"
+        }
       ]
     },
     {
-      "description": "Depth fluence profile in silicon (Z_narrow) – F4 tally, primary particles",
-      "role": "primary_data",
-      "notes": "File named with 'dose' prefix but contains F4 flux of primary particles.",
+      "description": "Depth dose-to-water, Bragg-Gray conversion (protons/primary only)",
+      "role": "derived",
+      "notes": "Computed via water_equivalent.py.",
       "files": [
-        {"path": "HB_Z_narrow_dose_p1.dat", "output_type": "depth_Z.FLUENCE.primary.mat"}
+        {
+          "path": "depth_Z.DOSE.protons.H2O",
+          "output_type": "depth_Z.DOSE.protons.H2O"
+        },
+        {
+          "path": "depth_Z.DOSE.primary.H2O",
+          "output_type": "depth_Z.DOSE.primary.H2O"
+        }
       ]
     },
     {
-      "description": "Depth dose profile in silicon (Z_narrow) – F6 tally (dose, MeV/g/SP)",
+      "description": "Depth fluence profiles",
       "role": "primary_data",
       "files": [
-        {"path": "HB_Z_narrow_dose_p02.dat", "output_type": "depth_Z.DOSE.all.mat"}
+        {
+          "path": "depth_Z.FLUENCE.all.mat",
+          "output_type": "depth_Z.FLUENCE.all.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.protons.mat",
+          "output_type": "depth_Z.FLUENCE.protons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.deuterons.mat",
+          "output_type": "depth_Z.FLUENCE.deuterons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.tritons.mat",
+          "output_type": "depth_Z.FLUENCE.tritons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.he3.mat",
+          "output_type": "depth_Z.FLUENCE.he3.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.alphas.mat",
+          "output_type": "depth_Z.FLUENCE.alphas.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.primary.mat",
+          "output_type": "depth_Z.FLUENCE.primary.mat"
+        }
       ]
     },
     {
-      "description": "Target volume – fluence (F4) and dose (F6) scalars",
+      "description": "Depth LET (dose- and track-averaged), native medium",
       "role": "primary_data",
       "files": [
-        {"path": "HB_target_p01.dat", "output_type": "target.FLUENCE.all.mat"},
-        {"path": "HB_target_p02.dat", "output_type": "target.DOSE.all.mat"}
+        {
+          "path": "depth_Z.DLET.all.mat",
+          "output_type": "depth_Z.DLET.all.mat"
+        },
+        {
+          "path": "depth_Z.DLET.protons.mat",
+          "output_type": "depth_Z.DLET.protons.mat"
+        },
+        {
+          "path": "depth_Z.DLET.primary.mat",
+          "output_type": "depth_Z.DLET.primary.mat"
+        },
+        {
+          "path": "depth_Z.TLET.all.mat",
+          "output_type": "depth_Z.TLET.all.mat"
+        },
+        {
+          "path": "depth_Z.TLET.protons.mat",
+          "output_type": "depth_Z.TLET.protons.mat"
+        },
+        {
+          "path": "depth_Z.TLET.primary.mat",
+          "output_type": "depth_Z.TLET.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth LET-in-water, Bragg-Gray conversion (protons/primary only)",
+      "role": "derived",
+      "notes": "Computed via water_equivalent.py.",
+      "files": [
+        {
+          "path": "depth_Z.DLET.protons.H2O",
+          "output_type": "depth_Z.DLET.protons.H2O"
+        },
+        {
+          "path": "depth_Z.DLET.primary.H2O",
+          "output_type": "depth_Z.DLET.primary.H2O"
+        },
+        {
+          "path": "depth_Z.TLET.protons.H2O",
+          "output_type": "depth_Z.TLET.protons.H2O"
+        },
+        {
+          "path": "depth_Z.TLET.primary.H2O",
+          "output_type": "depth_Z.TLET.primary.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Depth QEFF, native medium, derived from LET spectra via ICRP-60 Q(L)",
+      "role": "derived",
+      "files": [
+        {
+          "path": "depth_Z.DQEFF.all.mat",
+          "output_type": "depth_Z.DQEFF.all.mat"
+        },
+        {
+          "path": "depth_Z.DQEFF.protons.mat",
+          "output_type": "depth_Z.DQEFF.protons.mat"
+        },
+        {
+          "path": "depth_Z.DQEFF.primary.mat",
+          "output_type": "depth_Z.DQEFF.primary.mat"
+        },
+        {
+          "path": "depth_Z.TQEFF.all.mat",
+          "output_type": "depth_Z.TQEFF.all.mat"
+        },
+        {
+          "path": "depth_Z.TQEFF.protons.mat",
+          "output_type": "depth_Z.TQEFF.protons.mat"
+        },
+        {
+          "path": "depth_Z.TQEFF.primary.mat",
+          "output_type": "depth_Z.TQEFF.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth QEFF-in-water - not yet in output_catalog.json",
+      "role": "raw_output",
+      "notes": "Computed via water_equivalent.py (Bragg-Gray, protons/primary only). Awaiting catalog extension for depth_Z.*QEFF.*.H2O - see issue tracker.",
+      "files": [
+        {
+          "path": "depth_Z.DQEFF.protons.H2O"
+        },
+        {
+          "path": "depth_Z.DQEFF.primary.H2O"
+        },
+        {
+          "path": "depth_Z.TQEFF.protons.H2O"
+        },
+        {
+          "path": "depth_Z.TQEFF.primary.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Target volume dose, native medium",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "target.DOSE.all.mat",
+          "output_type": "target.DOSE.all.mat"
+        }
+      ]
+    },
+    {
+      "description": "Target LET, native medium",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "target.DLET.all.mat",
+          "output_type": "target.DLET.all.mat"
+        },
+        {
+          "path": "target.DLET.protons.mat",
+          "output_type": "target.DLET.protons.mat"
+        },
+        {
+          "path": "target.DLET.primary.mat",
+          "output_type": "target.DLET.primary.mat"
+        },
+        {
+          "path": "target.TLET.all.mat",
+          "output_type": "target.TLET.all.mat"
+        },
+        {
+          "path": "target.TLET.protons.mat",
+          "output_type": "target.TLET.protons.mat"
+        },
+        {
+          "path": "target.TLET.primary.mat",
+          "output_type": "target.TLET.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Target LET-in-water, derived via Bragg-Gray conversion (protons/primary only)",
+      "role": "derived",
+      "notes": "Computed via water_equivalent.py.",
+      "files": [
+        {
+          "path": "target.DLET.protons.H2O",
+          "output_type": "target.DLET.protons.H2O"
+        },
+        {
+          "path": "target.DLET.primary.H2O",
+          "output_type": "target.DLET.primary.H2O"
+        },
+        {
+          "path": "target.TLET.protons.H2O",
+          "output_type": "target.TLET.protons.H2O"
+        },
+        {
+          "path": "target.TLET.primary.H2O",
+          "output_type": "target.TLET.primary.H2O"
+        }
+      ]
+    },
+    {
+      "description": "Target QEFF, native medium, derived from LET spectra via ICRP-60 Q(L)",
+      "role": "derived",
+      "files": [
+        {
+          "path": "target.DQEFF.all.mat",
+          "output_type": "target.DQEFF.all.mat"
+        },
+        {
+          "path": "target.DQEFF.protons.mat",
+          "output_type": "target.DQEFF.protons.mat"
+        },
+        {
+          "path": "target.DQEFF.primary.mat",
+          "output_type": "target.DQEFF.primary.mat"
+        },
+        {
+          "path": "target.TQEFF.all.mat",
+          "output_type": "target.TQEFF.all.mat"
+        },
+        {
+          "path": "target.TQEFF.protons.mat",
+          "output_type": "target.TQEFF.protons.mat"
+        },
+        {
+          "path": "target.TQEFF.primary.mat",
+          "output_type": "target.TQEFF.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Raw beam profile maps (not in output catalog)",
+      "role": "raw_output",
+      "files": [
+        {
+          "path": "xy_map.dat"
+        },
+        {
+          "path": "xz_map.dat"
+        }
+      ]
+    },
+    {
+      "description": "2D dose map PNG previews (lateral XY and longitudinal XZ)",
+      "role": "preview_image",
+      "files": [
+        {
+          "path": "xy_map_XY.png"
+        },
+        {
+          "path": "xz_map_XZ.png"
+        }
+      ]
+    },
+    {
+      "description": "Target differential fluence spectra, raw tally reformatting (no physics beyond what MCNP computed)",
+      "role": "primary_data",
+      "files": [
+        {
+          "path": "spectrum_target.FLUENCE.all.mat.vs_DEDX",
+          "output_type": "spectrum_target.FLUENCE.all.mat.vs_DEDX"
+        },
+        {
+          "path": "spectrum_target.FLUENCE.primary.mat.vs_LET",
+          "output_type": "spectrum_target.FLUENCE.primary.mat.vs_LET"
+        }
+      ]
+    },
+    {
+      "description": "Target differential fluence spectra, derived via Bragg-Gray energy recovery (silicon conversion / vs-EKIN axis)",
+      "role": "derived",
+      "notes": "Computed via compute_differential_spectra.py, reusing water_equivalent.py's Bragg-Gray inversion. Not produced: all.Si.vs_DEDX, all.mat.vs_EKIN (mixed-species LET has no single energy to invert), and deuterons/tritons/he3/alphas/heavy_recoils.mat.vs_EKIN (no per-species LET spectra scored at the target in this deck).",
+      "files": [
+        {
+          "path": "spectrum_target.FLUENCE.primary.Si.vs_DEDX",
+          "output_type": "spectrum_target.FLUENCE.primary.Si.vs_DEDX"
+        }
+      ]
+    },
+    {
+      "description": "Target differential fluence spectrum vs EKIN (protons) - not yet in output_catalog.json",
+      "role": "raw_output",
+      "notes": "Computed via compute_differential_spectra.py (Bragg-Gray energy recovery). Awaiting catalog extension for spectrum_target.FLUENCE.protons.mat.vs_EKIN - see README troubleshooting section.",
+      "files": [
+        {
+          "path": "spectrum_target.FLUENCE.protons.mat.vs_EKIN"
+        }
       ]
     }
   ]
