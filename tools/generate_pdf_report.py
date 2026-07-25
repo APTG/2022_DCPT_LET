@@ -164,12 +164,17 @@ def stairs_xy(x: np.ndarray, y: np.ndarray, *, log_spacing: bool) -> tuple[np.nd
     return np.repeat(edges, 2)[1:-1], np.repeat(y, 2)
 
 
+def spectrum_log_x(meta: dict) -> bool:
+    return meta.get("geometry") == "spectrum_target" and meta.get("diff_axis") == "ENUC"
+
+
 def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
                  meta: dict, is_spectrum: bool) -> None:
     is_depth_fluence = (
         meta.get("geometry") == "depth_Z"
         and meta.get("quantity") == "FLUENCE"
     )
+    log_x = spectrum_log_x(meta)
     log_y = is_spectrum or is_depth_fluence
 
     for t in traces:
@@ -182,14 +187,14 @@ def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
             print(f"  WARNING: cannot read {t['path']}: {exc}")
             continue
 
-        if is_spectrum:
+        if log_x:
             positive_x = x > 0
             x = x[positive_x]
             y = y[positive_x]
             if yerr is not None:
                 yerr = yerr[positive_x]
             if x.size == 0:
-                print(f"  WARNING: cannot plot {t['path']}: no positive bins for log-log spectrum")
+                print(f"  WARNING: cannot plot {t['path']}: no positive x values for log-x plot")
                 continue
 
         if log_y:
@@ -201,7 +206,7 @@ def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
             if yerr is not None:
                 yerr = np.where(positive_y, yerr, np.nan)
 
-        x_plot, y_plot = stairs_xy(x, y, log_spacing=is_spectrum)
+        x_plot, y_plot = stairs_xy(x, y, log_spacing=log_x)
         yerr_plot = np.repeat(yerr, 2) if yerr is not None else None
 
         kw: dict = dict(color=color, label=name, linewidth=1.2)
@@ -213,7 +218,7 @@ def draw_profile(ax: plt.Axes, traces: list[dict], code_styles: dict,
     ax.set_ylabel(_axis_label(meta, "axis_y"), fontsize=8)
     ax.tick_params(labelsize=7)
     ax.grid(True, alpha=0.3)
-    if is_spectrum:
+    if log_x:
         ax.set_xscale("log")
     if log_y:
         ax.set_yscale("log")

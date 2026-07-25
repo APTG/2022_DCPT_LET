@@ -95,6 +95,14 @@ SPECTRUM_OUTPUTS = {
     ),
 }
 
+SPECTRUM_SCORERS = {
+    "spectrum_target.FLUENCE.protons.mat.vs_ENUC": "sp_p",
+    "spectrum_target.FLUENCE.deuterons.mat.vs_ENUC": "sp_d",
+    "spectrum_target.FLUENCE.tritons.mat.vs_ENUC": "sp_t",
+    "spectrum_target.FLUENCE.he3.mat.vs_ENUC": "sp_he3",
+    "spectrum_target.FLUENCE.alphas.mat.vs_ENUC": "sp_a",
+}
+
 MAP_OUTPUTS = {
     "map_XZ.DOSE.all.mat": "NB_XZ_map_p1.png",
     "map_XY.DOSE.all.mat": "NB_XY_p1.png",
@@ -136,16 +144,21 @@ def read_target_enuc_grid(plan: str) -> np.ndarray:
     """Return the SH12A ENUC spectrum bin centres for NB_target_diff_p05..p11."""
     detect = REPO_ROOT / "data" / "sh12a" / "input" / plan / "detect.dat"
     emin, emax, nbins = 0.1, 300.0, 150
+    log_bins = True
     if detect.is_file():
         lines = detect.read_text().splitlines()
         for i, ln in enumerate(lines):
             if "Diff1Type" in ln and "ENUC" in ln:
                 for pln in reversed(lines[max(0, i - 3) : i]):
-                    m = re.match(r"\s*Diff1\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(\d+)", pln)
+                    m = re.match(r"\s*Diff1\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(\d+)(.*)", pln)
                     if m:
                         emin, emax, nbins = float(m[1]), float(m[2]), int(m[3])
+                        log_bins = "LOG" in m[4].upper()
                         break
                 break
+    if log_bins and emin > 0.0 and emax > 0.0:
+        edges = np.geomspace(emin, emax, nbins + 1)
+        return np.sqrt(edges[:-1] * edges[1:])
     edges = np.linspace(emin, emax, nbins + 1)
     return 0.5 * (edges[:-1] + edges[1:])
 
@@ -183,6 +196,17 @@ def topas_length_cm(param_file: Path | None, key: str, seen: set[str] | None = N
             return length * 100.0
         return length
     return 0.0
+
+
+def topas_bool_param(param_file: Path | None, key: str) -> bool:
+    if param_file is None or not param_file.is_file():
+        return False
+    pattern = re.compile(rf"^\s*b:{re.escape(key)}\s*=\s*\"?([^\"\s#]+)\"?", re.IGNORECASE)
+    for line in param_file.read_text(errors="ignore").splitlines():
+        m = pattern.match(line)
+        if m:
+            return m[1].lower() == "true"
+    return False
 
 
 def topas_output_scale(output_type: str, histories: int | None) -> float:
@@ -272,6 +296,7 @@ def topas_enuc_spectrum(csv_path: Path, target_enuc: np.ndarray, scale: float, m
     NOTE: best-effort CSV parse; validate the column/row layout against a real
     TOPAS EBins output on the first run."""
     emin, emax, nbins = 0.0, 250.0, None
+    log_bins = False
     vals: list[float] = []
     for line in csv_path.read_text(errors="ignore").splitlines():
         s = line.strip()
@@ -283,6 +308,7 @@ def topas_enuc_spectrum(csv_path: Path, target_enuc: np.ndarray, scale: float, m
             )
             if m:
                 nbins, emin, emax = int(m[1]), float(m[2]), float(m[3])
+                log_bins = "log" in s.lower()
             continue
         cols = [c.strip() for c in s.split(",") if c.strip()]
         try:
@@ -301,9 +327,18 @@ def topas_enuc_spectrum(csv_path: Path, target_enuc: np.ndarray, scale: float, m
             f"  warning: {csv_path.name} header says {nbins} energy bins, parsed {len(v)}",
             file=sys.stderr,
         )
-    edges_total = np.linspace(emin, emax, len(v) + 1)
-    ecen_enuc = 0.5 * (edges_total[:-1] + edges_total[1:]) / mass_number
-    ewidth_total = edges_total[1] - edges_total[0]
+    param_file = topas_parameter_file(csv_path)
+    scorer = SPECTRUM_SCORERS.get(csv_path.stem)
+    if scorer is not None:
+        log_bins = log_bins or topas_bool_param(param_file, f"Sc/{scorer}/EBinLog")
+    if log_bins and emin > 0.0 and emax > 0.0:
+        edges_total = np.geomspace(emin, emax, len(v) + 1)
+        ecen_total = np.sqrt(edges_total[:-1] * edges_total[1:])
+    else:
+        edges_total = np.linspace(emin, emax, len(v) + 1)
+        ecen_total = 0.5 * (edges_total[:-1] + edges_total[1:])
+    ecen_enuc = ecen_total / mass_number
+    ewidth_total = np.diff(edges_total)
     # dE_total = A * dENUC, so dPhi/dENUC = A * dPhi/dE_total.
     density = v * scale * mass_number / ewidth_total
     val_i = np.interp(target_enuc, ecen_enuc, density, left=0.0, right=0.0)
