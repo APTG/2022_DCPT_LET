@@ -866,6 +866,7 @@ def render_plot_card(
     thumb = ""
     if catalog_meta.get("render_as") in ("line_plot", "spectrum_plot"):
         is_spectrum = catalog_meta.get("geometry") == "spectrum_target"
+        log_x = is_spectrum and catalog_meta.get("diff_axis") == "ENUC"
         is_depth_fluence = (
             catalog_meta.get("geometry") == "depth_Z"
             and catalog_meta.get("quantity") == "FLUENCE"
@@ -876,7 +877,7 @@ def render_plot_card(
             title=catalog_meta.get("label", output_type),
             class_name="plot-thumb",
             detector_plate=detector_plate if catalog_meta.get("geometry") == "depth_Z" else None,
-            log_x=is_spectrum,
+            log_x=log_x,
             log_y=is_spectrum or is_depth_fluence,
         )
     pills = " ".join(code_pill(c, code_styles, size="small") for c in sorted(codes))
