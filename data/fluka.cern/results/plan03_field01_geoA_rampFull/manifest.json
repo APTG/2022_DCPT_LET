@@ -1,0 +1,123 @@
+{
+  "schema_version": "1",
+  "plan": "plan03_field01_geoA_rampFull",
+  "code": {
+    "name": "FLUKA.cern",
+    "short": "FLUKA.cern",
+    "version": "4-5.1",
+    "notes": "Custom FLUKA source sampler and LET/dose user routine. Browser depth profiles exported from validated 150M post-processed CSVs."
+  },
+  "provenance": {
+    "date": "2026-08-26",
+    "input_path": "data/fluka.cern/input/plan03_field01_geoA_rampFull",
+    "runner": "dewh",
+    "git_ref": "ALLLET_8CASES_150M_20260724 production workflow"
+  },
+  "statistics": {
+    "n_primaries": 150000000,
+    "normalization": "per_primary"
+  },
+  "frame": {
+    "native": "mc+z",
+    "to_patient": "Depth profiles are exported on the shared isocenter-referenced Z_narrow depth grid in cm, increasing downstream along the beam.",
+    "beam_model": "v2",
+    "source_plane_cm": 50
+  },
+  "capabilities": {
+    "notes": "150M browser export includes 1D Z_narrow dose, fluence, local/material LET, and selected water LET depth profiles. Local/material LET includes all charged particles, all protons, and primary protons. Water LET is exported for all protons and primary protons only. Relative-error columns are set to zero because per-bin statistical uncertainties are not carried by the current FLUKA post-processing CSVs."
+  },
+  "outputs": [
+    {
+      "description": "Depth profiles - dose in material (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA 150M post-processed CSVs. Values are MeV/g/primary. Relative-error column is present but set to zero because the current post-processed FLUKA CSVs do not carry per-bin statistical uncertainties.",
+      "files": [
+        {
+          "path": "depth_Z.DOSE.all.mat",
+          "output_type": "depth_Z.DOSE.all.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.protons.mat",
+          "output_type": "depth_Z.DOSE.protons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.primary.mat",
+          "output_type": "depth_Z.DOSE.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - fluence in material (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA 150M post-processed CSVs. Values are 1/cm^2/primary. Relative-error column is present but set to zero because the current post-processed FLUKA CSVs do not carry per-bin statistical uncertainties.",
+      "files": [
+        {
+          "path": "depth_Z.FLUENCE.all.mat",
+          "output_type": "depth_Z.FLUENCE.all.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.protons.mat",
+          "output_type": "depth_Z.FLUENCE.protons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.primary.mat",
+          "output_type": "depth_Z.FLUENCE.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - LET in material (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA 150M post-processed CSVs. Local/material LET values are MeV/cm. Relative-error column is present but set to zero because the current post-processed FLUKA CSVs do not carry per-bin statistical uncertainties.",
+      "files": [
+        {
+          "path": "depth_Z.DLET.all.mat",
+          "output_type": "depth_Z.DLET.all.mat"
+        },
+        {
+          "path": "depth_Z.DLET.protons.mat",
+          "output_type": "depth_Z.DLET.protons.mat"
+        },
+        {
+          "path": "depth_Z.DLET.primary.mat",
+          "output_type": "depth_Z.DLET.primary.mat"
+        },
+        {
+          "path": "depth_Z.TLET.all.mat",
+          "output_type": "depth_Z.TLET.all.mat"
+        },
+        {
+          "path": "depth_Z.TLET.protons.mat",
+          "output_type": "depth_Z.TLET.protons.mat"
+        },
+        {
+          "path": "depth_Z.TLET.primary.mat",
+          "output_type": "depth_Z.TLET.primary.mat"
+        }
+      ]
+    },
+    {
+      "description": "Depth profiles - LET in water (Z_narrow)",
+      "role": "derived",
+      "notes": "Exported from FLUKA 150M post-processed CSVs. Water LET values are MeV/cm. Only proton and primary-proton water LET are exported here. Relative-error column is present but set to zero because the current post-processed FLUKA CSVs do not carry per-bin statistical uncertainties.",
+      "files": [
+        {
+          "path": "depth_Z.DLET.protons.H2O",
+          "output_type": "depth_Z.DLET.protons.H2O"
+        },
+        {
+          "path": "depth_Z.DLET.primary.H2O",
+          "output_type": "depth_Z.DLET.primary.H2O"
+        },
+        {
+          "path": "depth_Z.TLET.protons.H2O",
+          "output_type": "depth_Z.TLET.protons.H2O"
+        },
+        {
+          "path": "depth_Z.TLET.primary.H2O",
+          "output_type": "depth_Z.TLET.primary.H2O"
+        }
+      ]
+    }
+  ]
+}
