@@ -1,1 +1,4 @@
-FLUKA.cern 4-5.1, ALLLET_8CASES_150M_20260724, 150000000 primaries per case
+filedate: Mon, 17 Aug 2026 14:24:02 +0200
+mc_code_version: 4-5.1
+number_of_primaries: 150000000
+normalization: per_primary

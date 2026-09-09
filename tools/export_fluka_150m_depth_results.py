@@ -3,6 +3,7 @@ import argparse
 import csv
 import json
 from pathlib import Path
+from datetime import datetime
 
 CASES = [
     "plan01_field01_geoA_SOBPcent",
@@ -157,7 +158,14 @@ def main():
                 write_mat(out_dir / filename, rows, column)
 
         if args.write:
-            (out_dir / "VERSION.txt").write_text("FLUKA.cern 4-5.1, ALLLET_8CASES_150M_20260724, 150000000 primaries per case\n")
+            filedate = datetime.fromtimestamp(csv_path.stat().st_mtime).astimezone()
+
+            (out_dir / "VERSION.txt").write_text(
+                f"filedate: {filedate:%a, %d %b %Y %H:%M:%S %z}\n"
+                "mc_code_version: 4-5.1\n"
+                "number_of_primaries: 150000000\n"
+                "normalization: per_primary\n"
+            )
             (out_dir / "manifest.json").write_text(json.dumps(make_manifest(case), indent=2) + "\n")
 
     if args.write:
