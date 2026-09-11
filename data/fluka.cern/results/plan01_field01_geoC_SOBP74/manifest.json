@@ -60,6 +60,22 @@
           "output_type": "depth_Z.FLUENCE.protons.mat"
         },
         {
+          "path": "depth_Z.FLUENCE.deuterons.mat",
+          "output_type": "depth_Z.FLUENCE.deuterons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.tritons.mat",
+          "output_type": "depth_Z.FLUENCE.tritons.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.he3.mat",
+          "output_type": "depth_Z.FLUENCE.he3.mat"
+        },
+        {
+          "path": "depth_Z.FLUENCE.alphas.mat",
+          "output_type": "depth_Z.FLUENCE.alphas.mat"
+        },
+        {
           "path": "depth_Z.FLUENCE.primary.mat",
           "output_type": "depth_Z.FLUENCE.primary.mat"
         }
