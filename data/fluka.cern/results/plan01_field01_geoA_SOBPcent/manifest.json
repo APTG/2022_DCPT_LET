@@ -41,6 +41,22 @@
           "output_type": "depth_Z.DOSE.protons.mat"
         },
         {
+          "path": "depth_Z.DOSE.deuterons.mat",
+          "output_type": "depth_Z.DOSE.deuterons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.tritons.mat",
+          "output_type": "depth_Z.DOSE.tritons.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.he3.mat",
+          "output_type": "depth_Z.DOSE.he3.mat"
+        },
+        {
+          "path": "depth_Z.DOSE.alphas.mat",
+          "output_type": "depth_Z.DOSE.alphas.mat"
+        },
+        {
           "path": "depth_Z.DOSE.primary.mat",
           "output_type": "depth_Z.DOSE.primary.mat"
         }
