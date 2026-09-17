@@ -12,6 +12,17 @@
       "text": "includes electrons"
     },
     {
+      "id": "topas-spectrum-prestep-energy",
+      "title": "OpenTOPAS spectra",
+      "codes": ["topas"],
+      "match": {
+        "geometry": "spectrum_target",
+        "quantity": "FLUENCE",
+        "diff_axis": "ENUC"
+      },
+      "text": "energy bins use pre-step kinetic energy; SHIELD-HIT12A/OpenShieldHIT use step-mean kinetic energy"
+    },
+    {
       "id": "mcnp-postprocessed-derived",
       "title": "MCNP",
       "codes": ["mcnp"],

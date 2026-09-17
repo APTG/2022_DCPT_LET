@@ -59,7 +59,7 @@ is a dotted code:
 | QUANTITY    | `DOSE`, `DIRTYDOSE`, `FLUENCE`, `DLET`, `TLET`, `DQEFF`, `TQEFF` |
 | particle    | `all`, `primary`, `protons`, `deuterons`, `tritons`, `he3`, `alphas`, `heavy_recoils` |
 | medium      | `mat` (geometry medium), `H2O` (water), `Si` (explicit silicon) |
-| differential| `vs_DEDX`, `vs_LET`, `vs_EKIN` (spectra only) |
+| differential| `vs_DEDX`, `vs_LET`, `vs_ENUC` (spectra only) |
 
 > ⚠️ `DIRTYDOSE` is a **proposed** new code token for the dirty-dose scorer, to be
 > confirmed before the manifests are updated.
@@ -176,13 +176,13 @@ is a dotted code:
 | p2  | Fluence | Primary   | LET (0–2000)           | —      | `spectrum_target.FLUENCE.primary.mat.vs_LET` |
 | p3  | Fluence | —         | DEDX (0–2000)          | in_Si  | `spectrum_target.FLUENCE.all.Si.vs_DEDX` |
 | p4  | Fluence | Primary   | DEDX (0–2000)          | in_Si  | `spectrum_target.FLUENCE.primary.Si.vs_DEDX` |
-| p5  | Fluence | —         | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.all.mat.vs_EKIN` |
-| p6  | Fluence | Protons   | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.protons.mat.vs_EKIN` |
-| p7  | Fluence | Deuterons | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.deuterons.mat.vs_EKIN` |
-| p8  | Fluence | Tritons   | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.tritons.mat.vs_EKIN` |
-| p9  | Fluence | He3       | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.he3.mat.vs_EKIN` |
-| p10 | Fluence | Alphas    | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.alphas.mat.vs_EKIN` |
-| p11 | Fluence | HeavyRec  | EKIN (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.heavy_recoils.mat.vs_EKIN` |
+| p5  | Fluence | —         | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.all.mat.vs_ENUC` |
+| p6  | Fluence | Protons   | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.protons.mat.vs_ENUC` |
+| p7  | Fluence | Deuterons | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.deuterons.mat.vs_ENUC` |
+| p8  | Fluence | Tritons   | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.tritons.mat.vs_ENUC` |
+| p9  | Fluence | He3       | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.he3.mat.vs_ENUC` |
+| p10 | Fluence | Alphas    | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.alphas.mat.vs_ENUC` |
+| p11 | Fluence | HeavyRec  | ENUC (0.1–300 LOG)     | —      | `spectrum_target.FLUENCE.heavy_recoils.mat.vs_ENUC` |
 
 ### `NB_target_water.bdo` — target scalars in water (`Geo TARGET`)
 

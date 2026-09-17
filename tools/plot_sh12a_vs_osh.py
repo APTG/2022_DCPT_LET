@@ -45,10 +45,12 @@ QUANTITY_UNITS = {
 DIFF_TYPE_LABELS = {
     "DEDX": "DEDX",
     "LET": "LET",
+    "ENUC": "energy per nucleon",
 }
 DIFF_TYPE_UNITS = {
     "DEDX": "MeV/cm",
     "LET": "MeV/cm",
+    "ENUC": "MeV/u",
 }
 
 
@@ -127,6 +129,10 @@ def is_diff_plot(rel_path: Path, page_meta: PageMetadata | None) -> bool:
     if page_meta and page_meta.diff1_type:
         return True
     return "_diff_" in f"_{rel_path.stem}_"
+
+
+def diff_log_x(page_meta: PageMetadata | None) -> bool:
+    return bool(page_meta and page_meta.diff1_type == "ENUC")
 
 
 def infer_x_label(rel_path: Path, page_meta: PageMetadata | None) -> str:
@@ -341,12 +347,21 @@ def load_xy(path: Path) -> tuple[np.ndarray, np.ndarray]:
     return x, y
 
 
-def centers_to_edges(x: np.ndarray) -> np.ndarray:
+def centers_to_edges(x: np.ndarray, *, log_spacing: bool = False) -> np.ndarray:
     if x.ndim != 1 or x.size == 0:
         raise ValueError("x must be a non-empty 1D array")
     if x.size == 1:
+        if log_spacing and x[0] > 0:
+            return np.array([x[0] / np.sqrt(10.0), x[0] * np.sqrt(10.0)], dtype=float)
         width = max(abs(x[0]) * 0.1, 1.0)
         return np.array([x[0] - width / 2.0, x[0] + width / 2.0], dtype=float)
+
+    if log_spacing and np.all(x > 0):
+        edges = np.empty(x.size + 1, dtype=float)
+        edges[1:-1] = np.sqrt(x[:-1] * x[1:])
+        edges[0] = x[0] ** 2 / edges[1]
+        edges[-1] = x[-1] ** 2 / edges[-2]
+        return edges
 
     midpoints = 0.5 * (x[:-1] + x[1:])
     left_edge = x[0] - (midpoints[0] - x[0])
@@ -418,10 +433,18 @@ def make_plot(
     if hint:
         title_bottom_parts.append(f"input: {hint}")
 
-    use_loglog = is_diff_plot(rel_path, page_meta)
-    if use_loglog:
-        sh_mask = np.isfinite(x_sh) & np.isfinite(y_sh) & (x_sh > 0) & (y_sh > 0)
-        osh_mask = np.isfinite(x_osh) & np.isfinite(y_osh) & (x_osh > 0) & (y_osh > 0)
+    is_diff = is_diff_plot(rel_path, page_meta)
+    log_x = diff_log_x(page_meta)
+    log_y = is_diff
+    if log_x or log_y:
+        sh_mask = np.isfinite(x_sh) & np.isfinite(y_sh)
+        osh_mask = np.isfinite(x_osh) & np.isfinite(y_osh)
+        if log_x:
+            sh_mask &= x_sh > 0
+            osh_mask &= x_osh > 0
+        if log_y:
+            sh_mask &= y_sh > 0
+            osh_mask &= y_osh > 0
     else:
         sh_mask = np.isfinite(x_sh) & np.isfinite(y_sh)
         osh_mask = np.isfinite(x_osh) & np.isfinite(y_osh)
@@ -435,30 +458,22 @@ def make_plot(
         raise ValueError("no plottable samples after filtering")
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    if use_loglog:
-        sh_pos_mask = y_sh_plot > 0
-        osh_pos_mask = y_osh_plot > 0
-        x_sh_plot = x_sh_plot[sh_pos_mask]
-        y_sh_plot = y_sh_plot[sh_pos_mask]
-        x_osh_plot = x_osh_plot[osh_pos_mask]
-        y_osh_plot = y_osh_plot[osh_pos_mask]
-        if x_sh_plot.size == 0 or x_osh_plot.size == 0:
-            raise ValueError("no positive plottable samples for differential plot")
-
-    if use_loglog:
-        sh_edges = centers_to_edges(x_sh_plot)
-        osh_edges = centers_to_edges(x_osh_plot)
-        if sh_edges[0] <= 0:
+    if is_diff:
+        sh_edges = centers_to_edges(x_sh_plot, log_spacing=log_x)
+        osh_edges = centers_to_edges(x_osh_plot, log_spacing=log_x)
+        if log_x and sh_edges[0] <= 0:
             sh_edges[0] = max(np.nextafter(0.0, 1.0), x_sh_plot[0] / 2.0)
-        if osh_edges[0] <= 0:
+        if log_x and osh_edges[0] <= 0:
             osh_edges[0] = max(np.nextafter(0.0, 1.0), x_osh_plot[0] / 2.0)
         ax.stairs(y_sh_plot, sh_edges, lw=1.8, label="SH12A", baseline=None)
         ax.stairs(y_osh_plot, osh_edges, lw=1.5, ls="--", label="OpenShieldHit", baseline=None)
-        ax.set_xscale("log")
-        ax.set_yscale("log")
     else:
         ax.plot(x_sh_plot, y_sh_plot, lw=1.8, label="SH12A")
         ax.plot(x_osh_plot, y_osh_plot, lw=1.5, ls="--", label="OpenShieldHit")
+    if log_x:
+        ax.set_xscale("log")
+    if log_y:
+        ax.set_yscale("log")
     ax.set_title(" | ".join(title_top_parts) + "\n" + " | ".join(title_bottom_parts))
     ax.set_xlabel(infer_x_label(rel_path, page_meta))
     ax.set_ylabel(infer_y_label(page_meta))

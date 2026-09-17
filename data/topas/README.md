@@ -134,8 +134,8 @@ data/topas/postprocess_local.sh [plan ...]
 
 Converts `results/output/<plan>/*.csv` (untracked scratch) into the tracked
 `results/<plan>/` products: depth `.dat` (depth = +Z resampled onto the SH12A grid,
-**no flip**), ENUC spectra `.dat` (total E → E/A per integer nucleon), 2D-map PNGs,
-`VERSION.txt`, and `manifest.json`.
+**no flip**), ENUC spectra `.dat` (log-binned PreStep total E -> E/A per integer
+nucleon), 2D-map PNGs, `VERSION.txt`, and `manifest.json`.
 
 ## Git tracking
 

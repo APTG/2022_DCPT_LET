@@ -19,12 +19,15 @@ Columns are:
 2) E_real: actual energy derived from range measurements [MeV]
 3) E_real_sigma: energy spread 1-sigma Gaussian [MeV]
 4) protons/MU: number of protons per given monitor Unit (this is proportional to air mass stopping power)
-5) x: spot size 1sigma [mm]
-6) y: spot size 1sigma [mm]
-7) x': divergence [rad]
-8) y': divergence [rad]
-9) xx': correlation coefficient [-]
-10) yy': correlation coefficient [-]
+
+The transverse beam parameters are Gaussian phase-space parameters: columns 5-8 are 1-sigma widths, while columns 9-10 are dimensionless correlation coefficients. Do not confuse these with the products x*x' and y*y', or with the covariances cov(x,x') and cov(y,y').
+
+5) `sigma_x = sqrt(<x^2>)`: horizontal spot size, 1-sigma [mm]
+6) `sigma_y = sqrt(<y^2>)`: vertical spot size, 1-sigma [mm]
+7) `sigma_x' = sqrt(<x'^2>)`: horizontal angular divergence, 1-sigma [rad]
+8) `sigma_y' = sqrt(<y'^2>)`: vertical angular divergence, 1-sigma [rad]
+9) `corr(x,x') = <x x'> / (sigma_x sigma_x')`: horizontal phase-space correlation coefficient [-]
+10) `corr(y,y') = <y y'> / (sigma_y sigma_y')`: vertical phase-space correlation coefficient [-]
 
 
 

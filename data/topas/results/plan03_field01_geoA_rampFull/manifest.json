@@ -12,12 +12,12 @@
     "beam_model": "v2"
   },
   "provenance": {
-    "date": "2026-07-23",
+    "date": "2026-07-26",
     "input_path": "data/topas/input/plan03_field01_geoA_rampFull"
   },
   "statistics": {
     "normalization": "per_primary",
-    "n_primaries": 1000000
+    "n_primaries": 100000000
   },
   "capabilities": {
     "notes": "Native TOPAS smoke-test outputs. Native ProtonLET depth profiles are available for primary/all protons in material only; all-charged LET, water LET, Qeff, heavy recoils, and corrected LET spectra are not yet produced."

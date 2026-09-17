@@ -202,6 +202,10 @@ def stairs_xy(x: np.ndarray, y: np.ndarray, *, log_spacing: bool) -> tuple[np.nd
     return np.repeat(edges, 2)[1:-1], np.repeat(y, 2)
 
 
+def spectrum_log_x(meta: dict) -> bool:
+    return meta.get("geometry") == "spectrum_target" and meta.get("diff_axis") == "ENUC"
+
+
 def make_profile_figure(
     meta: dict,
     traces: list[dict],
@@ -228,6 +232,7 @@ def make_profile_figure(
         meta.get("geometry") == "depth_Z"
         and meta.get("quantity") == "FLUENCE"
     )
+    log_x = spectrum_log_x(meta)
     log_y = is_spectrum or is_depth_fluence
     fig = go.Figure()
 
@@ -243,14 +248,14 @@ def make_profile_figure(
                 print(f"  WARNING: cannot read {path}: {exc}")
                 continue
 
-            if is_spectrum:
+            if log_x:
                 positive_x = x > 0
                 x = x[positive_x]
                 y = y[positive_x]
                 if yerr is not None:
                     yerr = yerr[positive_x]
                 if x.size == 0:
-                    print(f"  WARNING: cannot plot {path}: no positive bins for log-log spectrum")
+                    print(f"  WARNING: cannot plot {path}: no positive x values for log-x plot")
                     continue
 
             if log_y:
@@ -262,7 +267,7 @@ def make_profile_figure(
                 if yerr is not None:
                     yerr = np.where(positive_y, yerr, np.nan)
 
-            x_plot, y_plot = stairs_xy(x, y, log_spacing=is_spectrum)
+            x_plot, y_plot = stairs_xy(x, y, log_spacing=log_x)
             yerr_plot = np.repeat(yerr, 2) if yerr is not None else None
 
             if len(paths) == 1:
@@ -320,7 +325,7 @@ def make_profile_figure(
         margin={"l": 70, "r": 20, "t": 80, "b": 60},
     )
     fig.update_xaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
-                     type="log" if is_spectrum else "linear")
+                     type="log" if log_x else "linear")
     fig.update_yaxes(showgrid=True, gridcolor="#e0e0e0", zeroline=False,
                      type="log" if log_y else "linear",
                      exponentformat="power" if log_y else "e",
