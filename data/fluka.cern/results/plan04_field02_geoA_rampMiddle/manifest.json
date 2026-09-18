@@ -8,10 +8,10 @@
     "notes": "Custom FLUKA source sampler and LET/dose user routine. Browser depth profiles exported from validated 150M post-processed CSVs."
   },
   "provenance": {
-    "date": "2026-08-26",
+    "date": "2026-09-14",
     "input_path": "data/fluka.cern/input/plan04_field02_geoA_rampMiddle",
     "runner": "dewh",
-    "git_ref": "ALLLET_8CASES_150M_20260724 production workflow"
+    "git_ref": "ALLLET_plan04_field02_geoA_rampMiddle_150M_CORRECTED_20260914; RampMiddle source; 7708 beamlets"
   },
   "statistics": {
     "n_primaries": 150000000,

@@ -46,12 +46,28 @@ GROUPS = [
     (
         "Depth profiles - dose in material (Z_narrow)",
         "Exported from FLUKA 150M post-processed CSVs. Values are MeV/g/primary.",
-        ["depth_Z.DOSE.all.mat", "depth_Z.DOSE.protons.mat", "depth_Z.DOSE.primary.mat"],
+        [
+            "depth_Z.DOSE.all.mat",
+            "depth_Z.DOSE.protons.mat",
+            "depth_Z.DOSE.deuterons.mat",
+            "depth_Z.DOSE.tritons.mat",
+            "depth_Z.DOSE.he3.mat",
+            "depth_Z.DOSE.alphas.mat",
+            "depth_Z.DOSE.primary.mat",
+        ],
     ),
     (
         "Depth profiles - fluence in material (Z_narrow)",
         "Exported from FLUKA 150M post-processed CSVs. Values are 1/cm^2/primary.",
-        ["depth_Z.FLUENCE.all.mat", "depth_Z.FLUENCE.protons.mat", "depth_Z.FLUENCE.primary.mat"],
+        [
+            "depth_Z.FLUENCE.all.mat",
+            "depth_Z.FLUENCE.protons.mat",
+            "depth_Z.FLUENCE.deuterons.mat",
+            "depth_Z.FLUENCE.tritons.mat",
+            "depth_Z.FLUENCE.he3.mat",
+            "depth_Z.FLUENCE.alphas.mat",
+            "depth_Z.FLUENCE.primary.mat",
+        ],
     ),
     (
         "Depth profiles - LET in material (Z_narrow)",
@@ -88,7 +104,7 @@ def write_mat(path, rows, column):
             value = float(row[column])
             f.write(f"{z:g} {value:.12e} 0\n")
 
-def make_manifest(case):
+def make_manifest(case, provenance_date, provenance_git_ref):
     outputs = []
     for description, notes, files in GROUPS:
         outputs.append({
@@ -111,10 +127,10 @@ def make_manifest(case):
             "notes": "Custom FLUKA source sampler and LET/dose user routine. Browser depth profiles exported from validated 150M post-processed CSVs.",
         },
         "provenance": {
-            "date": "2026-08-26",
+            "date": provenance_date,
             "input_path": f"data/fluka.cern/input/{case}",
             "runner": "dewh",
-            "git_ref": "ALLLET_8CASES_150M_20260724 production workflow",
+            "git_ref": provenance_git_ref,
         },
         "statistics": {
             "n_primaries": 150000000,
@@ -135,10 +151,35 @@ def make_manifest(case):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true", help="Actually write files. Without this, only print planned mapping.")
+    ap.add_argument(
+        "--csv-root",
+        type=Path,
+        default=CSV_ROOT,
+        help=f"Root directory containing per-case 150M CSVs (default: {CSV_ROOT})",
+    )
+    ap.add_argument(
+        "--case",
+        dest="cases",
+        action="append",
+        choices=CASES,
+        help="Export only this case. May be supplied multiple times. Default: all cases.",
+    )
+    ap.add_argument(
+        "--provenance-date",
+        default="2026-08-26",
+        help="Production/provenance date written to manifest.json.",
+    )
+    ap.add_argument(
+        "--provenance-git-ref",
+        default="ALLLET_8CASES_150M_20260724 production workflow",
+        help="Production workflow identifier written to manifest.json.",
+    )
     args = ap.parse_args()
 
-    for case in CASES:
-        csv_path = CSV_ROOT / case / f"{case}_ALLLET_150M_absolute_vs_SHIELDHIT.csv"
+    selected_cases = args.cases if args.cases else CASES
+
+    for case in selected_cases:
+        csv_path = args.csv_root / case / f"{case}_ALLLET_150M_absolute_vs_SHIELDHIT.csv"
         out_dir = OUT_ROOT / case
         rows = read_csv_rows(csv_path)
 
@@ -166,7 +207,7 @@ def main():
                 "number_of_primaries: 150000000\n"
                 "normalization: per_primary\n"
             )
-            (out_dir / "manifest.json").write_text(json.dumps(make_manifest(case), indent=2) + "\n")
+            (out_dir / "manifest.json").write_text(json.dumps(make_manifest(case, args.provenance_date, args.provenance_git_ref), indent=2) + "\n")
 
     if args.write:
         print()
