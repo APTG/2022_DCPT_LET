@@ -1,0 +1,4 @@
+filedate: Tue, 15 Sep 2026 09:49:01 +0200
+mc_code_version: 4-5.1
+number_of_primaries: 150000000
+normalization: per_primary
