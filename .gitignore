@@ -270,3 +270,7 @@ for017
 
 *.bdo
 run_*/
+
+# MCNP outputs (input <name>.inp -> <name>.inpo output, <name>.inpd mesh dump)
+*.inpo
+*.inpd

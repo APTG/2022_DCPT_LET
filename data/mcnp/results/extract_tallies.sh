@@ -25,17 +25,21 @@
 #   - target.{DLET,TLET}.{primary,protons}.H2O : water-equivalent target LET
 #     only (target DOSE/DQEFF/TQEFF-in-water intentionally not produced).
 #   - xy_map.dat / xz_map.dat                  : lateral / longitudinal 2D
-#     mesh maps, parsed from the companion ".d" mesh-dump file (see below).
+#     mesh maps, parsed from the companion mesh-dump file (see below).
 #   - spectrum_target.FLUENCE.all.mat.vs_DEDX, .primary.mat.vs_LET,
 #     .primary.Si.vs_DEDX, .protons.mat.vs_EKIN : target differential
 #     fluence spectra (see compute_differential_spectra.py for which
 #     NB_target_diff.bdo pages these correspond to, and why the rest of
 #     that table isn't produced here).
 #
-# 2D-map input file convention: the mesh dump file is expected to share the
-# basename of the MCNP output file, with extension ".d" instead of ".o".
-# e.g. output file "run03.o" -> mesh dump "run03.d" (same directory). If no
-# such file is found, the 2D-map step is skipped with a warning (not fatal).
+# 2D-map input file convention: MCNP names its outputs by appending a letter
+# to the input file name ("o" for the output, "d" for the mesh dump), so the
+# mesh dump is the output file name with its trailing "o" replaced by "d"
+# (same directory):
+#   input "plan01.inp" -> output "plan01.inpo" -> mesh dump "plan01.inpd"
+#   input "run03."     -> output "run03.o"     -> mesh dump "run03.d"
+# If no such file is found, the 2D-map step is skipped with a warning (not
+# fatal).
 #
 # Locale: LC_ALL/LC_NUMERIC are forced to "C" so awk and python always print
 # numbers with a decimal POINT, regardless of the system locale.
@@ -57,9 +61,14 @@ if [[ ! -f "$INFILE" ]]; then
     exit 1
 fi
 
-# companion 2D mesh-dump file: same basename as INFILE, extension .d instead
-# of whatever INFILE's extension is (normally .o).
-MDATA="${INFILE%.*}.d"
+# companion 2D mesh-dump file: INFILE with its trailing "o" replaced by "d"
+# (plan01.inpo -> plan01.inpd, run03.o -> run03.d). For an output file not
+# ending in "o", fall back to swapping its extension for ".d".
+if [[ "$INFILE" == *o ]]; then
+    MDATA="${INFILE%o}d"
+else
+    MDATA="${INFILE%.*}.d"
+fi
 
 mkdir -p "$OUTDIR"
 WORKDIR=$(mktemp -d)
@@ -258,7 +267,7 @@ if [[ -f "$MDATA" ]]; then
     run_step "2D mesh parsing (xy_map.dat / xz_map.dat)" parse_mdata.py \
         "$MDATA" --outdir "$OUTDIR"
 else
-    echo "warning: no companion mesh dump file found at '$MDATA' (expected: same basename as '$INFILE' with extension .d) - skipping 2D mesh parsing" >&2
+    echo "warning: no companion mesh dump file found at '$MDATA' (expected: '$INFILE' with its trailing 'o' replaced by 'd') - skipping 2D mesh parsing" >&2
 fi
 
 # Step 6: render PNGs from the 2D maps (filenames must contain "XY"/"XZ" -
