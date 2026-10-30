@@ -1,6 +1,6 @@
 # MCNP Postprocessing
 
-This directory's results are produced from a raw MCNP output (`.o`) file by
+This directory's results are produced from a raw MCNP output (`.inpo`, or `.o` for older runs) file by
 a single orchestrator script, `extract_tallies.sh`, which in turn calls five
 standalone Python scripts that must live alongside it. Nothing is embedded
 inline anymore — each step is its own file so the pipeline stays readable
@@ -29,21 +29,27 @@ All six files must be kept together in the same directory:
 
 `output_dir` defaults to `./extracted_tallies`.
 
-**Naming convention for the 2D mesh dump:** the companion TMESH dump file
-must share the basename of the MCNP output file, with extension `.d`
-instead of whatever the output file's extension is. For example:
+**Naming convention for the 2D mesh dump:** MCNP names its outputs by
+appending a letter to the input file name (`o` for the output, `d` for the
+TMESH mesh dump). The script finds the mesh dump by replacing the trailing
+`o` of the output file name with `d`. For the inputs in `data/mcnp/input/`
+(`<name>.inp`):
 
 ```
-run03.o   ->  MCNP output you pass as the argument
-run03.d   ->  companion TMESH mesh dump, found automatically
+plan03_ramp_full_field02.inp    ->  MCNP input
+plan03_ramp_full_field02.inpo   ->  MCNP output you pass as the argument
+plan03_ramp_full_field02.inpd   ->  companion TMESH mesh dump, found automatically
 ```
 
-If no matching `.d` file is found, the script skips the 2D-map steps with a
+Older runs from inputs named `<name>.` (e.g. `run03.o` / `run03.d`) work the
+same way.
+
+If no matching mesh dump is found, the script skips the 2D-map steps with a
 warning rather than failing.
 
 Example:
 ```bash
-./extract_tallies.sh path/to/run03.o data/mcnp/results/plan03_field02_geoA_rampFull
+./extract_tallies.sh path/to/plan03_ramp_full_field02.inpo data/mcnp/results/plan03_field02_geoA_rampFull
 ```
 
 ## What gets produced
